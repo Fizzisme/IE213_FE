@@ -1,1 +1,10 @@
+/* 1. Google Fonts PHẢI đứng đầu tiên */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* 2. Tailwind sau */
 @import "tailwindcss";
+
+/* 3. Theme config sau cùng */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
