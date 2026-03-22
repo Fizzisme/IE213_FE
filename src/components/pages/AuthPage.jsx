@@ -206,21 +206,7 @@ export default function AuthPage() {
                 navigate('/admin-dashboard', { state: { user: decoded, loginMethod } });
             } else {
                 // TRƯỜNG HỢP LÀ PATIENT: Check hồ sơ trước khi vào dashboard
-                try {
-                    // Gọi API kiểm tra hồ sơ (Bạn nhớ bảo bạn Backend làm API này)
-                    const res = await api.get('/auth/check-profile');
-
-                    if (res.data.isProfileCompleted) {
-                        // Đã có hồ sơ -> Vào Dashboard
-                        navigate('/patient-dashboard', { state: { user: decoded, loginMethod } });
-                    } else {
-                        // Chưa có -> Bắt điền form
-                        navigate('/create-patient', { state: { user: decoded, loginMethod } });
-                    }
-                } catch (error) {
-                    // Nếu lỗi API (404/500), mặc định cho vào trang điền hồ sơ
-                    navigate('/create-patient', { state: { user: decoded, loginMethod } });
-                }
+                navigate('/demo-dashboard', { state: { user: decoded, loginMethod } });
             }
         } catch (err) {
             console.error('Token decode error:', err);

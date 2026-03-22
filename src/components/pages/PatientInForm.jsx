@@ -16,7 +16,7 @@ export default function PatientInfoForm() {
         dob: parseInt(data.dob),
       };
 
-      await api.post('/auth/create_patient', payload);
+      await api.post('/patients', payload);
       alert("Hồ sơ đã được lưu thành công!");
       navigate('/demo-dashboard');
     } catch (error) {
@@ -29,7 +29,7 @@ export default function PatientInfoForm() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-[40%_60%]">
-          {/* Left Column - Blue Background */}
+          {/* Cột trái - Nền xanh */}
           <div className="bg-[#3B82F6] p-10 flex flex-col justify-between text-white">
             {/* Logo */}
             <div className="flex items-center gap-2">
@@ -39,47 +39,47 @@ export default function PatientInfoForm() {
               <span className="text-xl font-semibold">HealthHub</span>
             </div>
 
-            {/* Center Image */}
+            {/* Hình ảnh giữa */}
             <div className="my-8">
               <img
                 src="https://images.unsplash.com/photo-1758691462814-485c3672e447?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpY2FsJTIwZm9ybSUyMHBhdGllbnQlMjByZWNvcmRzfGVufDF8fHx8MTc3MzQxNjA4N3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Patient Records"
+                alt="Hồ sơ bệnh nhân"
                 className="w-full h-auto object-contain"
               />
             </div>
 
-            {/* Bottom Content */}
+            {/* Nội dung phía dưới */}
             <div>
-              <h2 className="text-2xl font-bold mb-4">Complete your patient profile</h2>
+              <h2 className="text-2xl font-bold mb-4">Hoàn thiện hồ sơ bệnh nhân</h2>
               <p className="opacity-80 mb-8">
-                Secure your medical records with us. Your information is encrypted and protected under
-                healthcare privacy regulations for your safety and confidentiality.
+                Lưu trữ hồ sơ y tế của bạn một cách an toàn. Thông tin của bạn được mã hóa và bảo vệ
+                theo các quy định về bảo mật y tế để đảm bảo sự an toàn và riêng tư.
               </p>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Shield className="w-5 h-5" />
-                  <span className="text-sm">HIPAA Compliant</span>
+                  <span className="text-sm">Tuân thủ HIPAA</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5" />
-                  <span className="text-sm">Encrypted Records</span>
+                  <span className="text-sm">Hồ sơ được mã hóa</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Form */}
+          {/* Cột phải - Form */}
           <div className="p-12">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-black mb-2">Patient Information</h1>
-              <p className="text-gray-500">Please fill in your details to create your medical profile</p>
+              <h1 className="text-3xl font-bold text-black mb-2">Thông tin bệnh nhân</h1>
+              <p className="text-gray-500">Vui lòng điền thông tin để tạo hồ sơ y tế của bạn</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Full Name */}
+              {/* Họ và tên */}
               <div>
-                <label className="block text-sm font-bold text-black mb-2">Full Name</label>
+                <label className="block text-sm font-bold text-black mb-2">Họ và tên</label>
                 <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.fullName ? 'border-red-400' : 'border-gray-300'}`}>
                   <div className="flex items-center px-3 py-2.5">
                     <User className="w-5 h-5 text-gray-400" />
@@ -92,12 +92,12 @@ export default function PatientInfoForm() {
                     {...register("fullName", { required: true, minLength: 2 })}
                   />
                 </div>
-                {errors.fullName && <span className="text-red-500 text-xs mt-1 block">Tối thiểu 2 ký tự</span>}
+                {errors.fullName && <span className="text-red-500 text-xs mt-1 block">Họ tên tối thiểu 2 ký tự</span>}
               </div>
 
-              {/* Phone Number */}
+              {/* Số điện thoại */}
               <div>
-                <label className="block text-sm font-bold text-black mb-2">Phone Number</label>
+                <label className="block text-sm font-bold text-black mb-2">Số điện thoại</label>
                 <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.phoneNumber ? 'border-red-400' : 'border-gray-300'}`}>
                   <div className="flex items-center px-3 py-2.5">
                     <Phone className="w-5 h-5 text-gray-400" />
@@ -116,11 +116,11 @@ export default function PatientInfoForm() {
                 {errors.phoneNumber && <span className="text-red-500 text-xs mt-1 block">Số điện thoại không hợp lệ</span>}
               </div>
 
-              {/* Gender & Year of Birth */}
+              {/* Giới tính & Năm sinh */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Gender */}
+                {/* Giới tính */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-2">Gender</label>
+                  <label className="block text-sm font-bold text-black mb-2">Giới tính</label>
                   <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
                     <div className="flex items-center px-3 py-2.5">
                       <Users className="w-5 h-5 text-gray-400" />
@@ -130,15 +130,15 @@ export default function PatientInfoForm() {
                       className="flex-1 px-3 py-2.5 outline-none bg-white"
                       {...register("gender")}
                     >
-                      <option value="M">Male</option>
-                      <option value="F">Female</option>
+                      <option value="M">Nam</option>
+                      <option value="F">Nữ</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Year of Birth */}
+                {/* Năm sinh */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-2">Year of Birth</label>
+                  <label className="block text-sm font-bold text-black mb-2">Năm sinh</label>
                   <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.dob ? 'border-red-400' : 'border-gray-300'}`}>
                     <div className="flex items-center px-3 py-2.5">
                       <Calendar className="w-5 h-5 text-gray-400" />
@@ -151,36 +151,36 @@ export default function PatientInfoForm() {
                       {...register("dob", { required: true, min: 1900, max: 2024 })}
                     />
                   </div>
-                  {errors.dob && <span className="text-red-500 text-xs mt-1 block">Vui lòng nhập năm sinh</span>}
+                  {errors.dob && <span className="text-red-500 text-xs mt-1 block">Vui lòng nhập năm sinh hợp lệ</span>}
                 </div>
               </div>
 
-              {/* Privacy Notice */}
+              {/* Thông báo bảo mật */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex gap-3">
                   <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-gray-600">
-                    Your personal information is protected and will only be used for healthcare purposes.
-                    We comply with all healthcare privacy regulations.
+                    Thông tin cá nhân của bạn được bảo vệ và chỉ sử dụng cho mục đích chăm sóc sức khỏe.
+                    Chúng tôi tuân thủ đầy đủ các quy định về bảo mật thông tin y tế.
                   </p>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Nút gửi */}
               <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
               >
-                Save Patient Profile
+                Lưu hồ sơ bệnh nhân
               </button>
 
-              {/* Footer Link */}
+              {/* Link phía dưới
               <div className="text-center text-sm">
-                <span className="text-gray-600">Already have a profile? </span>
+                <span className="text-gray-600">Đã có hồ sơ? </span>
                 <a href="#" className="text-emerald-500 font-semibold hover:underline">
-                  Go to Login
+                  Đăng nhập ngay
                 </a>
-              </div>
+              </div> */}
             </form>
           </div>
         </div>
