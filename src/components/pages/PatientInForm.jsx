@@ -174,13 +174,13 @@ export default function PatientInfoForm() {
                 Lưu hồ sơ bệnh nhân
               </button>
 
-              {/* Link phía dưới */}
+              {/* Link phía dưới
               <div className="text-center text-sm">
                 <span className="text-gray-600">Đã có hồ sơ? </span>
                 <a href="#" className="text-emerald-500 font-semibold hover:underline">
                   Đăng nhập ngay
                 </a>
-              </div>
+              </div> */}
             </form>
           </div>
         </div>
