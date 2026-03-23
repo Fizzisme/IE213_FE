@@ -224,7 +224,15 @@ export default function AuthPage() {
                     password: formData.password,
                 });
                 const accessToken = res.data.data?.accessToken || res.data.accessToken;
-                console.log('✅ Login success:', { accessToken, decoded: jwtDecode(accessToken) });
+
+                // ✅ Ưu tiên lấy từ decoded token, fallback về response body
+                const decoded = jwtDecode(accessToken);
+                const hasProfile = decoded.hasProfile ?? res.data.data?.hasProfile ?? false;
+                localStorage.setItem('hasProfile', JSON.stringify(hasProfile));
+                setTimeout(() => handleNavigationByToken(accessToken, 'local'), 900);
+                console.log(hasProfile);
+                console.log('✅ Login success:', { accessToken, decoded, hasProfile });
+                console.log(res);
                 setLoginBtn('success');
                 // Truyền loginMethod='local' để dashboard biết user đăng nhập bằng Nation ID
                 setTimeout(() => handleNavigationByToken(accessToken, 'local'), 900);
@@ -258,7 +266,9 @@ export default function AuthPage() {
             const signature = await signer.signMessage(nonce);
             const phase2 = await api.post('/auth/login/wallet', { walletAddress, signature });
             const accessToken = phase2.data.data?.accessToken || phase2.data.accessToken;
-
+            const hasProfile = phase2.data.data?.hasProfile ?? phase2.data.hasProfile ?? false;
+            localStorage.setItem('hasProfile', JSON.stringify(hasProfile));
+            console.log(hasProfile);
             console.log('✅ MetaMask login success:', { walletAddress, decoded: jwtDecode(accessToken) });
             setMetamaskBtn('success');
             // Truyền loginMethod='metamask' để dashboard biết user đăng nhập bằng ví
@@ -271,7 +281,6 @@ export default function AuthPage() {
         }
     };
 
-    const slide = SLIDES[activeSlide];
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-6 font-sans">
