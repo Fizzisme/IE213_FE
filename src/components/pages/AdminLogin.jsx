@@ -18,7 +18,7 @@ function Field({ icon: Icon, ...props }) {
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ nationId: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -97,10 +97,10 @@ export default function AdminLogin() {
             <form onSubmit={onSubmit} className="space-y-4">
               <Field
                 icon={Mail}
-                type="email"
-                name="email"
-                placeholder="admin@healthhub.com"
-                value={form.email}
+                type="text"
+                name="nationId"
+                placeholder="Nhập CCCD/CMND admin"
+                value={form.nationId}
                 onChange={onChange}
                 required
               />
@@ -129,13 +129,6 @@ export default function AdminLogin() {
                 {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
               </button>
 
-              <button
-                type="button"
-                onClick={() => navigate("/admin-register?invite=secret-invite-12345")}
-                className="inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-slate-700 transition-all duration-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-              >
-                Đăng ký bằng link mời
-              </button>
             </form>
 
             <div className="mt-8 border-t border-slate-200 pt-5 text-center">
