@@ -5,15 +5,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
+let isAuthenticated = false; // hoặc lấy từ state
+
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-      window.location.href = '/auth';
+  res => res,
+  err => {
+    if (err.response?.status === 401 && isAuthenticated) {
+      alert("Phiên đăng nhập đã hết hạn");
     }
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
-
 export default api;
