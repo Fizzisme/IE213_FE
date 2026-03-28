@@ -13,6 +13,7 @@ import {
     TrendingUp,
     User,
     Wallet,
+    Check,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 // ── Dữ liệu giả cho demo ─────────────────────────────────────────────────────
@@ -44,6 +45,8 @@ const ACTIVITY = [
 // }
 
 export default function Demodashboard() {
+    const hasProfile = JSON.parse(localStorage.getItem('hasProfile')) ?? false;
+    console.log(hasProfile);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -116,37 +119,60 @@ export default function Demodashboard() {
                     <div style={{ width: 1, height: 24, background: '#E2E8F0' }} />
 
                     {/* ── Button Tạo hồ sơ ── */}
-                    <button
-                        onClick={() => navigate('/create-patient')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            background: '#EFF6FF',
-                            border: '1px solid #BFDBFE',
-                            borderRadius: 8,
-                            padding: '6px 14px',
-                            cursor: 'pointer',
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: '#2563EB',
-                            transition: 'all 0.2s',
-                            whiteSpace: 'nowrap',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#3B82F6';
-                            e.currentTarget.style.color = 'white';
-                            e.currentTarget.style.borderColor = '#3B82F6';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#EFF6FF';
-                            e.currentTarget.style.color = '#2563EB';
-                            e.currentTarget.style.borderColor = '#BFDBFE';
-                        }}
-                    >
-                        <User style={{ width: 14, height: 14 }} />
-                        Tạo hồ sơ bệnh nhân
-                    </button>
+                    {hasProfile ? (
+                        // ── Đã có hồ sơ ──
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                background: '#F0FDF4',
+                                border: '1px solid #BBF7D0',
+                                borderRadius: 8,
+                                padding: '6px 14px',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: '#16A34A',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            <Check style={{ width: 14, height: 14 }} />
+                            Đã có hồ sơ
+                        </div>
+                    ) : (
+                        // ── Chưa có hồ sơ ──
+                        <button
+                            onClick={() => navigate('/create-patient')}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                background: '#EFF6FF',
+                                border: '1px solid #BFDBFE',
+                                borderRadius: 8,
+                                padding: '6px 14px',
+                                cursor: 'pointer',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: '#2563EB',
+                                transition: 'all 0.2s',
+                                whiteSpace: 'nowrap',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#3B82F6';
+                                e.currentTarget.style.color = 'white';
+                                e.currentTarget.style.borderColor = '#3B82F6';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '#EFF6FF';
+                                e.currentTarget.style.color = '#2563EB';
+                                e.currentTarget.style.borderColor = '#BFDBFE';
+                            }}
+                        >
+                            <User style={{ width: 14, height: 14 }} />
+                            Tạo hồ sơ bệnh nhân
+                        </button>
+                    )}
                 </div>
 
                 {/* Search */}
