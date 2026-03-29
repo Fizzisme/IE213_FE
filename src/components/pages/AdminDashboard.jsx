@@ -4,6 +4,8 @@ import {
   approveUser,
   deleteUser,
   getAdminUsers,
+  rejectUser,
+  reReviewUser,
 } from "../../services/adminApi";
 import { clearAccessToken } from "../../utils/auth";
 import {
@@ -23,9 +25,12 @@ import {
 
 const STATUS_COLORS = {
   pending: "bg-amber-100 text-amber-700 border-amber-200",
-  approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  blocked: "bg-rose-100 text-rose-700 border-rose-200",
+  active: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  rejected: "bg-rose-100 text-rose-700 border-rose-200",
+  inactive: "bg-slate-200 text-slate-700 border-slate-300",
 };
+
+const normalizeStatus = (status) => String(status || "").toLowerCase();
 
 function StatCard({ icon: Icon, title, value, hint, color = "indigo" }) {
   const palette = {
@@ -145,7 +150,7 @@ export default function AdminDashboard() {
       const matchKeyword =
         u.fullName?.toLowerCase().includes(keyword.toLowerCase()) ||
         u.email?.toLowerCase().includes(keyword.toLowerCase());
-      const matchStatus = statusFilter === "all" ? true : u.status === statusFilter;
+      const matchStatus = statusFilter === "all" ? true : normalizeStatus(u.status) === statusFilter;
       return matchKeyword && matchStatus;
     });
   }, [users, keyword, statusFilter]);
@@ -156,6 +161,30 @@ export default function AdminDashboard() {
       await loadUsers();
     } catch (err) {
       alert(err?.message || "Duyệt user thất bại");
+    }
+  };
+
+  const onReject = async (userId) => {
+    const reason = window.prompt("Nhập lý do từ chối user:");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert("Lý do từ chối không được để trống");
+      return;
+    }
+    try {
+      await rejectUser(userId, reason.trim());
+      await loadUsers();
+    } catch (err) {
+      alert(err?.message || "Từ chối user thất bại");
+    }
+  };
+
+  const onReReview = async (userId) => {
+    try {
+      await reReviewUser(userId);
+      await loadUsers();
+    } catch (err) {
+      alert(err?.message || "Phục hồi xét duyệt user thất bại");
     }
   };
 
@@ -175,9 +204,18 @@ export default function AdminDashboard() {
     navigate("/admin-login");
   };
 
-  const pendingCount = users.filter((u) => u.status === "pending").length;
-  const approvedCount = users.filter((u) => u.status === "approved").length;
-  const blockedCount = users.filter((u) => u.status === "blocked").length;
+  const getUserId = (user) => user?._id || user?.id;
+
+  const onUserRowClick = (user) => {
+    const userId = getUserId(user);
+    if (!userId) return;
+    navigate(`/admin/users/${userId}`, { state: { user } });
+  };
+
+  const pendingCount = users.filter((u) => normalizeStatus(u.status) === "pending").length;
+  const activeCount = users.filter((u) => normalizeStatus(u.status) === "active").length;
+  const rejectedCount = users.filter((u) => normalizeStatus(u.status) === "rejected").length;
+  const inactiveCount = users.filter((u) => normalizeStatus(u.status) === "inactive").length;
 
   const roleMap = users.reduce((acc, u) => {
     acc[u.role] = (acc[u.role] || 0) + 1;
@@ -186,8 +224,9 @@ export default function AdminDashboard() {
 
   const statusChartData = [
     { label: "Pending", value: pendingCount, barClass: "bg-amber-500" },
-    { label: "Approved", value: approvedCount, barClass: "bg-emerald-500" },
-    { label: "Blocked", value: blockedCount, barClass: "bg-rose-500" },
+    { label: "Active", value: activeCount, barClass: "bg-emerald-500" },
+    { label: "Rejected", value: rejectedCount, barClass: "bg-rose-500" },
+    { label: "Inactive", value: inactiveCount, barClass: "bg-slate-500" },
   ];
 
   const roleChartData = [
@@ -245,16 +284,16 @@ export default function AdminDashboard() {
           />
           <StatCard
             icon={UserCheck}
-            title="Đã duyệt"
-            value={approvedCount}
-            hint="Tài khoản hoạt động"
+            title="Đang hoạt động"
+            value={activeCount}
+            hint="Tài khoản ACTIVE"
             color="emerald"
           />
           <StatCard
             icon={Ban}
-            title="Bị khóa"
-            value={blockedCount}
-            hint="Đang hạn chế"
+            title="Đã từ chối"
+            value={rejectedCount}
+            hint="Tài khoản REJECTED"
             color="rose"
           />
         </section>
@@ -288,8 +327,9 @@ export default function AdminDashboard() {
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="blocked">Blocked</option>
+                <option value="active">Active</option>
+                <option value="rejected">Rejected</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
@@ -310,7 +350,8 @@ export default function AdminDashboard() {
               <div className="max-h-[400px] overflow-y-auto divide-y divide-slate-100 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
                 {filteredUsers.map((u) => (
                   <div
-                    key={u.id}
+                    key={getUserId(u)}
+                    onClick={() => onUserRowClick(u)}
                     className="grid cursor-pointer grid-cols-1 gap-2 px-4 py-4 transition-all hover:bg-indigo-50/40 md:grid-cols-[1.4fr_1.5fr_.7fr_.8fr_1fr] md:items-center"
                   >
                     <div className="font-semibold text-slate-800">{u.fullName}</div>
@@ -319,7 +360,7 @@ export default function AdminDashboard() {
                     <div>
                       <span
                         className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
-                          STATUS_COLORS[u.status] || "bg-slate-100 text-slate-700 border-slate-200"
+                          STATUS_COLORS[normalizeStatus(u.status)] || "bg-slate-100 text-slate-700 border-slate-200"
                         }`}
                       >
                         {u.status}
@@ -327,15 +368,41 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        disabled={u.status !== "pending"}
-                        onClick={() => onApprove(u.id)}
+                        disabled={normalizeStatus(u.status) !== "pending"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onApprove(getUserId(u));
+                        }}
                         className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Duyệt
                       </button>
                       <button
-                        onClick={() => onDelete(u.id)}
+                        disabled={normalizeStatus(u.status) !== "pending"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReject(getUserId(u));
+                        }}
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Từ chối
+                      </button>
+                      <button
+                        disabled={normalizeStatus(u.status) !== "rejected"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReReview(getUserId(u));
+                        }}
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Re-review
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(getUserId(u));
+                        }}
                         className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-rose-500 px-3 py-2 text-xs font-semibold text-white transition-all hover:bg-rose-600"
                       >
                         <Trash2 className="h-4 w-4" />
