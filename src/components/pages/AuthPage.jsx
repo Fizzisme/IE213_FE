@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import api from '../../utils/api';
-import { jwtDecode } from 'jwt-decode';
+// XÓA: import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../../contexts/AuthContext'; // Import hook vừa tạo
 import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
 
 // ── Carousel slides data ──────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const SLIDES = [
 ];
 
 // ── Reusable InputField — PHẢI đặt NGOÀI AuthPage ────────────────────────────
-const InputField = ({ label, icon: Icon, type, name, placeholder, value, onChange, ...props }) => (
+const InputField = ({ label, type, icon: Icon, name, placeholder, value, onChange, ...props }) => (
     <div>
         <label className="block text-sm font-bold text-black mb-2">{label}</label>
         <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 bg-white">
@@ -149,7 +150,7 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
 
 export default function AuthPage() {
     const navigate = useNavigate();
-
+    const { login, loginMetaMask } = useAuth();
     // Auth state
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
@@ -157,17 +158,11 @@ export default function AuthPage() {
         nationId: '',
         password: '',
         phoneNumber: '',
-        fullName: '',
-        email: '',
-        gender: 'M',
-        dob: '',
     });
 
-    // Button animation state — separate for each button
-    const [loginBtn, setLoginBtn] = useState('idle'); // idle | loading | success
+    // Button animation state
+    const [loginBtn, setLoginBtn] = useState('idle');
     const [metamaskBtn, setMetamaskBtn] = useState('idle');
-
-    // Carousel state
     const [activeSlide, setActiveSlide] = useState(0);
 
     // Auto-advance carousel every 4s
@@ -180,64 +175,29 @@ export default function AuthPage() {
 
     const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    // ── Điều hướng sau khi đăng nhập thành công ──────────────────────────────
-    // Nhận accessToken + loginMethod để truyền state sang trang đích.
-    // loginMethod: 'local' (Nation ID) | 'metamask' (MetaMask wallet)
-    //
-    // Flow:
-    //   1. Decode JWT lấy role & thông tin user
-    //   2. Điều hướng đến trang demo dashboard (môi trường dev)
-    //      → Trong production, thay '/demo-dashboard' bằng route thật:
-    //        patient → '/patient-info'
-    //        doctor  → '/doctor-dashboard'
-    //        admin   → '/admin-dashboard'
-    //   3. Truyền { user, loginMethod } qua navigate state để trang đích hiển thị
-    const handleNavigationByToken = async (accessToken, loginMethod) => {
-        if (!accessToken) return;
-        try {
-            // 1. Decode JWT lấy thông tin cơ bản
-            const decoded = jwtDecode(accessToken);
-            const role = decoded?.role?.toLowerCase(); // 'patient', 'doctor', 'admin'
-
-            // 2. Xử lý điều hướng theo Role
-            if (role === 'doctor') {
-                navigate('/doctor-dashboard', { state: { user: decoded, loginMethod } });
-            } else if (role === 'admin') {
-                navigate('/admin-dashboard', { state: { user: decoded, loginMethod } });
-            } else {
-                // TRƯỜNG HỢP LÀ PATIENT: Check hồ sơ trước khi vào dashboard
-                navigate('/demo-dashboard', { state: { user: decoded, loginMethod } });
-            }
-        } catch (err) {
-            console.error('Token decode error:', err);
-            alert('Lỗi xác thực người dùng!');
-        }
+    const handleNavigationByUser = (user, loginMethod) => {
+        if (!user) return;
+        const role = user?.role?.toLowerCase();
+            navigate('/demo-dashboard', { state: { user, loginMethod } });
     };
-
     const handleTraditionalAuth = async (e) => {
         e.preventDefault();
         setLoginBtn('loading');
         try {
             if (isLoginMode) {
-                const res = await api.post('/auth/login/nationId', {
+                // GỌI LOGIN TỪ CONTEXT
+                const user = await login({
                     nationId: formData.nationId,
                     password: formData.password,
                 });
-                const accessToken = res.data.data?.accessToken || res.data.accessToken;
-
-                // ✅ Ưu tiên lấy từ decoded token, fallback về response body
-                const decoded = jwtDecode(accessToken);
-                const hasProfile = decoded.hasProfile ?? res.data.data?.hasProfile ?? false;
-                localStorage.setItem('hasProfile', JSON.stringify(hasProfile));
-                setTimeout(() => handleNavigationByToken(accessToken, 'local'), 900);
-                console.log(hasProfile);
-                console.log('✅ Login success:', { accessToken, decoded, hasProfile });
-                console.log(res);
-                setLoginBtn('success');
-                // Truyền loginMethod='local' để dashboard biết user đăng nhập bằng Nation ID
-                setTimeout(() => handleNavigationByToken(accessToken, 'local'), 900);
+                
+                if (user) {
+                    setLoginBtn('success');
+                    setTimeout(() => handleNavigationByUser(user, 'local'), 900);
+                }
             } else {
-                await api.post('/auth/register', { ...formData, dob: Number(formData.dob) });
+                // Đăng ký vẫn gọi api trực tiếp vì không liên quan set cookie
+                await api.post('/auth/register', formData);
                 setLoginBtn('success');
                 setTimeout(() => {
                     setLoginBtn('idle');
@@ -264,15 +224,14 @@ export default function AuthPage() {
             const phase1 = await api.post('/auth/login/wallet', { walletAddress });
             const nonce = phase1.data.data?.nonce || phase1.data.nonce;
             const signature = await signer.signMessage(nonce);
-            const phase2 = await api.post('/auth/login/wallet', { walletAddress, signature });
-            const accessToken = phase2.data.data?.accessToken || phase2.data.accessToken;
-            const hasProfile = phase2.data.data?.hasProfile ?? phase2.data.hasProfile ?? false;
-            localStorage.setItem('hasProfile', JSON.stringify(hasProfile));
-            console.log(hasProfile);
-            console.log('✅ MetaMask login success:', { walletAddress, decoded: jwtDecode(accessToken) });
-            setMetamaskBtn('success');
-            // Truyền loginMethod='metamask' để dashboard biết user đăng nhập bằng ví
-            setTimeout(() => handleNavigationByToken(accessToken, 'metamask'), 900);
+            
+            // GỌI LOGIN METAMASK TỪ CONTEXT
+            const user = await loginMetaMask(walletAddress, signature);
+            
+            if (user) {
+                setMetamaskBtn('success');
+                setTimeout(() => handleNavigationByUser(user, 'metamask'), 900);
+            }
         } catch (error) {
             console.error('❌ MetaMask error:', error);
             if (error.code === 'ACTION_REJECTED') alert('Đã từ chối ký xác nhận!');
@@ -280,7 +239,6 @@ export default function AuthPage() {
             setMetamaskBtn('idle');
         }
     };
-
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-6 font-sans">
