@@ -1,6 +1,6 @@
-import AuthPage from "./components/pages/AuthPage";
-import DemoDashboard from "./components/pages/DemoDashboard";
-import PatientInfoForm from "./components/pages/PatientInForm";
+import AuthPage from './components/pages/AuthPage';
+import DemoDashboard from './components/pages/DemoDashboard';
+import PatientInfoForm from './components/pages/PatientInForm';
 
 import AdminLogin from "./components/pages/AdminLogin";
 import AdminDashboard from "./components/pages/AdminDashboard";
@@ -10,15 +10,16 @@ import AdminRoute from "./components/guards/AdminRoute";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
-  return (
-    <Routes>
-      {/* Auth */}
-      <Route path="/" element={<AuthPage />} />
-      <Route path="/auth" element={<AuthPage />} />
+    return (
+        <AuthProvider>
+            <Routes>
+                {/* Auth */}
+                <Route path="/" element={<AuthPage />} />
+                <Route path="/auth" element={<AuthPage />} />
 
-      {/* User */}
-      <Route path="/demo-dashboard" element={<DemoDashboard />} />
-      <Route path="/create-patient" element={<PatientInfoForm />} />
+                {/* User */}
+                <Route path="/demo-dashboard" element={<DemoDashboard />} />
+                <Route path="/create-patient" element={<PatientInfoForm />} />
 
       {/* Admin */}
       <Route path="/admin-login" element={<AdminLogin />} />

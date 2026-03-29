@@ -15,7 +15,7 @@ import {
     Wallet,
     Check,
 } from 'lucide-react';
-
+import { useAuth } from '../../contexts/AuthContext';
 // ── Dữ liệu giả cho demo ─────────────────────────────────────────────────────
 const STATS = [
     { label: 'Lịch hẹn sắp tới', value: '3', delta: '+1 tuần này', icon: Calendar, color: '#3B82F6' },
@@ -38,25 +38,34 @@ const ACTIVITY = [
 ];
 
 // ── Helper: lấy thông tin user từ state điều hướng ───────────────────────────
-function useAuthState() {
-    const location = useLocation();
-    // AuthPage truyền { user, loginMethod } qua navigate state
-    return location.state || { user: null, loginMethod: 'unknown' };
-}
+// function useAuthState() {
+//     const location = useLocation();
+//     // AuthPage truyền { user, loginMethod } qua navigate state
+//     return location.state || { user: null, loginMethod: 'unknown' };
+// }
 
 export default function Demodashboard() {
     const hasProfile = JSON.parse(localStorage.getItem('hasProfile')) ?? false;
     console.log(hasProfile);
     const navigate = useNavigate();
-    const { user, loginMethod } = useAuthState();
-    // ── Logout handler ──────────────────────────────────────────────────────────
-    const handleLogout = () => {
-        // Xóa token khỏi memory/storage rồi về trang login
-        localStorage.clear();
+    const location = useLocation();
+
+    // 1. LẤY DATA TỪ CONTEXT THAY VÌ LOCATION STATE
+    const { user, logout } = useAuth();
+
+    // 2. KHAI BÁO BIẾN hasProfile ĐỂ TRÁNH LỖI CRASH APP
+    const hasProfile = user?.data.hasProfile ?? false;
+    // Giữ lại loginMethod từ location state (chỉ dùng để làm đẹp UI)
+    // Nếu F5 bị mất state thì mặc định fallback về 'local'
+    const loginMethod = location.state?.loginMethod || 'local';
+
+    // 3. SỬA LẠI HÀM LOGOUT GỌI API CLEAR COOKIE
+    const handleLogout = async () => {
+        await logout(); // Gọi hàm từ AuthContext
         navigate('/auth', { replace: true });
     };
 
-    // Tên hiển thị: ưu tiên fullName từ token, fallback về walletAddress rút gọn
+    // Tên hiển thị
     const displayName =
         user?.fullName ||
         user?.name ||
@@ -64,6 +73,11 @@ export default function Demodashboard() {
 
     const roleLabel = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : 'Bệnh nhân';
 
+    // (TÙY CHỌN BẢO VỆ ROUTE): Nếu chưa login mà ráng vào trang này thì đá ra
+    // Dù thường thì bạn nên làm một component <PrivateRoute> riêng bọc bên ngoài.
+    if (!user) {
+        return <div style={{ padding: 20, textAlign: 'center' }}>Vui lòng đăng nhập...</div>;
+    }
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'system-ui, sans-serif' }}>
             {/* ── NAVBAR ─────────────────────────────────────────────────────────── */}
