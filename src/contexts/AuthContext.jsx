@@ -34,13 +34,13 @@ export const AuthProvider = ({ children }) => {
         // Backend tự động set HTTP-only cookie vào trình duyệt sau lệnh này
         await api.post('/auth/login/nationId', credentials);
         // Cập nhật lại state user ngay lập tức
-        return await _fetchCurrentUser();
+        await _fetchCurrentUser();
     };
 
     // 3. Hàm Login MetaMask
     const loginMetaMask = async (walletAddress, signature) => {
         await api.post('/auth/login/wallet', { walletAddress, signature });
-        return await _fetchCurrentUser();
+        await _fetchCurrentUser();
     };
 
     // 4. Hàm Logout
