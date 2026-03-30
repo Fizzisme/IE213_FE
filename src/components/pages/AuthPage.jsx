@@ -175,10 +175,8 @@ export default function AuthPage() {
 
     const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleNavigationByUser = (user, loginMethod) => {
-        if (!user) return;
-        const role = user?.role?.toLowerCase();
-            navigate('/demo-dashboard', { state: { user, loginMethod } });
+    const handleNavigationByUser = (loginMethod) => {
+        navigate('/demo-dashboard', { state: { loginMethod } });
     };
     const handleTraditionalAuth = async (e) => {
         e.preventDefault();
@@ -190,11 +188,9 @@ export default function AuthPage() {
                     nationId: formData.nationId,
                     password: formData.password,
                 });
-                
-                if (user) {
-                    setLoginBtn('success');
-                    setTimeout(() => handleNavigationByUser(user, 'local'), 900);
-                }
+
+                setLoginBtn('success');
+                setTimeout(() => handleNavigationByUser('local'), 900);
             } else {
                 // Đăng ký vẫn gọi api trực tiếp vì không liên quan set cookie
                 await api.post('/auth/register', formData);
@@ -224,14 +220,12 @@ export default function AuthPage() {
             const phase1 = await api.post('/auth/login/wallet', { walletAddress });
             const nonce = phase1.data.data?.nonce || phase1.data.nonce;
             const signature = await signer.signMessage(nonce);
-            
+
             // GỌI LOGIN METAMASK TỪ CONTEXT
             const user = await loginMetaMask(walletAddress, signature);
-            
-            if (user) {
-                setMetamaskBtn('success');
-                setTimeout(() => handleNavigationByUser(user, 'metamask'), 900);
-            }
+
+            setMetamaskBtn('success');
+            setTimeout(() => handleNavigationByUser('metamask'), 900);
         } catch (error) {
             console.error('❌ MetaMask error:', error);
             if (error.code === 'ACTION_REJECTED') alert('Đã từ chối ký xác nhận!');
