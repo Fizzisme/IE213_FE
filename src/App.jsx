@@ -9,6 +9,7 @@ import AdminRoute from './components/guards/AdminRoute';
 
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import LabTechPage from './components/pages/LabTechPage/LabTechPage.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -39,6 +40,8 @@ function App() {
                         </AdminRoute>
                     }
                 />
+
+                <Route path="/lab-tech" element={<LabTechPage />} />
             </Routes>
         </AuthProvider>
     );
