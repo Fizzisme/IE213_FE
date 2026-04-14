@@ -1,81 +1,153 @@
-// src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../utils/api';
 
 export const AuthContext = createContext();
 
-// Custom hook để gọi cho lẹ ở các trang khác
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [patient, setPatient] = useState(null);
     const [user, setUser] = useState(null);
-    // 1. Hỏi server "Tôi là ai?" dựa vào cookie trình duyệt tự gửi
+    const [error, setError] = useState(null);
+
     const _fetchCurrentUser = async () => {
         try {
             const res = await api.get('/auth/me');
             const userData = res.data.data || res.data;
             setUser(userData);
-        } catch {
-            // 404 → chưa có hồ sơ → bình thường, không phải lỗi
-            setPatient(null);
+            setError(null);
+            return userData;
+        } catch (err) {
+            console.error('Error fetching user:', err);
+            setUser(null);
+            setError(err.message);
+            return null;
         }
     };
+
     const _fetchCurrentPatient = async () => {
         try {
-            // Cookie tự gửi lên → server biết là ai → query Patient theo userId
             const res = await api.get('/patients/me');
             const patientData = res.data.data || res.data;
             setPatient(patientData);
-        } catch {
-            // 404 → chưa có hồ sơ → bình thường, không phải lỗi
+            setError(null);
+            return patientData;
+        } catch (err) {
+            console.error('Error fetching patient:', err);
             setPatient(null);
-        } finally {
-            setLoading(false);
+            return null;
         }
     };
 
     useEffect(() => {
-        _fetchCurrentPatient();
-        _fetchCurrentUser();
+        const initAuth = async () => {
+            try {
+                const userData = await _fetchCurrentUser();
+                if (userData?.role === 'PATIENT') {
+                    await _fetchCurrentPatient();
+                }
+            } catch (err) {
+                console.error('Auth initialization error:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initAuth();
     }, []);
 
-    // 2. Hàm Login: Trả về user data để AuthPage điều hướng
+    // ✅ FIX: Login phải chờ xong tất cả
     const login = async (credentials) => {
-        // Backend tự động set HTTP-only cookie vào trình duyệt sau lệnh này
-        const res = await api.post('/auth/login/nationId', credentials);
-        setUser(res);
-        console.log(res);
-        // Cập nhật lại state user ngay lập tức
-        await _fetchCurrentPatient();
-        await _fetchCurrentUser();
+        try {
+            const res = await api.post('/auth/login/nationId', credentials);
+            const userData = res?.data?.data;
+
+            if (!userData) {
+                throw new Error('No user data returned from login');
+            }
+
+            // ✅ Set user state
+            setUser(userData);
+            setError(null);
+
+            // ✅ Fetch patient nếu là PATIENT
+            if (userData?.role === 'PATIENT') {
+                await _fetchCurrentPatient();
+            }
+
+            console.log('✅ Login success:', userData);
+            return userData;
+        } catch (err) {
+            console.error('❌ Login error:', err);
+            setUser(null);
+            setPatient(null);
+            setError(err.message || 'Login failed');
+            throw err;
+        }
     };
 
-    // 3. Hàm Login MetaMask
+    // ✅ FIX: MetaMask login cũng phải chờ xong
     const loginMetaMask = async (walletAddress, signature) => {
-        const res = await api.post('/auth/login/wallet', { walletAddress, signature });
-        setUser(res);
-        console.log(res);
-        await _fetchCurrentPatient();
-        await _fetchCurrentUser();
+        try {
+            const res = await api.post('/auth/login/wallet', { walletAddress, signature });
+            const userData = res?.data?.data;
+
+            if (!userData) {
+                throw new Error('No user data returned from MetaMask login');
+            }
+
+            setUser(userData);
+            setError(null);
+
+            if (userData?.role === 'PATIENT') {
+                await _fetchCurrentPatient();
+            }
+
+            console.log('✅ MetaMask login success:', userData);
+            return userData;
+        } catch (err) {
+            console.error('❌ MetaMask login error:', err);
+            setUser(null);
+            setPatient(null);
+            setError(err.message || 'MetaMask login failed');
+            throw err;
+        }
     };
 
-    // 4. Hàm Logout
     const logout = async () => {
         try {
             await api.delete('/auth/logout');
         } catch (error) {
-            console.error('Lỗi đăng xuất', error);
+            console.error('Logout error:', error);
+        } finally {
+            setUser(null);
+            setPatient(null);
+            setError(null);
         }
     };
 
-    // 5. Hàm Refresh (Dùng khi tạo hồ sơ xong)
-    const refreshUser = () => _fetchCurrentPatient();
-    console.log(user);
+    const refreshUser = async () => {
+        const userData = await _fetchCurrentUser();
+        if (userData?.role === 'PATIENT') {
+            await _fetchCurrentPatient();
+        }
+        return userData;
+    };
+
     return (
-        <AuthContext.Provider value={{ user, patient, login, loginMetaMask, logout, refreshUser, loading }}>
-            {/* Ẩn toàn bộ app khi đang check cookie lần đầu để tránh nháy UI */}
+        <AuthContext.Provider
+            value={{
+                user,
+                patient,
+                login,
+                loginMetaMask,
+                logout,
+                refreshUser,
+                loading,
+                error,
+            }}
+        >
             {!loading && children}
         </AuthContext.Provider>
     );
