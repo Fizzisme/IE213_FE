@@ -184,7 +184,7 @@ export default function AuthPage() {
         try {
             if (isLoginMode) {
                 // GỌI LOGIN TỪ CONTEXT
-                const user = await login({
+                await login({
                     nationId: formData.nationId,
                     password: formData.password,
                 });
@@ -222,7 +222,7 @@ export default function AuthPage() {
             const signature = await signer.signMessage(nonce);
 
             // GỌI LOGIN METAMASK TỪ CONTEXT
-            const user = await loginMetaMask(walletAddress, signature);
+            await loginMetaMask(walletAddress, signature);
 
             setMetamaskBtn('success');
             setTimeout(() => handleNavigationByUser('metamask'), 900);
