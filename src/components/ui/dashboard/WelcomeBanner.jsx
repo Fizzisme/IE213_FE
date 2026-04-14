@@ -37,10 +37,10 @@ export default function WelcomeBanner({ displayName, roleLabel, loginMethod }) {
                 }}
             />
             <div>
-                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, marginBottom: 4 }}>Welcome back 👋</p>
+                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, marginBottom: 4 }}>Chào mừng trở lại 👋</p>
                 <h1 style={{ color: 'white', fontSize: 26, fontWeight: 700, margin: 0 }}>{displayName}</h1>
                 <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 6 }}>
-                    Signed in via&nbsp;
+                    Đăng nhập bằng&nbsp;
                     <strong style={{ color: 'white' }}>
                         {loginMethod === 'metamask' ? 'Ví MetaMask' : 'CCCD/CMND'}
                     </strong>
@@ -58,7 +58,7 @@ export default function WelcomeBanner({ displayName, roleLabel, loginMethod }) {
                 >
                     <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>Hôm nay</div>
                     <div style={{ color: 'white', fontWeight: 700, fontSize: 18 }}>
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                        {new Date().toLocaleDateString('vi-VN', { weekday: 'long', month: 'long', day: 'numeric' })}
                     </div>
                 </div>
             </div>

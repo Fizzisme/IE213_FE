@@ -5,7 +5,6 @@ import api from '../../utils/api';
 // XÓA: import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../contexts/AuthContext'; // Import hook vừa tạo
 import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
-
 // ── Carousel slides data ──────────────────────────────────────────────────────
 const SLIDES = [
     {
@@ -33,7 +32,6 @@ const SLIDES = [
         img: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&q=80',
     },
 ];
-
 // ── Reusable InputField — PHẢI đặt NGOÀI AuthPage ────────────────────────────
 const InputField = ({ label, type, icon: Icon, name, placeholder, value, onChange, ...props }) => (
     <div>
@@ -55,7 +53,6 @@ const InputField = ({ label, type, icon: Icon, name, placeholder, value, onChang
         </div>
     </div>
 );
-
 // ── Button states ─────────────────────────────────────────────────────────────
 // idle → loading → success
 function AnimatedButton({ onClick, loading, success, children, fullWidth = false, type = 'button', align }) {
@@ -109,7 +106,6 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
                 >
                     {children}
                 </span>
-
                 {/* Spinner — hiện khi loading */}
                 <span
                     style={{
@@ -141,13 +137,12 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
                 </span>
 
                 <style>{`
-          @keyframes btnSpin { to { transform: rotate(360deg); } }
-        `}</style>
+      @keyframes btnSpin { to { transform: rotate(360deg); } }
+    `}</style>
             </button>
         </div>
     );
 }
-
 export default function AuthPage() {
     const navigate = useNavigate();
     const { login, loginMetaMask } = useAuth();
@@ -159,7 +154,6 @@ export default function AuthPage() {
         password: '',
         phoneNumber: '',
     });
-
     // Button animation state
     const [loginBtn, setLoginBtn] = useState('idle');
     const [metamaskBtn, setMetamaskBtn] = useState('idle');

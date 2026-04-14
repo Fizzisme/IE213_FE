@@ -12,6 +12,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import LabTechPage from './components/pages/LabTechPage/LabTechPage.jsx';
 import LabTechLayout from '@/components/pages/LabTechPage/LabTechLayout.jsx';
 import LabTechNotification from '@/components/pages/LabTechNotification/LabTechNotification.jsx';
+import { RoleProtectedRoute } from './components/guards/RoleProtectedRoute.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -21,9 +22,16 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
 
                 {/* User */}
-                <Route path="/demo-dashboard" element={<DemoDashboard />} />
-                <Route path="/create-patient" element={<PatientInfoForm />} />
-
+                <Route
+                    path="/demo-dashboard"
+                    element={
+                        <RoleProtectedRoute allowedRoles={['PATIENT']}>
+                            <DemoDashboard />
+                        </RoleProtectedRoute>
+                    }
+                >
+                    <Route path="create-patient" element={<PatientInfoForm />} />
+                </Route>
                 {/* Admin */}
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route
@@ -42,8 +50,15 @@ function App() {
                         </AdminRoute>
                     }
                 />
-
-                <Route path="/lab-tech" element={<LabTechLayout />}>
+                {/* Lab tech */}
+                <Route
+                    path="/lab-tech"
+                    element={
+                        <RoleProtectedRoute allowedRoles={['LAB_TECH']}>
+                            <LabTechLayout />
+                        </RoleProtectedRoute>
+                    }
+                >
                     <Route path="dashboard" element={<LabTechPage />} />
                     <Route path="notifications" element={<LabTechNotification />} />
                 </Route>
