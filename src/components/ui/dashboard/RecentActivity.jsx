@@ -1,5 +1,5 @@
-//import { ACTIVITY } from '../../../constants/dashboardData';
 import { Calendar, Pill, Heart, TrendingUp } from 'lucide-react';
+
 export default function RecentActivity() {
     const ACTIVITY = [
         { text: 'Đã ghi nhận huyết áp', time: '2 giờ trước', dot: '#3B82F6' },
@@ -7,6 +7,7 @@ export default function RecentActivity() {
         { text: 'Kết quả xét nghiệm đã tải lên', time: '3 ngày trước', dot: '#10B981' },
         { text: 'Đã đổi lịch hẹn', time: '5 ngày trước', dot: '#F59E0B' },
     ];
+
     return (
         <div
             style={{
@@ -16,6 +17,7 @@ export default function RecentActivity() {
                 overflow: 'hidden',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                 animation: 'fadeUp 0.5s ease 0.43s both',
+                minWidth: 0,
             }}
         >
             <div style={{ padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}>
@@ -28,10 +30,11 @@ export default function RecentActivity() {
                         style={{
                             display: 'flex',
                             alignItems: 'flex-start',
-                            gap: 14,
-                            padding: '12px 22px',
+                            gap: 12,
+                            padding: 'max(12px, 1.2vw) max(18px, 2vw)',
                             cursor: 'pointer',
                             transition: 'background 0.15s',
+                            minWidth: 0,
                         }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = '#F8FAFC')}
                         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -47,13 +50,23 @@ export default function RecentActivity() {
                                 boxShadow: `0 0 0 3px ${a.dot}25`,
                             }}
                         />
-                        <div>
-                            <p style={{ margin: 0, fontSize: 14, color: '#334155', fontWeight: 500 }}>{a.text}</p>
+                        <div style={{ minWidth: 0 }}>
+                            <p style={{ margin: 0, fontSize: 14, color: '#334155', fontWeight: 500, wordBreak: 'break-word' }}>
+                                {a.text}
+                            </p>
                             <p style={{ margin: '3px 0 0', fontSize: 12, color: '#94A3B8' }}>{a.time}</p>
                         </div>
                     </div>
                 ))}
             </div>
+
+            <style>{`
+                @media (max-width: 640px) {
+                    h2 {
+                        font-size: 14px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

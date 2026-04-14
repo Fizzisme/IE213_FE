@@ -5,7 +5,7 @@ export const useDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { patient, logout } = useAuth();
-
+    console.log(patient);
     const loginMethod = location.state?.loginMethod || 'local';
 
     const displayName =
