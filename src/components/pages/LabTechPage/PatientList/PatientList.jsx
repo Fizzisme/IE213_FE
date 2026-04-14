@@ -230,7 +230,7 @@ export default function PatientList() {
                 {/*    formatDateVN={formatDateVN}*/}
                 {/*    riskLabel={riskLabel}*/}
                 {/*/>*/}
-                <aside className="flex-3 p-4 bg-[#f5f5f5] rounded-xl overflow-y-auto max-h-[650px]">
+                <aside className="flex-3 p-4 bg-[#f5f5f5] rounded-xl overflow-y-auto min-h-[400px] max-h-[650px]">
                     {!selected ? (
                         // EMPTY STATE
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500">
