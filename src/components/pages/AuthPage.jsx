@@ -145,7 +145,8 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
 }
 export default function AuthPage() {
     const navigate = useNavigate();
-    const { login, loginMetaMask } = useAuth();
+    const { user, login, loginMetaMask } = useAuth();
+
     // Auth state
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
@@ -170,7 +171,8 @@ export default function AuthPage() {
     const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleNavigationByUser = (loginMethod) => {
-        navigate('/demo-dashboard', { state: { loginMethod } });
+        if (user.role === 'PATIENT') navigate('/demo-dashboard', { state: { loginMethod } });
+        else if (user.role === 'LAB_TECH') navigate('/lab-tech/dashboard', { state: { loginMethod } });
     };
     const handleTraditionalAuth = async (e) => {
         e.preventDefault();
