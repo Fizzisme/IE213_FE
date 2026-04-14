@@ -9,6 +9,9 @@ import AdminRoute from './components/guards/AdminRoute';
 
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import LabTechPage from './components/pages/LabTechPage/LabTechPage.jsx';
+import LabTechLayout from '@/components/pages/LabTechPage/LabTechLayout.jsx';
+import LabTechNotification from '@/components/pages/LabTechNotification/LabTechNotification.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -39,6 +42,11 @@ function App() {
                         </AdminRoute>
                     }
                 />
+
+                <Route path="/lab-tech" element={<LabTechLayout />}>
+                    <Route path="dashboard" element={<LabTechPage />} />
+                    <Route path="notifications" element={<LabTechNotification />} />
+                </Route>
             </Routes>
         </AuthProvider>
     );
