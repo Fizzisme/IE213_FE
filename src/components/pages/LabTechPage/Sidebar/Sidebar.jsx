@@ -5,7 +5,7 @@ import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.
 import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { FileText } from 'lucide-react';
 import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
-import { NavLink, useLocation, useParams } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.js';
 import { BE_URL } from '@/lib/constans.js';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/animate-ui/components/radix/popover.js';
@@ -41,22 +41,45 @@ const sectionVariants = {
     open: {
         opacity: 1,
         maxHeight: 40,
+        marginTop: '1rem',
+        marginBottom: '0.25rem',
         transition: { duration: 0.3, ease: 'easeInOut' },
     },
     closed: {
         opacity: 0,
         maxHeight: 0,
+        marginTop: 0,
+        marginBottom: 0,
         transition: { duration: 0.3, ease: 'easeInOut' },
     },
 };
-
+const userVariants = {
+    open: {
+        opacity: 1,
+        maxWidth: 300,
+        marginLeft: '0.75rem',
+        transition: {
+            maxWidth: { duration: 0.5, ease: 'easeInOut' },
+            opacity: { duration: 0.5, ease: 'easeInOut' },
+        },
+    },
+    closed: {
+        opacity: 0,
+        maxWidth: 0,
+        marginLeft: 0,
+        transition: {
+            opacity: { duration: 0.5, ease: 'easeInOut' },
+            maxWidth: { duration: 0.5, ease: 'easeInOut' },
+        },
+    },
+};
 const NavItem = ({ icon: Icon, label, active, onClick, to, openSidebar }) => {
     return (
         <NavLink to={to}>
             <AnimateIcon
                 animateOnHover
                 onClick={onClick}
-                className={`flex items-center px-3 py-2.5 rounded-sm cursor-pointer font-bold
+                className={`flex items-center px-3 py-2.5 rounded-sm cursor-pointer font-bold mb-2
           ${active ? 'bg-[#EEEEFF] text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}
           ${openSidebar ? ' gap-2 ' : 'justify-center'}
         `}
@@ -117,14 +140,14 @@ export default function Sidebar() {
             {/* Logo */}
             <div
                 className={`flex items-center  gap-2 mb-5 font-bold text-lg
-            ${openSidebar ? 'justify-between' : 'justify-center'}
+       
             `}
             >
                 <motion.span
                     variants={labelVariants}
                     animate={openSidebar ? 'open' : 'closed'}
                     initial="open"
-                    className="font-extrabold text-xl text-indigo-600 overflow-hidden whitespace-nowrap"
+                    className="font-extrabold text-xl text-indigo-600 overflow-hidden whitespace-nowrap flex-1"
                 >
                     HealthHub
                 </motion.span>
@@ -132,33 +155,21 @@ export default function Sidebar() {
                 <AnimateIcon animateOnHover>
                     <PanelLeftClose
                         onClick={toggleSidebar}
-                        className="w-5 h-5 font-medium cursor-pointer text-indigo-600"
+                        className="w-5 h-5 font-medium cursor-pointer text-indigo-600 shrink-0"
                     />
                 </AnimateIcon>
             </div>
-
-            {/* Search */}
-            {/*<motion.div variants={labelVariants} animate={openSidebar ? 'open' : 'closed'} initial="open">*/}
-
-            {/*    <AnimateIcon*/}
-            {/*        animateOnHover*/}
-            {/*        className=" border-2 p-1 px-[6px] hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-md bg-[#f5f5f5] select-none cursor-pointer flex gap-1 items-center"*/}
-            {/*    >*/}
-            {/*        <Search className={'size-5'} />*/}
-            {/*        <input className="flex-1 p-1 text-sm focus:border-none" placeholder="Tìm kiếm" />*/}
-            {/*    </AnimateIcon>*/}
-            {/*</motion.div>*/}
 
             {/* GENERAL */}
             <motion.p
                 variants={sectionVariants}
                 animate={openSidebar ? 'open' : 'closed'}
                 initial="open"
-                className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
+                className="text-[10px] font-bold text-gray-400 px-2 tracking-wider overflow-hidden whitespace-nowrap"
             >
                 TỔNG QUAN
             </motion.p>
-            <div className="space-y-2">
+            <div>
                 {NAV_ITEMS.map((item, index) => (
                     <NavItem
                         key={index}
@@ -186,20 +197,24 @@ export default function Sidebar() {
             <Popover>
                 <PopoverTrigger asChild>
                     <div
-                        className={`flex items-center gap-3 mt-auto pt-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg
+                        className={`flex items-center mt-auto pt-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg
                             ${openSidebar && 'hover:bg-gray-100'}
                             `}
                     >
-                        <div
-                            className={`rounded-full bg-indigo-600 text-white flex items-center justify-center 
-                                ${openSidebar ? 'w-9 h-9 font-bold' : 'w-7 h-7 font-semibold text-sm'}
-                                `}
+                        <motion.div
+                            animate={
+                                openSidebar
+                                    ? { width: '2.25rem', height: '2.25rem', fontSize: '1rem' }
+                                    : { width: '1.75rem', height: '1.75rem', fontSize: '0.75rem' }
+                            }
+                            transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            className="rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
                         >
                             {getInitials(labTechInfo?.fullName)}
-                        </div>
+                        </motion.div>
 
                         <motion.div
-                            variants={labelVariants}
+                            variants={userVariants}
                             animate={openSidebar ? 'open' : 'closed'}
                             initial="open"
                             className="overflow-hidden whitespace-nowrap"
