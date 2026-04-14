@@ -170,25 +170,38 @@ export default function AuthPage() {
 
     const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleNavigationByUser = (loginMethod) => {
-        if (user.role === 'PATIENT') navigate('/demo-dashboard', { state: { loginMethod } });
-        else if (user.role === 'LAB_TECH') navigate('/lab-tech/dashboard', { state: { loginMethod } });
-    };
     const handleTraditionalAuth = async (e) => {
         e.preventDefault();
         setLoginBtn('loading');
         try {
             if (isLoginMode) {
-                // GỌI LOGIN TỪ CONTEXT
-                await login({
+                // ✅ Chờ login xong mới điều hướng
+                const userData = await login({
                     nationId: formData.nationId,
                     password: formData.password,
                 });
 
+                // ✅ Check user data trước khi redirect
+                if (!userData) {
+                    alert('Lỗi: Không nhận được dữ liệu người dùng');
+                    setLoginBtn('idle');
+                    return;
+                }
+
                 setLoginBtn('success');
-                setTimeout(() => handleNavigationByUser('local'), 900);
+
+                // ✅ Delay để animation hoàn tất, sau đó điều hướng
+                setTimeout(() => {
+                    if (userData.role === 'PATIENT') {
+                        navigate('/demo-dashboard', { state: { loginMethod: 'local' } });
+                    } else if (userData.role === 'LAB_TECH') {
+                        navigate('/lab-tech/dashboard', { state: { loginMethod: 'local' } });
+                    } else {
+                        alert('Role không được hỗ trợ: ' + userData.role);
+                        setLoginBtn('idle');
+                    }
+                }, 900);
             } else {
-                // Đăng ký vẫn gọi api trực tiếp vì không liên quan set cookie
                 await api.post('/auth/register', formData);
                 setLoginBtn('success');
                 setTimeout(() => {
@@ -217,11 +230,26 @@ export default function AuthPage() {
             const nonce = phase1.data.data?.nonce || phase1.data.nonce;
             const signature = await signer.signMessage(nonce);
 
-            // GỌI LOGIN METAMASK TỪ CONTEXT
-            await loginMetaMask(walletAddress, signature);
+            // ✅ Chờ MetaMask login xong
+            const userData = await loginMetaMask(walletAddress, signature);
+
+            if (!userData) {
+                alert('Lỗi: Không nhận được dữ liệu người dùng');
+                setMetamaskBtn('idle');
+                return;
+            }
 
             setMetamaskBtn('success');
-            setTimeout(() => handleNavigationByUser('metamask'), 900);
+            setTimeout(() => {
+                if (userData.role === 'PATIENT') {
+                    navigate('/demo-dashboard', { state: { loginMethod: 'metamask' } });
+                } else if (userData.role === 'LAB_TECH') {
+                    navigate('/lab-tech/dashboard', { state: { loginMethod: 'metamask' } });
+                } else {
+                    alert('Role không được hỗ trợ: ' + userData.role);
+                    setMetamaskBtn('idle');
+                }
+            }, 900);
         } catch (error) {
             console.error('❌ MetaMask error:', error);
             if (error.code === 'ACTION_REJECTED') alert('Đã từ chối ký xác nhận!');
@@ -229,7 +257,6 @@ export default function AuthPage() {
             setMetamaskBtn('idle');
         }
     };
-
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-6 font-sans">
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">

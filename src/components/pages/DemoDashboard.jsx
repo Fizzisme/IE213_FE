@@ -12,7 +12,9 @@ export default function DemoDashboard() {
         <>
             <div className="bg-white flex h-screen overflow-hidden hide-scrollbar">
                 {/* Sidebar */}
-                <Sidebar />
+                {/* <Sidebar
+                    displayName={displayName}
+                /> */}
                 {/* Main */}
                 <div className="flex-1 bg-white min-w-0 overflow-auto">
                     <div className="bg-[#f5f5f5] rounded-3xl h-full w-full">
