@@ -196,6 +196,8 @@ export default function AuthPage() {
                         navigate('/demo-dashboard', { state: { loginMethod: 'local' } });
                     } else if (userData.role === 'LAB_TECH') {
                         navigate('/lab-tech/dashboard', { state: { loginMethod: 'local' } });
+                    } else if (userData.role === 'DOCTOR') {
+                        navigate('/', { state: { loginMethod: 'local' } }); // Anh điền vào sau navigate chỗ a muốn
                     } else {
                         alert('Role không được hỗ trợ: ' + userData.role);
                         setLoginBtn('idle');
@@ -245,7 +247,8 @@ export default function AuthPage() {
                     navigate('/demo-dashboard', { state: { loginMethod: 'metamask' } });
                 } else if (userData.role === 'LAB_TECH') {
                     navigate('/lab-tech/dashboard', { state: { loginMethod: 'metamask' } });
-                } else {
+                } else if (userData.role === 'DOCTOR') {
+                    navigate('/', { state: { loginMethod: 'metamask' } }); // Anh điền vào sau navigate chỗ a muốn
                     alert('Role không được hỗ trợ: ' + userData.role);
                     setMetamaskBtn('idle');
                 }

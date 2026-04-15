@@ -1,39 +1,34 @@
-import { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { Activity, FileText, Wallet, Shield, LogOut, User, Pill } from 'lucide-react';
+import { Search, Check, Calendar, Heart } from 'lucide-react';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
-import { Activity } from 'lucide-react';
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
 import { Bell } from '@/components/animate-ui/icons/bell.js';
-import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
-import { NavLink, useLocation } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.js';
-import { BE_URL } from '@/lib/constans.js';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/animate-ui/components/radix/popover.js';
-import { LogOut } from '@/components/animate-ui/icons/log-out.js';
+import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
-import { AnimatePresence, motion } from 'motion/react';
 
 const NAV_ITEMS = [
-    { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/lab-tech/dashboard' },
-    { icon: Bell, label: 'Thông báo', to: '/lab-tech/notifications' },
+    { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/demo-dashboard' },
+    { icon: Bell, label: 'Thông báo', to: '/demo-dashboard/notifications' },
+    { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments' },
+    { icon: Heart, label: 'Sức khỏe', to: '/demo-dashboard/health' },
+    { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills'}
 ];
 
+/* ================== ANIMATION ================== */
 const labelVariants = {
     open: {
         opacity: 1,
         maxWidth: 300,
-        transition: {
-            maxWidth: { duration: 0.5, ease: 'easeInOut' },
-            opacity: { duration: 0.2, delay: 0.1 }, // fade in sau khi đã mở rộng
-        },
+        transition: { duration: 0.3 },
     },
     closed: {
         opacity: 0,
         maxWidth: 0,
-        transition: {
-            opacity: { duration: 0.1 }, // fade out ngay
-            maxWidth: { duration: 0.5, ease: 'easeInOut' },
-        },
+        transition: { duration: 0.2 },
     },
 };
 
@@ -42,78 +37,62 @@ const sectionVariants = {
         opacity: 1,
         maxHeight: 40,
         marginTop: '1rem',
-        marginBottom: '0.25rem',
-        transition: { duration: 0.3, ease: 'easeInOut' },
+        transition: { duration: 0.3 },
     },
     closed: {
         opacity: 0,
         maxHeight: 0,
         marginTop: 0,
-        marginBottom: 0,
-        transition: { duration: 0.3, ease: 'easeInOut' },
+        transition: { duration: 0.2 },
     },
 };
+
 const userVariants = {
     open: {
         opacity: 1,
         maxWidth: 300,
         marginLeft: '0.75rem',
-        transition: {
-            maxWidth: { duration: 0.5, ease: 'easeInOut' },
-            opacity: { duration: 0.5, ease: 'easeInOut' },
-        },
+        transition: { duration: 0.3 },
     },
     closed: {
         opacity: 0,
         maxWidth: 0,
         marginLeft: 0,
-        transition: {
-            opacity: { duration: 0.5, ease: 'easeInOut' },
-            maxWidth: { duration: 0.5, ease: 'easeInOut' },
-        },
+        transition: { duration: 0.2 },
     },
 };
-const NavItem = ({ icon: Icon, label, active, onClick, to, openSidebar }) => {
+
+/* ================== NAV ITEM ================== */
+const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
     return (
         <NavLink to={to}>
-            <AnimateIcon
-                animateOnHover
-                onClick={onClick}
-                className={`flex items-center px-3 py-2.5 rounded-sm cursor-pointer font-bold mb-2
-          ${active ? 'bg-[#EEEEFF] text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}
-          ${openSidebar ? ' gap-2 ' : 'justify-center'}
-        `}
+            <div
+                className={`flex items-center px-3 py-2.5 rounded-sm font-bold mb-2 cursor-pointer
+                ${active ? 'bg-[#EEEEFF] text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}
+                ${openSidebar ? 'gap-2' : 'justify-center'}
+            `}
             >
                 <Icon className="w-5 h-5" strokeWidth={2.5} />
+
                 <motion.span
                     variants={labelVariants}
                     animate={openSidebar ? 'open' : 'closed'}
-                    initial="open"
-                    className="text-sm select-none overflow-hidden whitespace-nowrap"
+                    className="text-sm overflow-hidden whitespace-nowrap"
                 >
                     {label}
                 </motion.span>
-            </AnimateIcon>
+            </div>
         </NavLink>
     );
 };
 
-export default function Sidebar(displayName) {
-    const [activeIndex, setActiveIndex] = useState(0);
+/* ================== SIDEBAR ================== */
+export default function Sidebar({ displayName, roleLabel, loginMethod, hasProfile, onNavigateCreate, onLogout }) {
+    const path = useLocation().pathname;
 
-    const [labTechInfo, setLabTechInfo] = useState(null);
+    const openSidebar = useLayoutStore((s) => s.openSidebar);
+    const toggleSidebar = useLayoutStore((s) => s.toggleSidebar);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const res = await fetch(`${BE_URL}/v1/lab-techs/me`, {
-                method: 'GET',
-                credentials: 'include',
-            });
-            const resJson = await res.json();
-            if (resJson.statusCode === 200) setLabTechInfo(resJson.data);
-        };
-        fetchData();
-    }, []);
     const getInitials = (name) => {
         if (!name) return '';
         return name
@@ -123,171 +102,161 @@ export default function Sidebar(displayName) {
             .slice(0, 2)
             .toUpperCase();
     };
-    // Lấy path của URL
-    const path = useLocation().pathname;
-    const onLogout = () => {};
-    // const [openSidebar, setOpenSidebar] = useState(true);
-    //  Lấy ra từ trong store của zustand cách này khiến code không bị re-render
-    const openSidebar = useLayoutStore((s) => s?.openSidebar);
-    const toggleSidebar = useLayoutStore((s) => s?.toggleSidebar);
 
     return (
         <aside
-            className={`h-full flex flex-col pr-0 pl-6 pt-10 pb-4 bg-white transition-all duration-500 ease-in-out
-        ${openSidebar ? 'w-[250px]' : 'w-[65px]'}
-        `}
+            className={`h-full flex flex-col pl-6 pt-10 pb-4 bg-white transition-all duration-500 ease-in-out
+            ${openSidebar ? 'w-[250px]' : 'w-[65px]'}`}
         >
-             {/* Logo */}
-            <div
-                className={`flex items-center gap-2 mb-5 font-bold text-lg
-  ${openSidebar ? 'justify-between' : 'justify-center'}`}
-            >
-                <motion.span
+            {/* ===== LOGO ===== */}
+            <div className={`flex items-center mb-5 ${openSidebar ? 'justify-between' : 'justify-center'}`}>
+                <motion.div
                     variants={labelVariants}
                     animate={openSidebar ? 'open' : 'closed'}
-                    initial="open"
-                    className="flex items-center gap-2 font-extrabold text-xl text-indigo-600 overflow-hidden whitespace-nowrap"
+                    className="flex items-center gap-2 text-indigo-600 font-bold overflow-hidden"
                 >
-                    {/* Logo icon */}
-                    <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-lg">
-                        <Activity className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <Activity className="text-white w-5 h-5" />
                     </div>
-
-                    {/* Text */}
                     <span>HealthHub</span>
-                </motion.span>
+                </motion.div>
 
-                <AnimateIcon animateOnHover>
-                    <PanelLeftClose onClick={toggleSidebar} className="w-5 h-5 cursor-pointer text-indigo-600" />
-                </AnimateIcon>
+                {/* 🔥 FIX: onClick đặt trực tiếp, KHÔNG bọc AnimateIcon */}
+                <div onClick={toggleSidebar} className="cursor-pointer p-1">
+                    <PanelLeftClose className="w-5 h-5 text-indigo-600" />
+                </div>
             </div>
 
-            {/* GENERAL */}
+            {/* ===== SECTION ===== */}
             <motion.p
                 variants={sectionVariants}
                 animate={openSidebar ? 'open' : 'closed'}
-                initial="open"
-                className="text-[10px] font-bold text-gray-400 px-2 tracking-wider overflow-hidden whitespace-nowrap"
+                className="text-[10px] font-bold text-gray-400 px-2 py-2"
             >
                 TỔNG QUAN
             </motion.p>
-            <div>
-                {NAV_ITEMS.map((item, index) => (
-                    <NavItem
-                        key={index}
-                        icon={item.icon}
-                        label={item.label}
-                        onClick={() => setActiveIndex(index)}
-                        to={item.to}
-                        active={path === item.to}
-                        openSidebar={openSidebar}
-                    />
-                ))}
-            </div>
 
-            {/* DATABASES */}
+            {NAV_ITEMS.map((item, i) => (
+                <NavItem key={i} {...item} active={path === item.to} openSidebar={openSidebar} />
+            ))}
+
+            {/* ===== DATA ===== */}
             <motion.p
                 variants={sectionVariants}
                 animate={openSidebar ? 'open' : 'closed'}
-                initial="open"
-                className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
+                className="text-[10px] font-bold text-gray-400 px-2 mt-4"
             >
                 DỮ LIỆU
             </motion.p>
-            <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} />
-            {/* User */}
+
+            <Collapsible icon={FileText} label="Tài liệu" openSidebar={openSidebar} />
+
+            {/* ===== USER ===== */}
             <Popover>
                 <PopoverTrigger asChild>
-                    <div
-                        className={`flex items-center mt-auto pt-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg
-                            ${openSidebar && 'hover:bg-gray-100'}
-                            `}
-                    >
+                    <div className="flex items-center mt-auto pt-4 p-1 cursor-pointer hover:bg-gray-100 rounded-lg">
+                        {/* Avatar */}
                         <motion.div
                             animate={
                                 openSidebar
-                                    ? { width: '2.25rem', height: '2.25rem', fontSize: '1rem' }
-                                    : { width: '1.75rem', height: '1.75rem', fontSize: '0.75rem' }
+                                    ? { width: '2.25rem', height: '2.25rem' }
+                                    : { width: '1.8rem', height: '1.8rem' }
                             }
-                            transition={{ duration: 0.5, ease: 'easeInOut' }}
-                            className="rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+                            className="rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold"
                         >
-                            {getInitials(labTechInfo?.fullName)}
+                            {getInitials(displayName)}
                         </motion.div>
 
+                        {/* Info */}
                         <motion.div
                             variants={userVariants}
                             animate={openSidebar ? 'open' : 'closed'}
-                            initial="open"
                             className="overflow-hidden whitespace-nowrap"
                         >
-                            <p className="text-sm font-semibold">{labTechInfo?.fullName}</p>
-                            <p className="text-xs text-gray-400">{labTechInfo?.department}</p>
+                            <p className="text-sm font-semibold">{displayName}</p>
+                            <p className="text-xs text-gray-400">{roleLabel}</p>
+
+                            <div
+                                className={`mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px]
+                                ${
+                                    loginMethod === 'metamask'
+                                        ? 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-blue-100 text-blue-700'
+                                }`}
+                            >
+                                {loginMethod === 'metamask' ? <Wallet size={10} /> : <Shield size={10} />}
+                                {loginMethod === 'metamask' ? 'MetaMask' : 'CCCD'}
+                            </div>
                         </motion.div>
                     </div>
                 </PopoverTrigger>
 
-                {/* lệch phải */}
-                <PopoverContent align="end" side="right" className="w-80">
-                    <div className="space-y-4">
-                        {/* Header */}
-                        <div>
-                            <p className="font-semibold text-lg">{displayName}</p>
-                            <p className="text-sm text-gray-500">{labTechInfo?.department}</p>
-                        </div>
-
-                        {/* Info */}
-                        <div className="text-sm space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Giới tính</span>
-                                <span>{labTechInfo?.gender === 'M' ? 'Nam' : 'Nữ'}</span>
+                <PopoverContent
+                    align="end"
+                    side="right"
+                    className="w-80 p-0 rounded-xl overflow-hidden shadow-xl border"
+                >
+                    {/* HEADER */}
+                    <div className="p-4 bg-gray-50 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">
+                                {getInitials(displayName)}
                             </div>
 
                             <div>
-                                <p className="text-gray-500 mb-1">Chuyên môn</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {labTechInfo?.specialization?.map((sp, i) => (
-                                        <span key={i} className="text-xs px-2 py-1 bg-gray-100 rounded-md">
-                                            {sp}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* License đẹp hơn */}
-                            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border">
-                                <p className="text-xs text-gray-500">Giấy phép</p>
-                                <p className="font-mono text-sm font-semibold text-indigo-600">
-                                    {labTechInfo?.licenseNumber}
-                                </p>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Trạng thái</span>
-                                <span
-                                    className={`font-medium ${
-                                        labTechInfo?.status === 'ACTIVE' ? 'text-green-600' : 'text-red-500'
-                                    }`}
-                                >
-                                    {labTechInfo?.status === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
-                                </span>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Xác thực</span>
-                                <span>{labTechInfo?.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}</span>
+                                <p className="font-semibold text-sm">{displayName}</p>
+                                <p className="text-xs text-gray-500">{roleLabel}</p>
                             </div>
                         </div>
 
-                        {/* Logout */}
-                        <AnimateIcon
-                            animateOnHover
+                        <div
+                            className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border
+            ${
+                loginMethod === 'metamask'
+                    ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                    : 'bg-blue-100 text-blue-700 border-blue-300'
+            }`}
+                        >
+                            {loginMethod === 'metamask' ? <Wallet size={12} /> : <Shield size={12} />}
+                            {loginMethod === 'metamask' ? 'MetaMask' : 'CCCD'}
+                        </div>
+                    </div>
+
+                    {/* SEARCH */}
+                    <div className="p-3 border-t">
+                        <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
+                            <Search size={14} className="text-gray-400" />
+                            <input
+                                placeholder="Tìm hồ sơ, bác sĩ..."
+                                className="bg-transparent outline-none text-sm w-full"
+                            />
+                        </div>
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="p-2 space-y-1">
+                        {hasProfile ? (
+                            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-green-50 text-green-700">
+                                <Check size={16} />
+                                <span className="text-sm font-medium">Hồ sơ đã được thiết lập</span>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={onNavigateCreate}
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 w-full text-left"
+                            >
+                                <User size={16} />
+                                <span className="text-sm">Tạo hồ sơ y tế</span>
+                            </button>
+                        )}
+
+                        <button
                             onClick={onLogout}
-                            className="w-full flex items-center justify-center gap-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 py-2 rounded-lg cursor-pointer"
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 w-full text-left"
                         >
                             <LogOut size={16} />
-                            Đăng xuất
-                        </AnimateIcon>
+                            <span className="text-sm">Đăng xuất tài khoản</span>
+                        </button>
                     </div>
                 </PopoverContent>
             </Popover>
