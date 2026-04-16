@@ -13,7 +13,7 @@ import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/demo-dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/demo-dashboard/notifications' },
-    { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments' },
+    { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments-manage' },
     { icon: Heart, label: 'Sức khỏe', to: '/demo-dashboard/health' },
     { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills'}
 ];
