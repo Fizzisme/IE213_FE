@@ -14,6 +14,7 @@ import LabTechLayout from '@/components/pages/LabTechPage/LabTechLayout.jsx';
 import LabTechNotification from '@/components/pages/LabTechNotification/LabTechNotification.jsx';
 import { RoleProtectedRoute } from './components/guards/RoleProtectedRoute.jsx';
 import AppointmentBooking from './components/pages/AppoinmentBooking.jsx';
+import AppointmentManagement from './components/pages/AppointmentManagement.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -33,6 +34,7 @@ function App() {
                 >
                     <Route index element={<DemoDashboard/>} />
                     <Route path="create-patient" element={<PatientInfoForm />} />
+                    <Route path="appointments-manage" element={<AppointmentManagement/>}></Route>
                     <Route path="appointments" element={<AppointmentBooking/>} />
 
                 </Route>

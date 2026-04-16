@@ -1,43 +1,64 @@
-import { useEffect, useState } from 'react';
-import { Calendar, Clock, FileText, Stethoscope, Droplet, Salad, User, DollarSign, X } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useEffect, useState, useMemo } from 'react';
+import { Calendar, Clock, FileText, Stethoscope, Droplet, Salad, User, DollarSign } from 'lucide-react';
 import api from '../../utils/api';
 import { motion } from 'framer-motion';
+
 export default function AppointmentBooking() {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
-    const [description, setDescription] = useState('');
-    const [servicess, setService] = useState([]);
+    const [patientDescription, setPatientDescription] = useState('');
+
+    const [services, setServices] = useState([]);
+    const [loadingServices, setLoadingServices] = useState(false);
+
+    // ================= FETCH SERVICES =================
     useEffect(() => {
         const fetchServices = async () => {
-            const res = await api.get('/services');
-            setServices(res.data);
+            try {
+                setLoadingServices(true);
+                const res = await api.get('/patients/services');
+                setServices(res.data.data || []);
+            } catch (err) {
+                console.error('Fetch services error:', err);
+            } finally {
+                setLoadingServices(false);
+            }
         };
 
         fetchServices();
     }, []);
-    // Generate next 7 days
-    const generateDates = () => {
-        const dates = [];
+
+    // ================= ICON =================
+    const getServiceIcon = (name) => {
+        if (!name) return <FileText className="w-5 h-5" />;
+        if (name.toLowerCase().includes('đường huyết')) return <Droplet className="w-5 h-5" />;
+        if (name.toLowerCase().includes('dinh dưỡng')) return <Salad className="w-5 h-5" />;
+        return <Stethoscope className="w-5 h-5" />;
+    };
+
+    // ================= DATES =================
+    const dates = useMemo(() => {
+        const result = [];
         const today = new Date();
+
         for (let i = 0; i < 7; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() + i);
-            dates.push({
+
+            result.push({
+                dateObj: date, // QUAN TRỌNG (dùng để build ISO)
                 day: date.getDate(),
-                month: date.getMonth() + 1,
-                year: date.getFullYear(),
                 dayName: date.toLocaleDateString('vi-VN', { weekday: 'short' }),
-                fullDate: date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                fullDate: date.toLocaleDateString('vi-VN'),
                 index: i,
             });
         }
-        return dates;
-    };
 
-    const dates = generateDates();
+        return result;
+    }, []);
 
+    // ================= TIME =================
     const timeSlots = [
         { time: '08:00', available: true },
         { time: '09:00', available: true },
@@ -49,61 +70,54 @@ export default function AppointmentBooking() {
         { time: '16:00', available: true },
     ];
 
-    const services = [
-        {
-            id: '1',
-            name: 'Khám tiểu đường định kỳ',
-            icon: <Stethoscope className="w-5 h-5" />,
-            price: '500,000',
-        },
-        {
-            id: '2',
-            name: 'Xét nghiệm đường huyết',
-            icon: <Droplet className="w-5 h-5" />,
-            price: '300,000',
-        },
-        {
-            id: '3',
-            name: 'Tư vấn dinh dưỡng',
-            icon: <Salad className="w-5 h-5" />,
-            price: '400,000',
-        },
-    ];
-
-    const selectedServiceObj = services.find((s) => s.id === selectedService);
+    // ================= DERIVED =================
     const selectedDateObj = selectedDate !== null ? dates[selectedDate] : null;
-    const isFormValid = selectedDate !== null && selectedTime !== null && selectedService !== null;
 
+    const selectedServiceObj = services.find((s) => s._id === selectedService);
+
+    const isFormValid = Boolean(selectedDateObj && selectedTime && selectedService);
+
+    // ================= BUILD DATETIME =================
     const buildDateTime = () => {
         if (!selectedDateObj || !selectedTime) return null;
 
-        const [day, month, year] = selectedDateObj.fullDate.split('/');
+        const date = new Date(selectedDateObj.dateObj);
         const [hour, minute] = selectedTime.split(':');
 
-        return new Date(year, month - 1, day, hour, minute).toISOString();
+        date.setHours(hour);
+        date.setMinutes(minute);
+        date.setSeconds(0);
+
+        return date.toISOString();
     };
+
+    // ================= SUBMIT =================
     const handleConfirm = async () => {
         if (!isFormValid) return;
 
         try {
-            const appointmentDateTime = buildDateTime();
-
             const payload = {
-                appointmentDateTime,
+                appointmentDateTime: buildDateTime(),
                 serviceId: selectedService,
-                description,
+                patientDescription,
             };
-            console.log('Payload gửi BE:', payload);
-            // TODO: call API ở bước sau
-            const res = await api.post('/appointments', payload);
+
+            const res = await api.post('/patients/appointments', payload);
+
             console.log('SUCCESS:', res.data);
+
+            // reset form
+            setSelectedDate(null);
+            setSelectedTime(null);
+            setSelectedService(null);
+            setPatientDescription('');
+
             alert('Lịch khám đã được đặt thành công!');
         } catch (error) {
             console.error('ERROR:', error);
             alert(error?.response?.data?.message || 'Có lỗi xảy ra');
         }
     };
-
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             {/* toàn bộ UI của bạn */}
@@ -114,10 +128,7 @@ export default function AppointmentBooking() {
                     <div className="space-y-8">
                         {/* Header */}
                         <div>
-                            <h1
-                                className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2"
-                                style={{ fontFamily: 'DM Sans, sans-serif' }}
-                            >
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                                 Đặt lịch khám
                             </h1>
                             <p className="text-sm sm:text-base text-gray-500">
@@ -213,12 +224,12 @@ export default function AppointmentBooking() {
                             <div className="space-y-3">
                                 {services.map((service) => (
                                     <button
-                                        key={service.id}
-                                        onClick={() => setSelectedService(service.id)}
+                                        key={service._id}
+                                        onClick={() => setSelectedService(service._id)}
                                         className={`
                     w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4
                     ${
-                        selectedService === service.id
+                        selectedService === service._id
                             ? 'border-[#3B82F6] bg-gradient-to-r from-blue-50 to-blue-100 shadow-md'
                             : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
                     }
@@ -227,28 +238,28 @@ export default function AppointmentBooking() {
                                         <div
                                             className={`
                     p-3 rounded-lg transition-colors
-                    ${selectedService === service.id ? 'bg-[#3B82F6] text-white' : 'bg-gray-100 text-gray-600'}
+                    ${selectedService === service._id ? 'bg-[#3B82F6] text-white' : 'bg-gray-100 text-gray-600'}
                   `}
                                         >
-                                            {service.icon}
+                                            {getServiceIcon(service.name)}
                                         </div>
                                         <div className="flex-1 text-left">
                                             <div
                                                 className={`font-bold ${
-                                                    selectedService === service.id ? 'text-[#3B82F6]' : 'text-gray-900'
+                                                    selectedService === service._id ? 'text-[#3B82F6]' : 'text-gray-900'
                                                 }`}
                                             >
                                                 {service.name}
                                             </div>
-                                            <div className="text-sm text-gray-500">{service.price}đ</div>
+                                            <div className="text-sm text-gray-500">{service.price.toLocaleString('vi-VN')}đ</div>
                                         </div>
                                         <div
                                             className={`
                     w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                    ${selectedService === service.id ? 'border-[#3B82F6] bg-[#3B82F6]' : 'border-gray-300'}
+                    ${selectedService === service._id ? 'border-[#3B82F6] bg-[#3B82F6]' : 'border-gray-300'}
                   `}
                                         >
-                                            {selectedService === service.id && (
+                                            {selectedService === service._id && (
                                                 <div className="w-3 h-3 bg-white rounded-full"></div>
                                             )}
                                         </div>
@@ -257,14 +268,14 @@ export default function AppointmentBooking() {
                             </div>
                         </div>
 
-                        {/* Description */}
+                        {/* patientDescription */}
                         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
                             <label className="block text-base sm:text-lg font-bold text-gray-900 mb-3">
                                 Mô tả triệu chứng
                             </label>
                             <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                                value={patientDescription}
+                                onChange={(e) => setPatientDescription(e.target.value)}
                                 placeholder="Mô tả triệu chứng hoặc vấn đề của bạn..."
                                 rows={4}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl outline-none focus:border-[#3B82F6] transition-colors resize-none text-sm sm:text-base"
@@ -312,13 +323,13 @@ export default function AppointmentBooking() {
                                 </div>
 
                                 {/* Notes */}
-                                {description && (
+                                {patientDescription && (
                                     <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
                                         <FileText className="w-5 h-5 text-[#3B82F6] mt-0.5 flex-shrink-0" />
                                         <div className="flex-1">
                                             <div className="text-xs sm:text-sm text-gray-500 mb-1">Ghi chú</div>
                                             <div className="text-xs sm:text-sm text-gray-700 line-clamp-2">
-                                                {description}
+                                                {patientDescription}
                                             </div>
                                         </div>
                                     </div>
@@ -343,7 +354,7 @@ export default function AppointmentBooking() {
                                         <span className="font-semibold text-sm sm:text-base">Chi phí khám</span>
                                     </div>
                                     <div className="text-xl sm:text-2xl font-bold">
-                                        {selectedServiceObj?.price || '---'}đ
+                                        {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
                                     </div>
                                 </div>
                             </div>
