@@ -109,8 +109,8 @@ export default function UploadButton({ medicalRecordId }) {
     const isObese = Number(form.bmi) > 30;
     return (
         <Dialog>
-            <DialogTrigger className="h-fit p-2 border-2 rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01]">
-                <Upload animateOnHover className="h-5 w-5" />
+            <DialogTrigger className="h-fit p-1.5 border-2 rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01]">
+                <Upload animateOnHover className="h-4 w-4" />
             </DialogTrigger>
             <DialogContent className="max-w-xl">
                 <DialogHeader>

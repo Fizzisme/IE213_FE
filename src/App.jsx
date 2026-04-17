@@ -15,6 +15,7 @@ import LabTechNotification from '@/components/pages/LabTechNotification/LabTechN
 import { RoleProtectedRoute } from './components/guards/RoleProtectedRoute.jsx';
 import AppointmentBooking from './components/pages/AppoinmentBooking.jsx';
 import AppointmentManagement from './components/pages/AppointmentManagement.jsx';
+import DosagePage from '@/components/pages/DosagePage/DosagePage.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -28,15 +29,14 @@ function App() {
                     path="/demo-dashboard"
                     element={
                         <RoleProtectedRoute allowedRoles={['PATIENT']}>
-                            <DashboardLayout/>
+                            <DashboardLayout />
                         </RoleProtectedRoute>
                     }
                 >
-                    <Route index element={<DemoDashboard/>} />
+                    <Route index element={<DemoDashboard />} />
                     <Route path="create-patient" element={<PatientInfoForm />} />
-                    <Route path="appointments-manage" element={<AppointmentManagement/>}></Route>
-                    <Route path="appointments" element={<AppointmentBooking/>} />
-
+                    <Route path="appointments-manage" element={<AppointmentManagement />}></Route>
+                    <Route path="appointments" element={<AppointmentBooking />} />
                 </Route>
                 {/* Admin */}
                 <Route path="/admin-login" element={<AdminLogin />} />
@@ -61,7 +61,7 @@ function App() {
                     path="/" // them vao de navigate
                     element={
                         <RoleProtectedRoute allowedRoles={['DOCTOR']}>
-                    {/* gắn trang anh muốn dẫn tới vào đây sau khi đăng nhập */}
+                            {/* gắn trang anh muốn dẫn tới vào đây sau khi đăng nhập */}
                         </RoleProtectedRoute>
                     }
                 ></Route>
@@ -76,6 +76,9 @@ function App() {
                 >
                     <Route path="dashboard" element={<LabTechPage />} />
                     <Route path="notifications" element={<LabTechNotification />} />
+                    <Route path="documents">
+                        <Route path="dosage" element={<DosagePage />} />
+                    </Route>
                 </Route>
             </Routes>
         </AuthProvider>

@@ -148,10 +148,23 @@ export default function PatientChart() {
 
     const chartRef = useRef(null);
     const openSidebar = useLayoutStore((s) => s?.openSidebar);
+    console.log(openSidebar);
+
+    // // ✅ Lần đầu mount — đợi chart init xong rồi resize
+    // useEffect(() => {
+    //     const timeout = setTimeout(() => {
+    //         const chart = chartRef.current?.getEchartsInstance();
+    //         chart?.resize();
+    //     }, 100); // đợi ECharts render xong
+    //     return () => clearTimeout(timeout);
+    // }, []); // ← chỉ chạy 1 lần khi mount
 
     useEffect(() => {
         const chart = chartRef.current?.getEchartsInstance();
-        if (!chart) return;
+        const container = chart?.getDom();
+        console.log(chart);
+        console.log('Size chưa rezie', container.clientWidth);
+        if (!chart || !container) return;
 
         let rafId;
         const startTime = performance.now();
@@ -159,18 +172,21 @@ export default function PatientChart() {
 
         const resizeLoop = () => {
             chart.resize();
+            // console.log('Dang resize ở giây' + `${performance.now()}`);
             if (performance.now() - startTime < duration) {
                 rafId = requestAnimationFrame(resizeLoop);
             }
+            console.log('Size đã rezie', container.clientWidth);
         };
 
         rafId = requestAnimationFrame(resizeLoop);
+
         return () => cancelAnimationFrame(rafId);
     }, [openSidebar]);
 
     return (
         <>
-            <div className="bg-white p-5 rounded-2xl shadow mb-6">
+            <div className="bg-white p-5 rounded-2xl shadow mb-6 hidden sm:block">
                 <p className="text-gray-400 text-sm mb-3">Thống kê bệnh nhân trong 1 tháng</p>
 
                 <ReactECharts ref={chartRef} option={option} style={{ height: 250 }} />

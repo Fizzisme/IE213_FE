@@ -59,7 +59,7 @@ export default function LabTechPage() {
     return (
         <div className="flex h-full">
             {/* MAIN */}
-            <main className="flex-1 p-6 flex flex-col overflow-x-hidden overflow-y-auto">
+            <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
                 {/* Header*/}
                 {/*<div className="bg-white rounded-2xl p-6 shadow mb-6 h-[170px]">*/}
                 {/*    <h1 className="text-2xl font-bold">Mừng bạn quay lại, Tuấn Phi 👋</h1>*/}
@@ -74,59 +74,59 @@ export default function LabTechPage() {
             </main>
 
             {/* ASIDE (RIGHT) */}
-            <aside className="w-[350px] p-5 flex flex-col gap-5 overflow-y-auto">
-                {/* Calendar */}
+            {/*<aside className="w-[350px] p-4 xl:p-6 flex flex-col gap-5 overflow-x-hidden overflow-y-auto">*/}
+            {/*    /!* Calendar *!/*/}
 
-                <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(d) => d && setDate(d)}
-                    captionLayout="dropdown"
-                    events={myEvents}
-                />
+            {/*    <Calendar*/}
+            {/*        mode="single"*/}
+            {/*        selected={date}*/}
+            {/*        onSelect={(d) => d && setDate(d)}*/}
+            {/*        captionLayout="dropdown"*/}
+            {/*        events={myEvents}*/}
+            {/*    />*/}
 
-                {/* Schedule */}
-                <div className="bg-white rounded-2xl p-4 shadow flex-1">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <div className="text-3xl font-bold">14</div>
-                            <div className="text-sm font-semibold">Friday, Oct</div>
-                            <div className="text-xs text-gray-400">18 appointments</div>
-                        </div>
+            {/*    /!* Schedule *!/*/}
+            {/*    <div className="bg-white rounded-2xl p-4 shadow flex-1">*/}
+            {/*        <div className="flex justify-between items-start mb-4">*/}
+            {/*            <div>*/}
+            {/*                <div className="text-3xl font-bold">14</div>*/}
+            {/*                <div className="text-sm font-semibold">Friday, Oct</div>*/}
+            {/*                <div className="text-xs text-gray-400">18 appointments</div>*/}
+            {/*            </div>*/}
 
-                        <button className="w-9 h-9 bg-purple-500 text-white rounded-full flex items-center justify-center text-lg shadow hover:scale-105 transition">
-                            +
-                        </button>
-                    </div>
+            {/*            <button className="w-9 h-9 bg-purple-500 text-white rounded-full flex items-center justify-center text-lg shadow hover:scale-105 transition">*/}
+            {/*                +*/}
+            {/*            </button>*/}
+            {/*        </div>*/}
 
-                    <div className="space-y-3">
-                        {SCHEDULE.map((item, i) => (
-                            <div
-                                key={i}
-                                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition"
-                            >
-                                <div
-                                    className="w-9 h-9 flex items-center justify-center rounded-lg text-sm"
-                                    style={{
-                                        backgroundColor: item.color + '22',
-                                        color: item.color,
-                                    }}
-                                >
-                                    {item.icon}
-                                </div>
+            {/*        <div className="space-y-3">*/}
+            {/*            {SCHEDULE.map((item, i) => (*/}
+            {/*                <div*/}
+            {/*                    key={i}*/}
+            {/*                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition"*/}
+            {/*                >*/}
+            {/*                    <div*/}
+            {/*                        className="w-9 h-9 flex items-center justify-center rounded-lg text-sm"*/}
+            {/*                        style={{*/}
+            {/*                            backgroundColor: item.color + '22',*/}
+            {/*                            color: item.color,*/}
+            {/*                        }}*/}
+            {/*                    >*/}
+            {/*                        {item.icon}*/}
+            {/*                    </div>*/}
 
-                                <div className="flex-1">
-                                    <div className="text-sm font-semibold">{item.title}</div>
-                                    {item.sub && <div className="text-xs text-gray-400">{item.sub}</div>}
-                                    {item.time && <div className="text-xs text-gray-400">{item.time}</div>}
-                                </div>
+            {/*                    <div className="flex-1">*/}
+            {/*                        <div className="text-sm font-semibold">{item.title}</div>*/}
+            {/*                        {item.sub && <div className="text-xs text-gray-400">{item.sub}</div>}*/}
+            {/*                        {item.time && <div className="text-xs text-gray-400">{item.time}</div>}*/}
+            {/*                    </div>*/}
 
-                                {item.isBreak && <span className="text-xs text-gray-400">45 min</span>}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </aside>
+            {/*                    {item.isBreak && <span className="text-xs text-gray-400">45 min</span>}*/}
+            {/*                </div>*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</aside>*/}
         </div>
     );
 }

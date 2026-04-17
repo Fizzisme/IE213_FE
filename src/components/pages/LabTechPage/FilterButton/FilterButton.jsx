@@ -27,10 +27,10 @@ export default function FilterButton({
             <DropdownMenuTrigger asChild>
                 <AnimateIcon
                     animateOnHover
-                    className="flex gap-2 border-2 p-2 rounded-lg items-center cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01] group"
+                    className="flex gap-1.5 border-2 p-1.5 rounded-lg items-center cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01] group"
                 >
-                    <SlidersHorizontal className="h-5 w-5" />
-                    <span className="font-semibold group-hover:scale-[1.01] transition-all duration-300 select-none">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="font-semibold text-sm group-hover:scale-[1.01] transition-all duration-300 select-none">
                         Bộ lọc
                     </span>
                 </AnimateIcon>

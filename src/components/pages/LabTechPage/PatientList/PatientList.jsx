@@ -129,19 +129,25 @@ export default function PatientList() {
     const [filters, setFilters] = useState({
         status: 'ALL',
         sort: 'desc',
+        q: '',
     });
 
     const fetchDataFilter = async (newFilters) => {
+        const merged = { ...filters, ...newFilters };
         let url = `${BE_URL}/v1/lab-techs/medical-records`;
 
         const params = [];
 
-        if (newFilters.status !== 'ALL') {
-            params.push(`status=${newFilters.status}`);
+        if (merged.status !== 'ALL') {
+            params.push(`status=${merged.status}`);
         }
 
-        if (newFilters.sort) {
-            params.push(`sort=${newFilters.sort}`);
+        if (merged.sort) {
+            params.push(`sort=${merged.sort}`);
+        }
+
+        if (merged.q) {
+            params.push(`q=${encodeURIComponent(merged.q)}`);
         }
 
         if (params.length > 0) {
@@ -156,21 +162,37 @@ export default function PatientList() {
         setMedicalRecords(data.data);
     };
 
-    const handleSearch = (event) => {
-        console.log(event.target.value());
-    };
+    const [debounced, setDebounced] = useState(filters.q);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebounced(filters.q);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [filters.q]);
+
+    useEffect(() => {
+        fetchDataFilter({ q: debounced });
+    }, [debounced]);
+
     return (
         <div className="flex-1 bg-white rounded-2xl p-6">
-            <header className="flex justify-between">
-                <span className="font-bold text-3xl">Danh sách bệnh nhân</span>
-                <div className="flex gap-2">
+            <header className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <span className="font-bold text-xl xl:text-2xl">Danh sách bệnh nhân</span>
+                <div className="flex flex-wrap sm:flex-nowrap gap-2">
                     <AnimateIcon
                         animateOnHover
-                        className=" border-2 p-1 px-[6px] hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-md bg-[#f5f5f5] select-none cursor-pointer flex gap-1 items-center"
+                        className=" border-2 px-1.5 hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-lg bg-[#f5f5f5] select-none cursor-pointer flex gap-1.5 items-center"
                     >
-                        <Search className={'size-5'} />
+                        <Search className={'size-4'} />
                         <input
-                            onClick={handleSearch}
+                            value={filters.q}
+                            onChange={(e) =>
+                                setFilters((prev) => ({
+                                    ...prev,
+                                    q: e.target.value,
+                                }))
+                            }
                             className="flex-1 p-1 text-sm outline-none border-none"
                             placeholder="Tìm kiếm"
                         />
@@ -194,9 +216,9 @@ export default function PatientList() {
                 </div>
             </header>
 
-            <div className="flex gap-12 mt-4 ">
+            <div className="flex flex-col lg:flex-row gap-4 xl:gap-8 mt-4">
                 {/* LEFT */}
-                <aside className="flex-2 space-y-3 overflow-y-auto max-h-[500px] ">
+                <aside className="w-full xl:w-[40%] space-y-3 overflow-y-auto max-h-[400px] xl:max-h-[500px]">
                     {medicalRecords.map((m) => (
                         <div
                             key={m._id}
@@ -205,36 +227,27 @@ export default function PatientList() {
               ${selected?._id === m._id ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                         >
                             <div className="flex items-center gap-3">
-                                <img src={m.patientInfo.avatar} className="w-12 h-12 rounded-full" alt="" />
+                                <img
+                                    src={m.patientInfo.avatar}
+                                    className="w-8 h-8 xl:w-10 xl:h-10 rounded-full"
+                                    alt=""
+                                />
                                 <div>
-                                    <p className="font-semibold text-xl">{m?.patientInfo?.fullName}</p>
+                                    <p className="font-semibold text-base xl:text-lg">{m?.patientInfo?.fullName}</p>
                                     <p className="text-sm text-gray-500">{m?.patientInfo?._id}</p>
                                 </div>
                             </div>
-
-                            <span
-                                className={`text-sm px-4 py-1.5 rounded-full ${
-                                    m.createdAt === '9:30' ? 'bg-red-500 text-white' : 'bg-gray-200'
-                                }`}
-                            >
-                                {formatDateVN(m.createdAt)}
-                            </span>
                         </div>
                     ))}
                 </aside>
 
                 {/* RIGHT */}
-                {/*<PatientList*/}
-                {/*    selected={selected}*/}
-                {/*    selectedResult={selectedResult}*/}
-                {/*    formatDateVN={formatDateVN}*/}
-                {/*    riskLabel={riskLabel}*/}
-                {/*/>*/}
-                <aside className="flex-3 p-4 bg-[#f5f5f5] rounded-xl overflow-y-auto min-h-[400px] max-h-[650px]">
+
+                <aside className="w-full xl:w-[60%] p-3 sm:p-4 bg-[#f5f5f5] rounded-xl overflow-y-auto min-h-[300px] max-h-[400px] xl:max-h-[500px]">
                     {!selected ? (
                         // EMPTY STATE
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500">
-                            <div className="text-5xl mb-3">🧑‍⚕️</div>
+                            <img src="/DoctorImage.png" alt="Ảnh bác sĩ" className="h-64" />
                             <p className="font-semibold text-lg">Chưa chọn bệnh nhân</p>
                             <p className="text-sm">Vui lòng chọn một bệnh nhân bên trái</p>
                         </div>
@@ -242,19 +255,20 @@ export default function PatientList() {
                         // NORMAL UI
                         <>
                             <header className="flex justify-between">
-                                <div className="flex gap-3">
+                                <div className="flex gap-3 items-center">
                                     <img
                                         src={selected?.patientInfo?.avatar}
-                                        className="w-18 h-18 rounded-full"
+                                        className="w-10 h-10 xl:w-12 xl:h-12 rounded-full"
                                         alt=""
                                     />
-                                    <div className="pt-1">
-                                        <h2 className="font-bold text-2xl">{selected?.patientInfo?.fullName}</h2>
+                                    <div>
+                                        <h2 className="font-bold text-lg lg:text:xl">
+                                            {selected?.patientInfo?.fullName}
+                                        </h2>
                                         <p className="text-sm text-gray-500">
                                             {2026 - selected?.patientInfo?.birthYear} tuổi •{' '}
                                             {selected?.patientInfo?.gender === 'M' ? 'Nam' : 'Nữ'}
                                         </p>
-                                        <p className="text-sm text-gray-500">{selected?.patientInfo?._id}</p>
                                     </div>
                                 </div>
                                 <div className="flex">
@@ -271,7 +285,7 @@ export default function PatientList() {
 
                                         <div className="mt-2 bg-white p-4 rounded-xl">
                                             <p className="text-sm font-semibold">Glucose</p>
-                                            <p className="text-2xl font-bold text-indigo-600">
+                                            <p className="text-xl font-bold text-indigo-600">
                                                 {selectedResult?.rawData?.glucose} mg/dL
                                             </p>
 
@@ -294,7 +308,7 @@ export default function PatientList() {
                                         {/* BMI */}
                                         <div className="bg-white p-4 rounded-xl">
                                             <p className="text-sm font-semibold">BMI</p>
-                                            <p className="text-xl font-bold">{selectedResult?.rawData?.bmi}</p>
+                                            <p className="text-lg font-bold">{selectedResult?.rawData?.bmi}</p>
                                             <p className="text-xs text-gray-500">
                                                 {selectedResult?.rawData?.bmi > 30 ? 'Béo phì' : 'Bình thường'}
                                             </p>
@@ -303,14 +317,14 @@ export default function PatientList() {
                                         {/* INSULIN */}
                                         <div className="bg-white p-4 rounded-xl">
                                             <p className="text-sm font-semibold">Insulin</p>
-                                            <p className="text-xl font-bold">{selectedResult?.rawData?.insulin}</p>
+                                            <p className="text-lg font-bold">{selectedResult?.rawData?.insulin}</p>
                                             <p className="text-xs text-gray-500">Bình thường: 16 - 166 µU/mL</p>
                                         </div>
 
                                         {/* SKIN THICKNESS */}
                                         <div className="bg-white p-4 rounded-xl">
                                             <p className="text-sm font-semibold">Độ dày của da</p>
-                                            <p className="text-xl font-bold">
+                                            <p className="text-lg font-bold">
                                                 {selectedResult?.rawData?.skinThickness} mm
                                             </p>
                                             <p className="text-xs text-gray-500">Bình thường: ~10 - 50 mm</p>
@@ -319,7 +333,7 @@ export default function PatientList() {
                                     {/* BLOOD PRESSURE */}
                                     <div className="mt-4 bg-white p-4 rounded-xl">
                                         <p className="text-sm font-semibold">Huyết áp</p>
-                                        <p className="text-xl font-bold">
+                                        <p className="text-lg font-bold">
                                             {selectedResult?.rawData?.bloodPressure} mmHg
                                         </p>
                                     </div>
