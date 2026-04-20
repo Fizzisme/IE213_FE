@@ -55,7 +55,7 @@ export default function DosagePage() {
                                     <td>Kiểm tra lại sau 2h</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-2">> 250</td>
+                                    <td className="py-2"> 250</td>
                                     <td>Rất cao</td>
                                     <td>6+ đơn vị</td>
                                     <td className="text-red-500 font-medium">Cần can thiệp ngay</td>

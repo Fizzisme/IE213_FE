@@ -4,22 +4,19 @@ import WelcomeBanner from '../ui/dashboard/WelcomeBanner';
 import StatsGrid from '../ui/dashboard/StatsGrid';
 import AppointmentList from '../ui/dashboard/AppointmentList';
 import RecentActivity from '../ui/dashboard/RecentActivity';
-import Sidebar from './LabTechPage/Sidebar/PatientSidebar';
 export default function DemoDashboard() {
     const { displayName, roleLabel, loginMethod } = useDashboard();
 
     return (
-        <main style={{ 
-            maxWidth: 1200, 
-            margin: '0 auto', 
-            padding: '32px 24px',
-            minWidth: '800px'
-        }}>
-            <WelcomeBanner
-                displayName={displayName}
-                roleLabel={roleLabel}
-                loginMethod={loginMethod}
-            />
+        <main
+            style={{
+                maxWidth: 1200,
+                margin: '0 auto',
+                padding: '32px 24px',
+                minWidth: '800px',
+            }}
+        >
+            <WelcomeBanner displayName={displayName} roleLabel={roleLabel} loginMethod={loginMethod} />
             <StatsGrid />
             <div
                 style={{

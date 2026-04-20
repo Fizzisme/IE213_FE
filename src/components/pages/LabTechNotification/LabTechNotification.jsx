@@ -97,7 +97,7 @@ export default function LabTechNotification() {
         <div className="h-full p-6 ">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
                 {/* Header */}
-                <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-500">
+                <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-primary">
                     <div className="flex items-center gap-2">
                         <Bell size={18} className="text-white" />
                         <h1 className="text-2xl font-bold text-white">Danh sách thông báo</h1>

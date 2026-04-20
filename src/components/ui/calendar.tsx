@@ -325,7 +325,7 @@ function CalendarDayButton({
                 "data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground",
                 "data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground",
                 "data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground",
-                "data-[selected-single=true]:bg-indigo-500 data-[selected-single=true]:text-white",
+                "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-white",
                 "dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
 
                 !modifiers.selected && activeEvents.length === 0 && "border-2 border-[#e3e3e3]",

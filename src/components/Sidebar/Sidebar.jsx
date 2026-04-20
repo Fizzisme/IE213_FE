@@ -1,8 +1,8 @@
-import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
+import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 import { FileText } from 'lucide-react';
 import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.js';
+import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.tsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import { motion } from 'motion/react';
 import api from '@/utils/api.js';
@@ -51,7 +51,7 @@ const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
             <AnimateIcon
                 animateOnHover
                 className={`flex items-center px-3 py-2.5 rounded-sm cursor-pointer font-bold mb-2
-          ${active ? 'bg-[#EEEEFF] text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}
+          ${active ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-secondary/20'}
           ${openSidebar ? ' gap-2 ' : 'justify-center'}
         `}
             >
@@ -95,26 +95,48 @@ export default function Sidebar({ userInfo, navItems, renderExtra }) {
         `}
         >
             {/* Logo */}
-            <div
-                className={`flex items-center  gap-2 mb-5 font-bold text-lg
-       
+
+            <div className="flex items-center">
+                {/* Logo + Icon swap khi hover */}
+                <motion.div className="relative group" onClick={!openSidebar ? toggleSidebar : undefined}>
+                    {/* Logo — ẩn khi hover lúc sidebar đóng */}
+                    <img
+                        src="/AEGITAS2.png"
+                        height={20}
+                        width={80}
+                        alt="logo"
+                        className={`transition-all duration-200 select-none
+                ${!openSidebar ? 'group-hover:opacity-0 group-hover:scale-90 mb-2' : ''}
             `}
-            >
-                <motion.span
+                    />
+
+                    {/* Icon — chỉ xuất hiện khi sidebar đóng + hover */}
+                    {!openSidebar && (
+                        <div
+                            className={`absolute inset-0 flex items-center justify-center
+                                        opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100
+                                        transition-all duration-200 cursor-pointer
+                                        ${!openSidebar ? 'mb-2' : ''}`}
+                        >
+                            <PanelLeftClose className="w-5 h-5 text-primary" />
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* Icon toggle — chỉ hiện khi sidebar mở */}
+                <motion.div
                     variants={labelVariants}
                     animate={openSidebar ? 'open' : 'closed'}
                     initial="open"
-                    className="font-extrabold text-xl text-indigo-600 overflow-hidden whitespace-nowrap flex-1"
+                    className="ml-auto overflow-hidden"
                 >
-                    HealthHub
-                </motion.span>
-
-                <AnimateIcon animateOnHover>
-                    <PanelLeftClose
-                        onClick={toggleSidebar}
-                        className="w-5 h-5 font-medium cursor-pointer text-indigo-600 shrink-0"
-                    />
-                </AnimateIcon>
+                    <AnimateIcon animateOnHover>
+                        <PanelLeftClose
+                            onClick={toggleSidebar}
+                            className="w-5 h-5 font-medium cursor-pointer text-primary"
+                        />
+                    </AnimateIcon>
+                </motion.div>
             </div>
 
             {/* GENERAL */}

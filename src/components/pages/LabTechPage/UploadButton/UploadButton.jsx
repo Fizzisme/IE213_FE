@@ -11,6 +11,7 @@ import {
 
 import { Upload } from '@/components/animate-ui/icons/upload.js';
 import { BE_URL } from '@/lib/constans.js';
+import { toast } from 'sonner';
 
 export default function UploadButton({ medicalRecordId }) {
     const [form, setForm] = useState({
@@ -55,52 +56,62 @@ export default function UploadButton({ medicalRecordId }) {
             setError(errMsg);
             return;
         }
-        try {
-            setLoading(true);
+        const payload = {
+            testType: 'DIABETES_TEST',
+            rawData: {
+                pregnancies: Number(form.pregnancies),
+                diabetesPedigreeFunction: Number(form.diabetesPedigreeFunction),
+                glucose: Number(form.glucose),
+                bloodPressure: Number(form.bloodPressure),
+                skinThickness: Number(form.skinThickness),
+                insulin: Number(form.insulin),
+                bmi: Number(form.bmi),
+                note: form.note,
+            },
+        };
 
-            const payload = {
-                testType: 'DIABETES_TEST',
-                rawData: {
-                    pregnancies: Number(form.pregnancies),
-                    diabetesPedigreeFunction: Number(form.diabetesPedigreeFunction),
-                    glucose: Number(form.glucose),
-                    bloodPressure: Number(form.bloodPressure),
-                    skinThickness: Number(form.skinThickness),
-                    insulin: Number(form.insulin),
-                    bmi: Number(form.bmi),
-                    note: form.note,
+        toast
+            .promise(
+                async () => {
+                    setLoading(true);
+                    const res = await fetch(`${BE_URL}/v1/lab-techs/medical-records/${medicalRecordId}/test-results`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(payload),
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Có lỗi xảy ra');
+                    }
+                    console.log('Success:', data);
+                    setForm({
+                        diabetesPedigreeFunction: '',
+                        pregnancies: '',
+                        glucose: '',
+                        bloodPressure: '',
+                        skinThickness: '',
+                        insulin: '',
+                        bmi: '',
+                        note: '',
+                    });
+
+                    return data;
                 },
-            };
-            const res = await fetch(`${BE_URL}/v1/lab-techs/medical-records/${medicalRecordId}/test-results`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+                {
+                    loading: 'Đang gửi kết quả xét nghiệm...',
+                    success: (data) => data?.message || 'Lưu thành công',
+                    error: (err) => err?.message || 'Có lỗi xảy ra',
+                    position: 'top-right',
                 },
-                credentials: 'include',
-                body: JSON.stringify(payload),
+            )
+            .finally(() => {
+                setLoading(false);
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Có lỗi xảy ra');
-            }
-
-            console.log('Success:', data);
-
-            setForm({
-                diabetesPedigreeFunction: '',
-                pregnancies: '',
-                glucose: '',
-                bloodPressure: '',
-                skinThickness: '',
-                insulin: '',
-                bmi: '',
-                note: '',
-            });
-        } catch (err) {
-            console.error('Error:', err.message);
-        }
     };
 
     const isDisabled =
@@ -196,8 +207,9 @@ export default function UploadButton({ medicalRecordId }) {
                     </DialogClose>
 
                     <button
-                        className="px-4 py-2 bg-indigo-500 text-white rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01] font-semibold"
+                        className="px-4 py-2 bg-primary text-white rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01] font-semibold"
                         onClick={handleSubmit}
+                        disabled={isDisabled}
                     >
                         Lưu & Phân tích
                     </button>
