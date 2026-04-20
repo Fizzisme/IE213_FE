@@ -32,7 +32,7 @@ export default function Collapsible({ icon: Icon, label, openSidebar, labelVaria
             <div
                 onClick={() => setOpen(!open)}
                 className={`flex justify-between items-center gap-2 px-3 py-2.5 rounded-sm cursor-pointer font-bold
-                    ${open ? 'bg-[#EEEEFF] text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}
+                    ${open ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-secondary/20'}
                 `}
             >
                 <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function Collapsible({ icon: Icon, label, openSidebar, labelVaria
                         </div>
                     </div>
                     <div className="flex items-center gap-2 ml-2.5 mt-2 mb-1">
-                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-indigo-600 text-white shrink-0">
+                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-primary text-white shrink-0">
                             <Plus size={12} />
                         </div>
                         <span className="text-sm text-gray-500 hover:text-black cursor-pointer whitespace-nowrap">
@@ -93,7 +93,9 @@ export default function Collapsible({ icon: Icon, label, openSidebar, labelVaria
 function SidebarItem({ label, path }) {
     return (
         <Link to={path}>
-            <div className="text-sm font-medium px-2 py-1.5 rounded-md hover:bg-gray-100 cursor-pointer">{label}</div>
+            <div className="text-sm text-textColor font-medium px-2 py-1.5 rounded-md hover:bg-secondary/20 cursor-pointer">
+                {label}
+            </div>
         </Link>
     );
 }

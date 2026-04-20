@@ -51,7 +51,7 @@ export default function UserProfilePopover({
                             openSidebar ? { width: '2rem', height: '2rem' } : { width: '1.75rem', height: '1.75rem' }
                         }
                         transition={{ duration: 0.5 }}
-                        className="rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-xs"
+                        className="rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs"
                     >
                         {getInitials(user?.fullName)}
                     </motion.div>

@@ -29,7 +29,7 @@ const SLIDES = [
     {
         title: 'Phân tích & báo cáo theo thời gian thực',
         desc: 'Theo dõi chỉ số hiệu suất, kết quả điều trị và KPI vận hành từ một bảng điều khiển thống nhất.',
-        img: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&q=80',
+        img: 'https://www.news-medical.net/image-handler/picture/2021/1/shutterstock_1067569886_(1).jpg',
     },
 ];
 // ── Reusable InputField — PHẢI đặt NGOÀI AuthPage ────────────────────────────
@@ -86,7 +86,7 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
                     justifyContent: 'center',
                     border: 'none',
                     cursor: active ? 'default' : 'pointer',
-                    backgroundColor: success ? '#10b981' : '#2563eb',
+                    backgroundColor: success ? '#10b981' : '#0d7b6d',
                     flexShrink: 0,
                     position: 'relative',
                 }}
@@ -261,27 +261,18 @@ export default function AuthPage() {
         }
     };
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-6 font-sans">
+        <div className="min-h-screen bg-[#F4F7F6] flex items-center justify-center p-4 md:p-6 font-sans">
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-[40%_60%]">
                     {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
-                    <div className="bg-[#3B82F6] p-8 md:p-10 hidden md:flex flex-col justify-between text-white">
-                        {/* Logo */}
-                        <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                                <Activity className="w-6 h-6 text-[#3B82F6]" />
-                            </div>
-                            <span className="text-xl font-semibold">HealthHub</span>
-                        </div>
-
-                        {/* Slide image — fade transition */}
-                        <div className="my-8 flex justify-center relative h-56">
+                    <div className="bg-primary p-8 md:p-10 hidden md:flex flex-col text-white gap-10 justify-center">
+                        {/* SLIDE IMAGE */}
+                        <div className="flex justify-center relative h-56">
                             {SLIDES.map((s, i) => (
                                 <img
                                     key={i}
                                     src={s.img}
-                                    alt=""
-                                    className="absolute inset-0 w-full h-full object-contain mix-blend-multiply drop-shadow-2xl rounded-xl"
+                                    className="absolute inset-0 w-full h-full object-contain"
                                     style={{
                                         opacity: i === activeSlide ? 1 : 0,
                                         transition: 'opacity 0.6s ease',
@@ -290,44 +281,25 @@ export default function AuthPage() {
                             ))}
                         </div>
 
-                        {/* Slide text — fade transition */}
-                        <div style={{ position: 'relative', minHeight: '120px' }}>
-                            {SLIDES.map((s, i) => (
-                                <div
-                                    key={i}
-                                    style={{
-                                        position: 'absolute',
-                                        inset: 0,
-                                        opacity: i === activeSlide ? 1 : 0,
-                                        transition: 'opacity 0.5s ease',
-                                        pointerEvents: i === activeSlide ? 'auto' : 'none',
-                                    }}
-                                >
-                                    <h2 className="text-2xl font-bold mb-3">{s.title}</h2>
-                                    <p className="opacity-80 text-sm leading-relaxed">{s.desc}</p>
-                                </div>
-                            ))}
-                        </div>
+                        <div>
+                            {/* TEXT */}
+                            <div className="text-left">
+                                <h2 className="text-xl font-semibold mb-2">{SLIDES[activeSlide].title}</h2>
+                                <p className="text-sm opacity-80">{SLIDES[activeSlide].desc}</p>
+                            </div>
 
-                        {/* Dots */}
-                        <div className="flex items-center gap-2 mt-6">
-                            {SLIDES.map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setActiveSlide(i)}
-                                    style={{
-                                        width: i === activeSlide ? '32px' : '8px',
-                                        height: '8px',
-                                        borderRadius: '9999px',
-                                        backgroundColor: i === activeSlide ? 'white' : 'rgba(255,255,255,0.4)',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        transition:
-                                            'width 0.35s cubic-bezier(0.4,0,0.2,1), background-color 0.35s ease',
-                                        padding: 0,
-                                    }}
-                                />
-                            ))}
+                            {/* DOTS */}
+                            <div className="flex justify-center gap-2 mt-4">
+                                {SLIDES.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveSlide(i)}
+                                        className={`h-2 rounded-full transition-all ${
+                                            i === activeSlide ? 'w-6 bg-white' : 'w-2 bg-white/40'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
 

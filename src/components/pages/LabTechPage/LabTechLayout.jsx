@@ -1,10 +1,11 @@
-import Sidebar from '@/components/pages/LabTechPage/Sidebar/Sidebar.jsx';
+import Sidebar from '@/components/Sidebar/Sidebar.jsx';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { BE_URL } from '@/lib/constans.js';
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
 import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { CircleX, Menu } from 'lucide-react';
+import { Toaster } from '@/components/ui/sonner';
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/lab-tech/dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/lab-tech/notifications' },
@@ -41,9 +42,9 @@ export default function LabTechLayout() {
             </div>
 
             {/* license */}
-            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border">
+            <div className="p-3 rounded-lg bg-gradient-to-r from-secondary/25 to-primary/25 border">
                 <p className="text-xs text-gray-500">Giấy phép</p>
-                <p className="font-mono text-sm font-semibold text-indigo-600">{user?.licenseNumber}</p>
+                <p className="font-mono text-sm font-semibold text-primary">{user?.licenseNumber}</p>
             </div>
         </>
     );
@@ -138,6 +139,7 @@ export default function LabTechLayout() {
                     <Outlet />
                 </div>
             </div>
+            <Toaster />
         </div>
     );
 }
