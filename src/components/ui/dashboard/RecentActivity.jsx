@@ -20,8 +20,8 @@ export default function RecentActivity() {
                 minWidth: 0,
             }}
         >
-            <div style={{ padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Hoạt động gần đây</h2>
+            <div style={{ padding: 'clamp(14px, 3vw, 18px) clamp(14px, 4vw, 22px)', borderBottom: '1px solid #F1F5F9' }}>
+                <h2 style={{ margin: 0, fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 700, color: '#0F172A' }}>Hoạt động gần đây</h2>
             </div>
             <div style={{ padding: '8px 0' }}>
                 {ACTIVITY.map((a, i) => (
@@ -30,8 +30,8 @@ export default function RecentActivity() {
                         style={{
                             display: 'flex',
                             alignItems: 'flex-start',
-                            gap: 12,
-                            padding: 'max(12px, 1.2vw) max(18px, 2vw)',
+                            gap: 'clamp(10px, 2vw, 12px)',
+                            padding: 'clamp(10px, 2vw, 12px) clamp(14px, 3vw, 18px)',
                             cursor: 'pointer',
                             transition: 'background 0.15s',
                             minWidth: 0,
@@ -51,10 +51,10 @@ export default function RecentActivity() {
                             }}
                         />
                         <div style={{ minWidth: 0 }}>
-                            <p style={{ margin: 0, fontSize: 14, color: '#334155', fontWeight: 500, wordBreak: 'break-word' }}>
+                            <p style={{ margin: 0, fontSize: 'clamp(12px, 3vw, 14px)', color: '#334155', fontWeight: 500, wordBreak: 'break-word' }}>
                                 {a.text}
                             </p>
-                            <p style={{ margin: '3px 0 0', fontSize: 12, color: '#94A3B8' }}>{a.time}</p>
+                            <p style={{ margin: '3px 0 0', fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8' }}>{a.time}</p>
                         </div>
                     </div>
                 ))}

@@ -88,28 +88,28 @@ export default function LabTechNotification() {
     const deleteNotification = (id) => setNotifications((prev) => prev.filter((n) => n.id !== id));
 
     const tabs = [
-        { key: 'all', label: 'All', count: notifications.length },
-        { key: 'unread', label: 'Unread', count: unreadCount },
-        { key: 'starred', label: 'Starred', count: starredCount },
+        { key: 'all', label: 'Tất cả', count: notifications.length },
+        { key: 'unread', label: 'Chưa đọc', count: unreadCount },
+        { key: 'starred', label: 'Chia sẻ', count: starredCount },
     ];
 
     return (
-        <div className="h-full p-6 bg-gray-50">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="h-full p-6 ">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-primary">
                     <div className="flex items-center gap-2">
-                        <Bell size={18} className="text-indigo-600" />
-                        <h1 className="text-base font-bold text-gray-800">List Notification</h1>
+                        <Bell size={18} className="text-white" />
+                        <h1 className="text-2xl font-bold text-white">Danh sách thông báo</h1>
                     </div>
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 transition">
+                    <button className="p-1.5 rounded-lg hover:bg-gray-100 transition cursor-pointer">
                         <MoreHorizontal size={18} className="text-gray-400" />
                     </button>
-                </div>
+                </header>
 
                 {/* Subheader: count + search */}
                 <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
-                    <span className="text-sm text-gray-500 font-medium">{notifications.length} Notification</span>
+                    <span className="text-sm text-gray-500 font-medium">{notifications.length} Thông báo</span>
                     <div className="relative">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
@@ -127,7 +127,7 @@ export default function LabTechNotification() {
                         <button
                             key={tab.key}
                             onClick={() => setFilter(tab.key)}
-                            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition relative
+                            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition relative cursor-pointer
                                 ${filter === tab.key ? 'text-gray-800' : 'text-gray-400 hover:text-gray-600'}
                             `}
                         >

@@ -4,6 +4,7 @@ import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 export default function PatientChart() {
     const option = {
+        color: ['#0d7b6d', '#a5b4fc'],
         areaStyle: {
             opacity: 0.2,
         },
@@ -150,31 +151,37 @@ export default function PatientChart() {
     const openSidebar = useLayoutStore((s) => s?.openSidebar);
 
     useEffect(() => {
-        const chart = chartRef.current?.getEchartsInstance();
-        if (!chart) return;
+        // Đợi CSS transition sidebar settle hẳn rồi mới resize
+        const timeout = setTimeout(() => {
+            const chart = chartRef.current?.getEchartsInstance();
+            if (!chart) return;
 
-        let rafId;
-        const startTime = performance.now();
-        const duration = 550;
+            let rafId;
+            const startTime = performance.now();
+            const duration = 550;
 
-        const resizeLoop = () => {
-            chart.resize();
-            if (performance.now() - startTime < duration) {
-                rafId = requestAnimationFrame(resizeLoop);
-            }
-        };
+            const resizeLoop = () => {
+                chart.resize();
+                if (performance.now() - startTime < duration) {
+                    rafId = requestAnimationFrame(resizeLoop);
+                }
+            };
 
-        rafId = requestAnimationFrame(resizeLoop);
-        return () => cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(resizeLoop);
+        }, 50); // Đợi 50ms sau khi React render xong
+
+        return () => clearTimeout(timeout);
     }, [openSidebar]);
 
     return (
-        <>
-            <div className="bg-white p-5 rounded-2xl shadow mb-6">
-                <p className="text-gray-400 text-sm mb-3">Thống kê bệnh nhân trong 1 tháng</p>
-
-                <ReactECharts ref={chartRef} option={option} style={{ height: 250 }} />
-            </div>
-        </>
+        <div className="bg-white p-5 rounded-2xl shadow mb-6 hidden sm:block">
+            <p className="text-gray-400 text-sm mb-3">Thống kê bệnh nhân trong 1 tháng</p>
+            <ReactECharts
+                ref={chartRef}
+                option={option}
+                style={{ height: 250, width: '100%' }}
+                opts={{ renderer: 'canvas', width: 'auto' }}
+            />
+        </div>
     );
 }

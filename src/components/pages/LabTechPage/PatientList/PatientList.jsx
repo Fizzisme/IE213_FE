@@ -11,6 +11,16 @@ import UploadButton from '@/components/pages/LabTechPage/UploadButton/UploadButt
 import { Bot } from '@/components/animate-ui/icons/bot.js';
 import ZoomOut from '@/components/animate-ui/icons/zoom-out.jsx';
 import { Search } from '@/components/animate-ui/icons/search.js';
+import {
+    CheckCircle2,
+    Activity,
+    Scale,
+    Droplets,
+    FileText,
+    LineChart,
+    CalendarDays,
+    AlertTriangle,
+} from 'lucide-react';
 
 const mockPatients = [
     {
@@ -129,19 +139,25 @@ export default function PatientList() {
     const [filters, setFilters] = useState({
         status: 'ALL',
         sort: 'desc',
+        q: '',
     });
 
     const fetchDataFilter = async (newFilters) => {
+        const merged = { ...filters, ...newFilters };
         let url = `${BE_URL}/v1/lab-techs/medical-records`;
 
         const params = [];
 
-        if (newFilters.status !== 'ALL') {
-            params.push(`status=${newFilters.status}`);
+        if (merged.status !== 'ALL') {
+            params.push(`status=${merged.status}`);
         }
 
-        if (newFilters.sort) {
-            params.push(`sort=${newFilters.sort}`);
+        if (merged.sort) {
+            params.push(`sort=${merged.sort}`);
+        }
+
+        if (merged.q) {
+            params.push(`q=${encodeURIComponent(merged.q)}`);
         }
 
         if (params.length > 0) {
@@ -156,21 +172,37 @@ export default function PatientList() {
         setMedicalRecords(data.data);
     };
 
-    const handleSearch = (event) => {
-        console.log(event.target.value());
-    };
+    const [debounced, setDebounced] = useState(filters.q);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebounced(filters.q);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [filters.q]);
+
+    useEffect(() => {
+        fetchDataFilter({ q: debounced });
+    }, [debounced]);
+
     return (
         <div className="flex-1 bg-white rounded-2xl p-6">
-            <header className="flex justify-between">
-                <span className="font-bold text-3xl">Danh sách bệnh nhân</span>
-                <div className="flex gap-2">
+            <header className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <span className="font-bold text-xl xl:text-2xl text-primary">Danh sách bệnh nhân</span>
+                <div className="flex flex-wrap sm:flex-nowrap gap-2">
                     <AnimateIcon
                         animateOnHover
-                        className=" border-2 p-1 px-[6px] hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-md bg-[#f5f5f5] select-none cursor-pointer flex gap-1 items-center"
+                        className=" border-2 px-1.5 hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-lg bg-[#f5f5f5] select-none cursor-pointer flex gap-1.5 items-center"
                     >
-                        <Search className={'size-5'} />
+                        <Search className={'size-4'} />
                         <input
-                            onClick={handleSearch}
+                            value={filters.q}
+                            onChange={(e) =>
+                                setFilters((prev) => ({
+                                    ...prev,
+                                    q: e.target.value,
+                                }))
+                            }
                             className="flex-1 p-1 text-sm outline-none border-none"
                             placeholder="Tìm kiếm"
                         />
@@ -194,47 +226,38 @@ export default function PatientList() {
                 </div>
             </header>
 
-            <div className="flex gap-12 mt-4 ">
+            <div className="flex flex-col lg:flex-row gap-4 xl:gap-8 mt-4">
                 {/* LEFT */}
-                <aside className="flex-2 space-y-3 overflow-y-auto max-h-[500px] ">
+                <aside className="w-full xl:w-[40%] space-y-3 overflow-y-auto max-h-[400px] xl:max-h-[500px]">
                     {medicalRecords.map((m) => (
                         <div
                             key={m._id}
                             onClick={() => setSelected(m)}
                             className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition
-              ${selected?._id === m._id ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+              ${selected?._id === m._id ? 'bg-primary/10' : 'hover:bg-secondary/20'}`}
                         >
                             <div className="flex items-center gap-3">
-                                <img src={m.patientInfo.avatar} className="w-12 h-12 rounded-full" alt="" />
+                                <img
+                                    src={m.patientInfo.avatar}
+                                    className="w-8 h-8 xl:w-10 xl:h-10 rounded-full"
+                                    alt=""
+                                />
                                 <div>
-                                    <p className="font-semibold text-xl">{m?.patientInfo?.fullName}</p>
+                                    <p className="font-semibold text-base xl:text-lg">{m?.patientInfo?.fullName}</p>
                                     <p className="text-sm text-gray-500">{m?.patientInfo?._id}</p>
                                 </div>
                             </div>
-
-                            <span
-                                className={`text-sm px-4 py-1.5 rounded-full ${
-                                    m.createdAt === '9:30' ? 'bg-red-500 text-white' : 'bg-gray-200'
-                                }`}
-                            >
-                                {formatDateVN(m.createdAt)}
-                            </span>
                         </div>
                     ))}
                 </aside>
 
                 {/* RIGHT */}
-                {/*<PatientList*/}
-                {/*    selected={selected}*/}
-                {/*    selectedResult={selectedResult}*/}
-                {/*    formatDateVN={formatDateVN}*/}
-                {/*    riskLabel={riskLabel}*/}
-                {/*/>*/}
-                <aside className="flex-3 p-4 bg-[#f5f5f5] rounded-xl overflow-y-auto min-h-[400px] max-h-[650px]">
+
+                <aside className="w-full xl:w-[60%] p-3 sm:p-4 bg-primary/10 rounded-xl overflow-y-auto min-h-[300px] max-h-[400px] xl:max-h-[500px]">
                     {!selected ? (
                         // EMPTY STATE
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-500">
-                            <div className="text-5xl mb-3">🧑‍⚕️</div>
+                            <img src="/DoctorImage.png" alt="Ảnh bác sĩ" className="h-64" />
                             <p className="font-semibold text-lg">Chưa chọn bệnh nhân</p>
                             <p className="text-sm">Vui lòng chọn một bệnh nhân bên trái</p>
                         </div>
@@ -242,19 +265,20 @@ export default function PatientList() {
                         // NORMAL UI
                         <>
                             <header className="flex justify-between">
-                                <div className="flex gap-3">
+                                <div className="flex gap-3 items-center">
                                     <img
                                         src={selected?.patientInfo?.avatar}
-                                        className="w-18 h-18 rounded-full"
+                                        className="w-10 h-10 xl:w-12 xl:h-12 rounded-full"
                                         alt=""
                                     />
-                                    <div className="pt-1">
-                                        <h2 className="font-bold text-2xl">{selected?.patientInfo?.fullName}</h2>
+                                    <div>
+                                        <h2 className="font-bold text-lg lg:text:xl">
+                                            {selected?.patientInfo?.fullName}
+                                        </h2>
                                         <p className="text-sm text-gray-500">
                                             {2026 - selected?.patientInfo?.birthYear} tuổi •{' '}
                                             {selected?.patientInfo?.gender === 'M' ? 'Nam' : 'Nữ'}
                                         </p>
-                                        <p className="text-sm text-gray-500">{selected?.patientInfo?._id}</p>
                                     </div>
                                 </div>
                                 <div className="flex">
@@ -265,178 +289,257 @@ export default function PatientList() {
                             {selectedResult ? (
                                 <>
                                     {' '}
-                                    {/* GLUCOSE CARD */}
-                                    <div className="mt-4">
-                                        <p className="text-lg font-semibold">Thông tin chỉ số</p>
+                                    <div className="mt-8 bg-white rounded-md shadow border border-gray-200 overflow-hidden">
+                                        {/* HEADER */}
+                                        <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="w-4 h-4 text-gray-600" />
+                                                <p className="text-sm font-semibold text-gray-700">
+                                                    Kết quả xét nghiệm
+                                                </p>
+                                            </div>
 
-                                        <div className="mt-2 bg-white p-4 rounded-xl">
-                                            <p className="text-sm font-semibold">Glucose</p>
-                                            <p className="text-2xl font-bold text-indigo-600">
-                                                {selectedResult?.rawData?.glucose} mg/dL
-                                            </p>
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <CalendarDays className="w-4 h-4" />
+                                                {formatDateVN(selected?.createdAt)}
+                                            </div>
+                                        </div>
 
-                                            <p className="text-xs text-gray-500 mt-1">Bình thường: 70 - 140 mg/dL</p>
+                                        {/* TABLE */}
+                                        <div className={'w-full overflow-x-auto'}>
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-100 text-gray-600">
+                                                    <tr>
+                                                        <th className="text-left px-4 py-2">Xét nghiệm</th>
+                                                        <th className="text-left px-4 py-2">Kết quả</th>
+                                                        <th className="text-left px-4 py-2">Trị số tham chiếu</th>
+                                                        <th className="text-left px-4 py-2">Đơn vị</th>
+                                                    </tr>
+                                                </thead>
 
-                                            {/* fake chart */}
-                                            <div className="mt-3 h-10 flex items-end gap-1">
-                                                {[8, 12, 6, 10, 14, 9, 11].map((h, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="w-2 bg-indigo-400 rounded"
-                                                        style={{ height: `${h * 3}px` }}
-                                                    />
-                                                ))}
+                                                <tbody className="divide-y">
+                                                    {/* GLUCOSE */}
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-medium">Glucose</td>
+                                                        <td
+                                                            className={`px-4 py-3 font-semibold ${
+                                                                selectedResult?.rawData?.glucose > 140
+                                                                    ? 'text-red-500'
+                                                                    : 'text-[#0d7b6d]'
+                                                            }`}
+                                                        >
+                                                            {selectedResult?.rawData?.glucose}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-500">70 - 140</td>
+                                                        <td className="px-4 py-3 text-gray-500">mg/dL</td>
+                                                    </tr>
+
+                                                    {/* BMI */}
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-medium">BMI</td>
+                                                        <td
+                                                            className={`px-4 py-3 font-semibold ${
+                                                                selectedResult?.rawData?.bmi > 30
+                                                                    ? 'text-red-500'
+                                                                    : 'text-[#0d7b6d]'
+                                                            }`}
+                                                        >
+                                                            {selectedResult?.rawData?.bmi}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-500">18.5 - 24.9</td>
+                                                        <td className="px-4 py-3 text-gray-500">kg/m²</td>
+                                                    </tr>
+
+                                                    {/* INSULIN */}
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-medium">Insulin</td>
+                                                        <td className="px-4 py-3 font-semibold text-textColor">
+                                                            {selectedResult?.rawData?.insulin}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-500">16 - 166</td>
+                                                        <td className="px-4 py-3 text-gray-500">µU/mL</td>
+                                                    </tr>
+
+                                                    {/* BLOOD PRESSURE */}
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-medium">Huyết áp</td>
+                                                        <td className="px-4 py-3 font-semibold text-textColor">
+                                                            {selectedResult?.rawData?.bloodPressure}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-500">~120/80</td>
+                                                        <td className="px-4 py-3 text-gray-500">mmHg</td>
+                                                    </tr>
+
+                                                    {/* SKIN THICKNESS */}
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-medium">Độ dày da</td>
+                                                        <td className="px-4 py-3 font-semibold text-textColor">
+                                                            {selectedResult?.rawData?.skinThickness}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-500">10 - 50</td>
+                                                        <td className="px-4 py-3 text-gray-500">mm</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    {/*Note*/}
+                                    <div className="bg-white rounded-md border border-gray-200 overflow-hidden mt-8">
+                                        {/* HEADER */}
+                                        <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="w-4 h-4 text-gray-600" />
+                                                <p className="text-sm font-semibold text-gray-700">Ghi chú lâm sàng</p>
+                                            </div>
+
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <CalendarDays className="w-4 h-4" />
+                                                {formatDateVN(selected?.createdAt)}
+                                            </div>
+                                        </div>
+
+                                        {/* CONTENT */}
+                                        <div className="p-4 space-y-3 text-sm">
+                                            <div>
+                                                <p className="text-gray-500">Nhận định:</p>
+                                                <p className="text-gray-800 font-medium">
+                                                    {selected?.note || 'Không có'}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <p className="text-gray-500">Khuyến nghị:</p>
+                                                <p className="text-gray-800">Theo dõi chỉ số đường huyết định kỳ.</p>
                                             </div>
                                         </div>
                                     </div>
-                                    {/* BMI + INSULIN */}
-                                    <div className="mt-4 grid grid-cols-3 gap-3">
-                                        {/* BMI */}
-                                        <div className="bg-white p-4 rounded-xl">
-                                            <p className="text-sm font-semibold">BMI</p>
-                                            <p className="text-xl font-bold">{selectedResult?.rawData?.bmi}</p>
-                                            <p className="text-xs text-gray-500">
-                                                {selectedResult?.rawData?.bmi > 30 ? 'Béo phì' : 'Bình thường'}
-                                            </p>
-                                        </div>
-
-                                        {/* INSULIN */}
-                                        <div className="bg-white p-4 rounded-xl">
-                                            <p className="text-sm font-semibold">Insulin</p>
-                                            <p className="text-xl font-bold">{selectedResult?.rawData?.insulin}</p>
-                                            <p className="text-xs text-gray-500">Bình thường: 16 - 166 µU/mL</p>
-                                        </div>
-
-                                        {/* SKIN THICKNESS */}
-                                        <div className="bg-white p-4 rounded-xl">
-                                            <p className="text-sm font-semibold">Độ dày của da</p>
-                                            <p className="text-xl font-bold">
-                                                {selectedResult?.rawData?.skinThickness} mm
-                                            </p>
-                                            <p className="text-xs text-gray-500">Bình thường: ~10 - 50 mm</p>
-                                        </div>
-                                    </div>
-                                    {/* BLOOD PRESSURE */}
-                                    <div className="mt-4 bg-white p-4 rounded-xl">
-                                        <p className="text-sm font-semibold">Huyết áp</p>
-                                        <p className="text-xl font-bold">
-                                            {selectedResult?.rawData?.bloodPressure} mmHg
-                                        </p>
-                                    </div>
-                                    {/* NOTE */}
-                                    <div className="mt-4">
-                                        <div className="flex justify-between">
-                                            <p className="text-lg font-semibold">Ghi chú</p>
-                                            <p className="text-gray-500 text-sm">{formatDateVN(selected?.createdAt)}</p>
-                                        </div>
-
-                                        <div className="mt-2 bg-white p-4 rounded-xl">
-                                            <p>{selected?.note || '--'}</p>
-                                        </div>
-                                    </div>
-                                    {/* STATUS */}
-                                    <div className="mt-4">
-                                        <p className="text-lg text-green-700 font-semibold">Trạng thái</p>
-
-                                        <div className="mt-2 p-4 rounded-xl bg-green-50 border border-green-200">
-                                            <p className="text-green-600 font-medium">Đã có kết quả xét nghiệm</p>
-                                        </div>
-                                    </div>
-                                    {/* AI ANALYST */}
-                                    <div className="mt-4">
-                                        <p className="text-lg font-semibold text-indigo-600">Phân tích</p>
-
-                                        <div className="mt-2 bg-white p-4 rounded-xl border">
-                                            {/* HEADER */}
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Bot animateOnHover className="text-indigo-600 cursor-pointer" />
-                                                <p className="font-semibold text-md text-indigo-600">Trợ lý AI</p>
+                                    <div className="mt-8 bg-white rounded-md border border-gray-200 overflow-hidden">
+                                        {/* HEADER */}
+                                        <div className="px-5 py-4 border-b bg-gray-50 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <Bot className="w-5 h-5 text-[#0d7b6d]" />
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-800">Phân tích AI</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        Đánh giá hỗ trợ (không thay thế chẩn đoán bác sĩ)
+                                                    </p>
+                                                </div>
                                             </div>
 
-                                            {/* RESULT */}
+                                            <span className="text-xs text-gray-400 border px-2 py-1 rounded-md">
+                                                Verified
+                                            </span>
+                                        </div>
 
-                                            <div className="space-y-2">
-                                                <p className="">
-                                                    <span className="font-medium">Chẩn đoán:</span>{' '}
-                                                    <span
-                                                        className={`font-semibold ${
+                                        {/* BODY */}
+                                        <div className="p-5 space-y-6">
+                                            {/* TOP: METRICS */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                {/* KẾT LUẬN */}
+                                                <div className="p-4 border rounded-lg bg-gray-50">
+                                                    <p className="text-xs text-gray-500 mb-1">Kết luận</p>
+                                                    <p
+                                                        className={`text-sm font-semibold ${
                                                             selectedResult?.aiAnalysis?.diabetes
-                                                                ? 'text-red-500'
-                                                                : 'text-green-600'
+                                                                ? 'text-red-600'
+                                                                : 'text-emerald-600'
                                                         }`}
                                                     >
                                                         {selectedResult?.aiAnalysis?.diabetes
                                                             ? 'Có nguy cơ tiểu đường'
-                                                            : 'Không có dấu hiệu tiểu đường'}
-                                                    </span>
-                                                </p>
-
-                                                {/* PROBABILITY */}
-                                                <p className="">
-                                                    <span className="font-medium">Xác suất:</span>{' '}
-                                                    {selectedResult?.aiAnalysis?.probability}%
-                                                </p>
-                                                <div className="mt-2">
-                                                    <div className="w-full bg-gray-200 h-2 rounded-full">
-                                                        <div
-                                                            className="h-2 bg-indigo-500 rounded-full"
-                                                            style={{
-                                                                width: `${selectedResult?.aiAnalysis?.probability ||
-                                                                    0}%`,
-                                                            }}
-                                                        />
-                                                    </div>
+                                                            : 'Chưa ghi nhận dấu hiệu'}
+                                                    </p>
                                                 </div>
+
                                                 {/* RISK */}
-                                                <p>
-                                                    <span className="font-medium">Tỷ lệ mắc bệnh:</span>{' '}
+                                                <div className="p-4 border rounded-lg bg-gray-50">
+                                                    <p className="text-xs text-gray-500 mb-1">Mức rủi ro</p>
                                                     <span
-                                                        className={`font-semibold ${
+                                                        className={`inline-block px-3 py-1 rounded-md text-xs font-medium ${
                                                             selectedResult?.aiAnalysis?.risk === 'HIGH'
-                                                                ? 'text-red-500'
+                                                                ? 'bg-red-50 text-red-600'
                                                                 : selectedResult?.aiAnalysis?.risk === 'MEDIUM'
-                                                                ? 'text-yellow-500'
-                                                                : 'text-green-600'
+                                                                ? 'bg-yellow-50 text-yellow-600'
+                                                                : 'bg-emerald-50 text-emerald-600'
                                                         }`}
                                                     >
                                                         {riskLabel[selectedResult?.aiAnalysis?.risk] ||
                                                             'Không xác định'}
                                                     </span>
-                                                </p>
+                                                </div>
+
+                                                {/* PROBABILITY */}
+                                                <div className="p-4 border rounded-lg bg-gray-50">
+                                                    <p className="text-xs text-gray-500 mb-1">Xác suất</p>
+                                                    <div className="flex items-center gap-3">
+                                                        <p className="text-xl font-bold text-gray-800">
+                                                            {selectedResult?.aiAnalysis?.probability || 0}%
+                                                        </p>
+                                                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-2 bg-[#0d7b6d]"
+                                                                style={{
+                                                                    width: `${selectedResult?.aiAnalysis?.probability ||
+                                                                        0}%`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            {/* AI NOTE */}
-                                            <p className="mt-2 font-medium">Ghi Chú</p>
-                                            <div className="mt-1 p-3 bg-gray-50 rounded-lg  text-gray-600">
-                                                {selectedResult?.aiAnalysis?.aiNote || 'Không có ghi chú từ AI'}
+                                            {/* BOTTOM: NOTE FULL WIDTH */}
+                                            <div className="border rounded-lg bg-gray-50 p-4">
+                                                <p className="text-sm font-semibold text-gray-700 mb-2">
+                                                    Phân tích chi tiết
+                                                </p>
+
+                                                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                                                    {selectedResult?.aiAnalysis?.aiNote ||
+                                                        'Không có dữ liệu phân tích từ AI.'}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
                                 </>
                             ) : (
                                 <>
-                                    {' '}
-                                    <div className="mt-4">
-                                        <p className="text-lg font-semibold text-gray-500">Loại xét nghiệm</p>
-                                        <div className="mt-2 bg-white p-4 rounded-xl">
-                                            <p className="font-semibold">Tiểu đường</p>
+                                    {/* LOẠI XÉT NGHIỆM */}
+                                    <div className="mt-8 bg-white rounded-md border border-gray-200 overflow-hidden">
+                                        <div className="px-4 py-3 bg-gray-50 border-b">
+                                            <p className="text-sm font-semibold text-gray-700">Loại xét nghiệm</p>
+                                        </div>
+
+                                        <div className="p-4">
+                                            <p className="font-medium text-gray-800">Tiểu đường</p>
                                         </div>
                                     </div>
-                                    <div className="mt-4">
-                                        <div className="flex justify-between">
-                                            <p className="text-lg font-semibold">Ghi chú</p>
-                                            <p className="font-semibold text-gray-500">
-                                                {formatDateVN(selected?.createdAt)}
+
+                                    {/* GHI CHÚ */}
+                                    <div className="mt-6 bg-white rounded-md border border-gray-200 overflow-hidden">
+                                        <div className="px-4 py-3 bg-gray-50 border-b flex justify-between items-center">
+                                            <p className="text-sm font-semibold text-gray-700">Ghi chú lâm sàng</p>
+                                            <p className="text-xs text-gray-500">{formatDateVN(selected?.createdAt)}</p>
+                                        </div>
+
+                                        <div className="p-4">
+                                            <p className="text-sm text-gray-800 leading-relaxed">
+                                                {selected?.note || 'Không có ghi chú'}
                                             </p>
                                         </div>
-                                        <div className="mt-2 bg-white p-4 rounded-lg">
-                                            <p className="font-medium">{selected?.note || '--'}</p>
-                                        </div>
                                     </div>
-                                    <div className="mt-4">
-                                        <p className="text-lg text-yellow-700 font-semibold">Trạng thái</p>
-                                        <div className="mt-2 p-4 rounded-xl bg-yellow-50 border border-yellow-200">
-                                            <p className="text-yellow-600">Chưa có kết quả xét nghiệm</p>
+
+                                    {/* TRẠNG THÁI */}
+                                    <div className="mt-6 bg-white rounded-md border border-gray-200 overflow-hidden">
+                                        <div className="px-4 py-3 bg-gray-50 border-b">
+                                            <p className="text-sm font-semibold text-gray-700">Trạng thái</p>
+                                        </div>
+
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-2 text-yellow-700 bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-md w-fit">
+                                                <span className="w-2 h-2 bg-yellow-500 rounded-full" />
+                                                <p className="text-sm font-medium">Chưa có kết quả xét nghiệm</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </>

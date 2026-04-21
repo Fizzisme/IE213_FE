@@ -101,12 +101,12 @@ function Calendar({
         ),
         button_previous: cn(
           buttonVariants({ variant: buttonVariant }),
-          "cursor-pointer size-9 p-0 select-none aria-disabled:opacity-50 rounded-full border-2 border-[#e3e3e3]",
+          "cursor-pointer size-7 xl:size-9 p-0 select-none aria-disabled:opacity-50 rounded-full border-2 border-[#e3e3e3]",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: buttonVariant }),
-          "cursor-pointer size-9 p-0 select-none aria-disabled:opacity-50 rounded-full border-2 border-[#e3e3e3]",
+          "cursor-pointer size-7 xl:size-9 p-0 select-none aria-disabled:opacity-50 rounded-full border-2 border-[#e3e3e3]",
           defaultClassNames.button_next
         ),
         month_caption: cn(
@@ -253,7 +253,7 @@ function Calendar({
       }}
       {...props}
     />
-          <div className="flex flex-wrap items-center justify-center gap-x-4 px-2 pb-1 min-w-[300px]">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 px-2 pb-1 min-w-[250px] xl:min-w-[300px]">
               {events.map((event) => (
                   <span key={event.id} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <span
@@ -320,12 +320,12 @@ function CalendarDayButton({
             data-range-end={modifiers.range_end}
             data-range-middle={modifiers.range_middle}
             className={cn(
-                "cursor-pointer text-xs rounded-full relative isolate z-10 flex size-8 items-center justify-center flex-col gap-1 leading-none font-semibold",
+                "cursor-pointer text-xs rounded-full relative isolate z-10 flex size-6 lg:size-7 xl:size-8 items-center justify-center flex-col gap-1 leading-none font-semibold",
                 "group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50",
                 "data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground",
                 "data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground",
                 "data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground",
-                "data-[selected-single=true]:bg-indigo-500 data-[selected-single=true]:text-white",
+                "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-white",
                 "dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
 
                 !modifiers.selected && activeEvents.length === 0 && "border-2 border-[#e3e3e3]",

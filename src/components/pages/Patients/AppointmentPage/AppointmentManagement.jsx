@@ -16,28 +16,74 @@ import {
     CalendarCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api from '../../utils/api';
+import api from '../../../../utils/api';
+import RescheduleAppointmentModal from './components/RescheduleAppointmentModal';
 
 export default function AppointmentManagement() {
     const navigate = useNavigate();
-
+    const [open, setIsOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState('ALL');
     const [timeFilter, setTimeFilter] = useState('ALL_TIME');
     const [showTimeDropdown, setShowTimeDropdown] = useState(false);
     const [appointments, setAppointments] = useState([]);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const res = await api.get('patients/appointments/me', { withCredentials: true });
+                setLoading(true);
+                const res = await api.get('patients/appointments/me');
                 setAppointments(res.data.data);
             } catch (err) {
                 console.error(err);
+                alert('Lỗi khi tải lịch hẹn');
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchAppointments();
     }, []);
+
+    const handleReschedule = async ({ appointmentDateTime, description }) => {
+        try {
+            console.log(appointmentDateTime);
+            const res = await api.patch(`patients/appointments/${selectedAppointment.id}/reschedule`, {
+                appointmentDateTime,
+                description,
+            });
+            console.log(res);
+            if (res) {
+                alert('Đổi lịch thành công');
+                const res2 = await api.get('patients/appointments/me');
+                setAppointments(res2.data.data);
+            }
+
+            setAppointments((prev) =>
+                prev.map((apt) =>
+                    apt._id === selectedAppointment.id ? { ...apt, appointmentDateTime, description } : apt,
+                ),
+            );
+
+            setIsOpen(false);
+        } catch (err) {
+            console.error(err);
+            alert('Lỗi khi đổi lịch');
+        }
+    };
+
+    const handleCancel = async (appointmentId) => {
+        try {
+            await api.patch(`patients/appointments/${appointmentId}/cancel`);
+            alert('Hủy lịch thành công');
+            const res = await api.get('patients/appointments/me');
+            setAppointments(res.data.data);
+        } catch (e) {
+            console.error(e);
+            alert('Hủy lịch thất bại');
+        }
+    };
 
     const getServiceIcon = (name) => {
         if (!name) return <FileText className="w-5 h-5" />;
@@ -51,7 +97,7 @@ export default function AppointmentManagement() {
 
         return {
             id: apt._id,
-            originalDateTime: apt.appointmentDateTime, // 🔥 giữ lại để filter
+            originalDateTime: apt.appointmentDateTime,
 
             date: dateObj.toLocaleDateString('vi-VN'),
             time: dateObj.toLocaleTimeString('vi-VN', {
@@ -71,13 +117,11 @@ export default function AppointmentManagement() {
 
     const formattedAppointments = appointments.map(formatAppointment);
 
-    // FILTER LOGIC
     const now = new Date();
 
     const filteredAppointments = formattedAppointments.filter((apt) => {
         const aptDate = new Date(apt.originalDateTime);
 
-        // ===== STATUS FILTER =====
         if (activeFilter === 'UPCOMING') {
             if (!(apt.status === 'PENDING' || apt.status === 'CONFIRMED')) return false;
         }
@@ -85,7 +129,6 @@ export default function AppointmentManagement() {
         if (activeFilter === 'COMPLETED' && apt.status !== 'COMPLETED') return false;
         if (activeFilter === 'CANCELLED' && apt.status !== 'CANCELLED') return false;
 
-        // ===== TIME FILTER =====
         if (timeFilter === 'THIS_WEEK') {
             const oneWeekLater = new Date();
             oneWeekLater.setDate(now.getDate() + 7);
@@ -93,10 +136,7 @@ export default function AppointmentManagement() {
         }
 
         if (timeFilter === 'THIS_MONTH') {
-            return (
-                aptDate.getMonth() === now.getMonth() &&
-                aptDate.getFullYear() === now.getFullYear()
-            );
+            return aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear();
         }
 
         return true;
@@ -148,10 +188,6 @@ export default function AppointmentManagement() {
         }
     };
 
-    const handleCancelAppointment = (id) => {
-        console.log('Hủy lịch hẹn:', id);
-    };
-
     const handleViewDetails = (id) => {
         console.log('Xem chi tiết lịch hẹn:', id);
     };
@@ -163,17 +199,25 @@ export default function AppointmentManagement() {
     const handleBookNew = () => {
         navigate('/demo-dashboard/appointments');
     };
+
+    if (loading) {
+        return (
+            <div className="p-6 md:p-8 max-w-7xl mx-auto">
+                <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#3B82F6] rounded-full animate-spin" />
+                    <p className="text-gray-500 text-base">Đang tải lịch hẹn...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="p-6 md:p-8 max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1
-                            className="text-3xl md:text-4xl font-bold text-gray-900 mb-2"
-                        >
-                            Lịch hẹn của bạn
-                        </h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Lịch hẹn của bạn</h1>
                         <p className="text-gray-500 text-base md:text-lg">Quản lý và theo dõi các lịch khám</p>
                     </div>
                     <button
@@ -310,7 +354,7 @@ export default function AppointmentManagement() {
                                         <div className="flex flex-wrap gap-2 lg:justify-end">
                                             {appointment.status === 'PENDING' && (
                                                 <button
-                                                    onClick={() => handleCancelAppointment(appointment.id)}
+                                                    onClick={() => handleCancel(appointment.id)}
                                                     className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-colors"
                                                 >
                                                     <X className="w-4 h-4" />
@@ -350,7 +394,10 @@ export default function AppointmentManagement() {
 
                                             {appointment.status === 'CANCELLED' && (
                                                 <button
-                                                    onClick={handleBookNew}
+                                                    onClick={() => {
+                                                        setSelectedAppointment(appointment);
+                                                        setIsOpen(true);
+                                                    }}
                                                     className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
                                                 >
                                                     <CalendarCheck className="w-4 h-4" />
@@ -374,18 +421,12 @@ export default function AppointmentManagement() {
                         })}
                     </div>
                 ) : (
-                    // Empty State
                     <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
                         <div className="max-w-md mx-auto">
                             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Calendar className="w-10 h-10 text-[#3B82F6]" />
                             </div>
-                            <h3
-                                className="text-2xl font-bold text-gray-900 mb-3"
-                               
-                            >
-                                Bạn chưa có lịch hẹn nào
-                            </h3>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có lịch hẹn nào</h3>
                             <p className="text-gray-500 mb-6">Đặt lịch khám ngay để được chăm sóc sức khỏe tốt nhất</p>
                             <button
                                 onClick={handleBookNew}
@@ -398,6 +439,16 @@ export default function AppointmentManagement() {
                     </div>
                 )}
             </div>
+            {/* Modal */}
+            <RescheduleAppointmentModal
+                isOpen={open}
+                onClose={() => {
+                    setIsOpen(false);
+                    setSelectedAppointment(null);
+                }}
+                onConfirm={handleReschedule}
+                currentAppointment={selectedAppointment}
+            />
         </motion.div>
     );
 }
