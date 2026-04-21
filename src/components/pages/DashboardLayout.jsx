@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar/Sidebar.jsx';
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
 import { Bell } from '@/components/animate-ui/icons/bell.js';
-import { Check, Pill, Search, Shield, User, Wallet } from 'lucide-react';
+import { Check, Menu, Pill, Search, Shield, User, Wallet } from 'lucide-react';
 import { Activity } from '@/components/animate-ui/icons/activity.js';
 import { Calendar } from '@/components/Calendar/Calendar.js';
 import { useDashboard } from '@/hooks/useDashboard.js';
@@ -73,15 +73,14 @@ export default function DashboardLayout() {
         </>
     );
     return (
-        <div className="bg-white flex h-screen overflow-hidden">
+        <div className="bg-white flex h-screen overflow-hidden hide-scrollbar">
             <Sidebar
                 userInfo={{ ...patient, role: roleLabel, status: 'ACTIVE' }}
                 navItems={NAV_ITEMS}
                 renderExtra={renderExtra}
             />
-
-            <div className="flex-1 bg-white p-6 overflow-auto">
-                <div className="bg-[#f5f5f5] rounded-3xl w-auto">
+            <div className="flex-1 bg-white p-4 xl:p-6 min-w-0">
+                <div className="bg-[#f5f5f5] rounded-3xl h-full w-full">
                     <Outlet />
                 </div>
             </div>

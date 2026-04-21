@@ -139,7 +139,14 @@ export default function LabTechLayout() {
                     <Outlet />
                 </div>
             </div>
-            <Toaster />
+            <Toaster
+                // toastOptions={{
+                //     classNames: {
+                //         toast: 'cn-toast border-l-4 border-primary bg-black',
+                //     },
+                // }}
+                className={'bg-primary'}
+            />
         </div>
     );
 }
