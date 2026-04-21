@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Calendar, Clock, FileText, Stethoscope, Droplet, Salad, User, DollarSign } from 'lucide-react';
-import api from '../../utils/api';
+import api from '../../../../utils/api';
 import { motion } from 'framer-motion';
 
 export default function AppointmentBooking() {

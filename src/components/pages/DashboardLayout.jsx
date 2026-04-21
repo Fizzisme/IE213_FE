@@ -81,7 +81,7 @@ export default function DashboardLayout() {
             />
 
             <div className="flex-1 bg-white p-6 overflow-auto">
-                <div className="bg-[#f5f5f5] rounded-3xl w-full">
+                <div className="bg-[#f5f5f5] rounded-3xl w-auto">
                     <Outlet />
                 </div>
             </div>

@@ -13,9 +13,10 @@ import LabTechPage from './components/pages/LabTechPage/LabTechPage.jsx';
 import LabTechLayout from '@/components/pages/LabTechPage/LabTechLayout.jsx';
 import LabTechNotification from '@/components/pages/LabTechNotification/LabTechNotification.jsx';
 import { RoleProtectedRoute } from './components/guards/RoleProtectedRoute.jsx';
-import AppointmentBooking from './components/pages/AppoinmentBooking.jsx';
-import AppointmentManagement from './components/pages/AppointmentManagement.jsx';
+import AppointmentBooking from './components/pages/Patients/AppointmentPage/AppoinmentBooking.jsx';
+import AppointmentManagement from './components/pages/Patients/AppointmentPage/AppointmentManagement.jsx';
 import DosagePage from '@/components/pages/DosagePage/DosagePage.jsx';
+import NotificationPage from './components/pages/Patients/Notifications/NotificationPage.jsx';
 function App() {
     return (
         <AuthProvider>
@@ -37,6 +38,7 @@ function App() {
                     <Route path="create-patient" element={<PatientInfoForm />} />
                     <Route path="appointments-manage" element={<AppointmentManagement />}></Route>
                     <Route path="appointments" element={<AppointmentBooking />} />
+                    <Route path="notifications" element={<NotificationPage />} />
                 </Route>
                 {/* Admin */}
                 <Route path="/admin-login" element={<AdminLogin />} />

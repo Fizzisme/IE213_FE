@@ -21,7 +21,7 @@ export default function AppointmentList() {
         >
             <div
                 style={{
-                    padding: '18px 22px',
+                    padding: 'clamp(14px, 3vw, 18px) clamp(14px, 4vw, 22px)',
                     borderBottom: '1px solid #F1F5F9',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -30,7 +30,7 @@ export default function AppointmentList() {
                     flexWrap: 'wrap',
                 }}
             >
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Upcoming Appointments</h2>
+                <h2 style={{ margin: 0, fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 700, color: '#0F172A' }}>Upcoming Appointments</h2>
                 <button
                     style={{
                         background: 'none',
@@ -55,13 +55,12 @@ export default function AppointmentList() {
                         className="appointment-row"
                         style={{
                             display: 'flex',
-                            // Chú ý: style mặc định ở đây sẽ bị ghi đè bởi class .appointment-row trong thẻ <style> bên dưới
                             alignItems: 'center',
-                            padding: '16px 22px',
+                            padding: 'clamp(12px, 2.5vw, 16px) clamp(14px, 4vw, 22px)',
                             borderBottom: i < APPOINTMENTS.length - 1 ? '1px solid #F8FAFC' : 'none',
                             transition: 'background 0.15s',
                             cursor: 'pointer',
-                            gap: 16,
+                            gap: 'clamp(10px, 2vw, 16px)',
                         }}
                     >
                         {/* Box 1: Bác sỹ & Chuyên khoa */}
@@ -81,10 +80,10 @@ export default function AppointmentList() {
                                 <User style={{ width: 18, height: 18, color: '#3B82F6' }} />
                             </div>
                             <div style={{ minWidth: 0 }}>
-                                <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <p style={{ margin: 0, fontSize: 'clamp(12px, 3vw, 14px)', fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {a.doctor}
                                 </p>
-                                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <p style={{ margin: '2px 0 0', fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {a.specialty}
                                 </p>
                             </div>
@@ -93,12 +92,12 @@ export default function AppointmentList() {
                         {/* Box 2: Thông tin ngày giờ - Thêm class để xử lý responsive */}
                         <div className="appointment-meta" style={{ textAlign: 'right' }}>
                             <div className="date-time-group" style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ margin: 0, fontSize: 13, color: '#475569', fontWeight: 500 }}>{a.date}</p>
-                                <p style={{ margin: '2px 0 4px', fontSize: 12, color: '#94A3B8' }}>{a.time}</p>
+                                <p style={{ margin: 0, fontSize: 'clamp(11px, 2.5vw, 13px)', color: '#475569', fontWeight: 500 }}>{a.date}</p>
+                                <p style={{ margin: '2px 0 4px', fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8' }}>{a.time}</p>
                             </div>
                             <span
                                 style={{
-                                    fontSize: 11,
+                                    fontSize: 'clamp(9px, 2vw, 11px)',
                                     fontWeight: 600,
                                     padding: '2px 8px',
                                     borderRadius: 20,
@@ -124,12 +123,12 @@ export default function AppointmentList() {
                     background: #F8FAFC;
                 }
 
-                /* Xử lý khi màn hình nhỏ hơn 800px */
-                @media (max-width: 800px) {
+                /* Xử lý khi màn hình nhỏ hơn 768px */
+                @media (max-width: 768px) {
                     .appointment-row {
                         flex-direction: column !important;
                         align-items: flex-start !important;
-                        gap: 12px !important;
+                        gap: 10px !important;
                     }
 
                     .appointment-meta {
@@ -151,7 +150,29 @@ export default function AppointmentList() {
                 }
 
                 @media (max-width: 640px) {
-                    h2 { font-size: 14px !important; }
+                    h2 { 
+                        font-size: 14px !important; 
+                    }
+                    
+                    .appointment-meta {
+                        padding-left: 48px !important;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .appointment-row {
+                        padding: 10px 12px !important;
+                    }
+
+                    .appointment-meta {
+                        padding-left: 0 !important;
+                    }
+
+                    .date-time-group {
+                        flex-direction: column !important;
+                        gap: 4px !important;
+                        align-items: flex-start !important;
+                    }
                 }
             `}</style>
         </div>

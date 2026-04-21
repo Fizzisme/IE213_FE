@@ -11,9 +11,9 @@ export default function StatsGrid() {
         <div
             style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: 16,
-                marginBottom: 28,
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 'clamp(12px, 3vw, 16px)',
+                marginBottom: 'clamp(20px, 5vw, 28px)',
             }}
         >
             {STATS.map((s, i) => (
@@ -22,7 +22,7 @@ export default function StatsGrid() {
                     style={{
                         background: 'white',
                         borderRadius: 14,
-                        padding: '20px 22px',
+                        padding: 'clamp(14px, 4vw, 20px) clamp(14px, 4vw, 22px)',
                         border: '1px solid #F1F5F9',
                         cursor: 'pointer',
                         animation: `fadeUp 0.5s ease ${0.1 + i * 0.08}s both`,
@@ -32,13 +32,13 @@ export default function StatsGrid() {
                     onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.09)')}
                     onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)')}
                 >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                         <div>
-                            <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, fontWeight: 500 }}>{s.label}</p>
-                            <p style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', margin: '6px 0 4px' }}>
+                            <p style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8', margin: 0, fontWeight: 500 }}>{s.label}</p>
+                            <p style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 800, color: '#0F172A', margin: '4px 0 2px' }}>
                                 {s.value}
                             </p>
-                            <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>{s.delta}</p>
+                            <p style={{ fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#64748B', margin: 0 }}>{s.delta}</p>
                         </div>
                         <div
                             style={{
