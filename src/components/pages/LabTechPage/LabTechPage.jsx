@@ -5,45 +5,6 @@ import { Calendar } from '@/components/ui/calendar';
 import PatientList from '@/components/pages/LabTechPage/PatientList/PatientList.jsx';
 import PatientChart from '@/components/pages/LabTechPage/PatientChart/PatientChart.jsx';
 
-const C = {
-    purple: '#7C6EF6',
-    red: '#F75C5C',
-    teal: '#2EC4B6',
-    orange: '#F8A84B',
-};
-
-const SCHEDULE = [
-    {
-        title: 'Online consultation',
-        sub: 'Alison Cooper',
-        time: '9:00 – 9:30',
-        color: C.teal,
-        icon: '💻',
-    },
-    {
-        title: 'Cardiogram',
-        sub: 'Brad Duncan',
-        time: '9:30 – 10:00',
-        color: C.purple,
-        icon: '📈',
-    },
-    {
-        title: 'Break',
-        sub: '45 min',
-        time: '',
-        color: '#ccc',
-        icon: '☕',
-        isBreak: true,
-    },
-    {
-        title: 'Meeting',
-        sub: '',
-        time: '10:45 – 11:45',
-        color: C.orange,
-        icon: '👥',
-    },
-];
-
 export default function LabTechPage() {
     const [date, setDate] = useState(new Date());
 
@@ -51,7 +12,7 @@ export default function LabTechPage() {
         {
             id: 'phauThuat',
             label: 'Phẫu thuật',
-            color: '#22d3ee',
+            color: '#0d7b6d',
             dates: [new Date(2026, 2, 10)],
         },
     ];

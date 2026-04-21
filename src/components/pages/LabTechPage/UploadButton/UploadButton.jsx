@@ -24,6 +24,7 @@ export default function UploadButton({ medicalRecordId }) {
         diabetesPedigreeFunction: '',
         note: '',
     });
+    const [open, setOpen] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -70,25 +71,32 @@ export default function UploadButton({ medicalRecordId }) {
             },
         };
 
-        toast
-            .promise(
-                async () => {
-                    setLoading(true);
+        toast.promise(
+            async () => {
+                setLoading(true);
+
+                try {
                     const res = await fetch(`${BE_URL}/v1/lab-techs/medical-records/${medicalRecordId}/test-results`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify(payload),
                     });
 
-                    const data = await res.json();
+                    const data = await res.json().then((r) => r.data);
 
                     if (!res.ok) {
                         throw new Error(data.message || 'Có lỗi xảy ra');
                     }
-                    console.log('Success:', data);
+
+                    const createdAt = new Date(data?.createdAt).toLocaleDateString('vi-VN', {
+                        timeZone: 'Asia/Ho_Chi_Minh',
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                    });
+
                     setForm({
                         diabetesPedigreeFunction: '',
                         pregnancies: '',
@@ -100,26 +108,40 @@ export default function UploadButton({ medicalRecordId }) {
                         note: '',
                     });
 
-                    return data;
+                    return { data, createdAt };
+                } finally {
+                    setLoading(false);
+                }
+            },
+            {
+                loading: 'Đang gửi kết quả xét nghiệm...',
+                success: ({ data, createdAt }) => {
+                    setOpen(false);
+                    return {
+                        message: data?.message || 'Kết quả đã được lưu',
+                        description: <p className="text-xs text-textColor">{createdAt}</p>,
+                    };
                 },
-                {
-                    loading: 'Đang gửi kết quả xét nghiệm...',
-                    success: (data) => data?.message || 'Lưu thành công',
-                    error: (err) => err?.message || 'Có lỗi xảy ra',
-                    position: 'top-right',
-                },
-            )
-            .finally(() => {
-                setLoading(false);
-            });
+                error: (err) => ({
+                    message: <p className="text-red-400">{err?.message || 'Có lỗi xảy ra'}</p>,
+                }),
+            },
+        );
     };
 
     const isDisabled =
-        !form.glucose || !form.bloodPressure || !form.skinThickness || !form.insulin || !form.bmi || loading;
+        form.glucose === '' ||
+        form.bloodPressure === '' ||
+        form.skinThickness === '' ||
+        form.insulin === '' ||
+        form.bmi === '' ||
+        loading;
+    console.log('loading ', loading);
+    console.log(isDisabled);
 
     const isObese = Number(form.bmi) > 30;
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="h-fit p-1.5 border-2 rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01]">
                 <Upload animateOnHover className="h-4 w-4" />
             </DialogTrigger>
@@ -207,9 +229,15 @@ export default function UploadButton({ medicalRecordId }) {
                     </DialogClose>
 
                     <button
-                        className="px-4 py-2 bg-primary text-white rounded-lg cursor-pointer shadow-xs transition-all duration-300 hover:shadow-sm hover:scale-[1.01] font-semibold"
-                        onClick={handleSubmit}
+                        type={'button'}
                         disabled={isDisabled}
+                        className={`${
+                            isDisabled
+                                ? 'bg-gray-300 cursor-not-allowed'
+                                : 'bg-primary text-white hover:shadow-sm hover:scale-[1.01] cursor-pointer'
+                        } 
+                                px-4 py-2 rounded-lg shadow-xs transition-all duration-300 font-semibold`}
+                        onClick={handleSubmit}
                     >
                         Lưu & Phân tích
                     </button>
