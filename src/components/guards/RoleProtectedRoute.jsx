@@ -7,33 +7,10 @@ export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
     // ✅ Loading state
     if (loading) {
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                    background: '#F8FAFC',
-                }}
-            >
-                <div style={{ textAlign: 'center' }}>
-                    <div
-                        style={{
-                            width: 40,
-                            height: 40,
-                            border: '3px solid #E2E8F0',
-                            borderTop: '3px solid #3B82F6',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            margin: '0 auto 16px',
-                        }}
-                    />
-                    <p style={{ color: '#64748B', fontSize: 14 }}>Đang tải...</p>
-                    <style>{`
-                        @keyframes spin {
-                            to { transform: rotate(360deg); }
-                        }
-                    `}</style>
+            <div className="flex items-center justify-center h-screen bg-slate-100">
+                <div className="text-center">
+                    <div className="w-10 h-10 border-4 border-slate-200 border-t-teal-700 rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-slate-500 text-sm">Đang tải...</p>
                 </div>
             </div>
         );
@@ -52,40 +29,20 @@ export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
     if (!allowedRoles.includes(user?.role)) {
         console.warn(`❌ User role ${user?.role} not in allowed roles:`, allowedRoles);
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                    background: '#F8FAFC',
-                    flexDirection: 'column',
-                    gap: '16px',
-                }}
-            >
-                <div style={{ textAlign: 'center' }}>
-                    <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', margin: '0 0 8px' }}>
+            <div className="flex flex-col items-center justify-center h-screen bg-slate-100 gap-4">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-slate-900 mb-2">
                         ❌ Unauthorized
                     </h1>
-                    <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>
+                    <p className="text-slate-500 text-sm mb-2">
                         Role của bạn: <strong>{user?.role}</strong>
                     </p>
-                    <p style={{ color: '#64748B', fontSize: 14, margin: '8px 0 0' }}>
+                    <p className="text-slate-500 text-sm mb-4">
                         Được phép: <strong>{allowedRoles.join(', ')}</strong>
                     </p>
                     <button
-                        onClick={() => window.location.href = '/'}
-                        style={{
-                            marginTop: '16px',
-                            padding: '8px 16px',
-                            background: '#3B82F6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                        }}
+                        onClick={() => (window.location.href = '/')}
+                        className="px-4 py-2 bg-teal-700 text-white font-semibold rounded-lg hover:bg-teal-800 transition-colors"
                     >
                         Quay lại trang chủ
                     </button>
@@ -94,6 +51,5 @@ export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
         );
     }
 
-    // ✅ OK → render
     return children;
 };

@@ -8,21 +8,19 @@ export default function DemoDashboard() {
     const { displayName, roleLabel, loginMethod } = useDashboard();
 
     return (
-        <div className="flex h-full">
-            <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
-                <WelcomeBanner displayName={displayName} roleLabel={roleLabel} loginMethod={loginMethod} />
-                <StatsGrid />
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: 'clamp(12px, 3vw, 20px)',
-                    }}
-                >
-                    <AppointmentList />
-                    <RecentActivity />
-                </div>
-            </main>
+        <div className="w-full p-6 md:p-8 max-w-7xl mx-auto">
+            <WelcomeBanner displayName={displayName} roleLabel={roleLabel} loginMethod={loginMethod} />
+            <StatsGrid />
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: 'clamp(12px, 3vw, 20px)',
+                }}
+            >
+                <AppointmentList />
+                <RecentActivity />
+            </div>
         </div>
     );
 }

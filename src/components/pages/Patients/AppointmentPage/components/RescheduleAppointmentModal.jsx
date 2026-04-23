@@ -167,8 +167,8 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                     relative flex flex-col items-center justify-center py-3 px-2 rounded-lg transition-all duration-200
                     ${
                         selectedDate === date.fullDate
-                            ? 'bg-[#3B82F6] border-2 border-[#3B82F6] shadow-md'
-                            : 'bg-white border border-gray-200 hover:border-[#3B82F6] hover:shadow-sm'
+                            ? 'bg-primary border-2 border-[#0d7b6d] shadow-md'
+                            : 'bg-white border border-gray-200 hover:border-[#0d7b6d] hover:shadow-sm'
                     }
                   `}
                                         >
@@ -213,10 +213,10 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                       py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200
                       ${
                           isSelected
-                              ? 'bg-[#3B82F6] border-2 border-[#3B82F6] text-white shadow-md'
+                              ? 'bg-primary border-2 border-[#0d7b6d] text-white shadow-md'
                               : isDisabled
                               ? 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
-                              : 'bg-white border border-gray-200 text-gray-700 hover:border-[#3B82F6] hover:shadow-sm'
+                              : 'bg-white border border-gray-200 text-gray-700 hover:border-[#0d7b6d] hover:shadow-sm'
                       }
                     `}
                                             >
@@ -236,7 +236,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Cập nhật mô tả triệu chứng nếu cần..."
-                                    className="w-full min-h-[80px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-blue-100 transition-all resize-none text-sm text-gray-700"
+                                    className="w-full min-h-[80px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0d7b6d] focus:ring-2 focus:ring-blue-100 transition-all resize-none text-sm text-gray-700"
                                 />
                             </div>
 
@@ -251,7 +251,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-gray-600 font-semibold">Ngày mới:</span>
                                                 <div className="flex items-center gap-2 text-gray-900 font-bold">
-                                                    <Calendar className="w-4 h-4 text-[#3B82F6]" />
+                                                    <Calendar className="w-4 h-4 text-[#0d7b6d]" />
                                                     <span>{selectedDate}</span>
                                                 </div>
                                             </div>
@@ -260,7 +260,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-gray-600 font-semibold">Giờ mới:</span>
                                                 <div className="flex items-center gap-2 text-gray-900 font-bold">
-                                                    <Clock className="w-4 h-4 text-[#3B82F6]" />
+                                                    <Clock className="w-4 h-4 text-[#0d7b6d]" />
                                                     <span>{selectedTime}</span>
                                                 </div>
                                             </div>
@@ -280,7 +280,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                             </button>
                             <button
                                 onClick={handleConfirm}
-                                className="px-5 py-2.5 bg-[#3B82F6] text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+                                className="px-5 py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                             >
                                 Xác nhận
                             </button>

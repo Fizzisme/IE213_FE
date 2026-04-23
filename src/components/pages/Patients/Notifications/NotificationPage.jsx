@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { CheckCheck, Calendar, Clock, AlertCircle, Info, Bell, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../../../../utils/api';
@@ -191,7 +191,7 @@ export default function NotificationPage() {
         return (
             <div className="p-6 md:p-8 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#3B82F6] rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#0d7b6d] rounded-full animate-spin" />
                     <p className="text-gray-500 text-base">Đang tải thông báo...</p>
                 </div>
             </div>
@@ -215,7 +215,7 @@ export default function NotificationPage() {
                                 onClick={() => setActiveFilter('ALL')}
                                 className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
                                     activeFilter === 'ALL'
-                                        ? 'bg-[#3B82F6] text-white shadow-md'
+                                        ? 'bg-primary text-white shadow-md'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                             >
@@ -226,7 +226,7 @@ export default function NotificationPage() {
                                 onClick={() => setActiveFilter('APPOINTMENTS')}
                                 className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
                                     activeFilter === 'APPOINTMENTS'
-                                        ? 'bg-[#3B82F6] text-white shadow-md'
+                                        ? 'bg-primary text-white shadow-md'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                             >
@@ -238,7 +238,7 @@ export default function NotificationPage() {
                             {unreadCount > 0 && (
                                 <button
                                     onClick={markAllRead}
-                                    className="text-sm font-semibold text-[#3B82F6] flex items-center gap-2 hover:text-blue-700 transition-colors"
+                                    className="text-sm font-semibold text-[#0d7b6d] flex items-center gap-2 hover:text-blue-700 transition-colors"
                                 >
                                     <CheckCheck className="w-4 h-4" />
                                     Đánh dấu đã đọc
@@ -330,7 +330,7 @@ export default function NotificationPage() {
                                 className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
                                     loadingMore
                                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                        : 'bg-[#3B82F6] text-white hover:bg-blue-600 shadow-md'
+                                        : 'bg-primary text-white hover:bg-blue-600 shadow-md'
                                 }`}
                             >
                                 {loadingMore ? 'Đang tải...' : 'Tải thêm'}
