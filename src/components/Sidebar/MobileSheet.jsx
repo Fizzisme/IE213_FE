@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
+import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 import api from '@/utils/api.js';
-import UserProfilePopover from '@/components/pages/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
+import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 
 const labelVariants = {
     open: {

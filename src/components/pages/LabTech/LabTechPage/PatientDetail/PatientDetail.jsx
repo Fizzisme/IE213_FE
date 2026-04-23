@@ -1,4 +1,4 @@
-import UploadButton from '@/components/pages/LabTechPage/UploadButton/UploadButton.jsx';
+import UploadButton from '@/components/pages/LabTech/LabTechPage/UploadButton/UploadButton.jsx';
 import { Bot } from '@/components/animate-ui/icons/bot.js';
 
 export default function PatientDetail({ selected, selectedResult, formatDateVN, riskLabel, medicalRecordId }) {

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 // XÓA: import { jwtDecode } from 'jwt-decode';
-import { useAuth } from '../../contexts/AuthContext'; // Import hook vừa tạo
+import { useAuth } from '../../../contexts/AuthContext'; // Import hook vừa tạo
 import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
 // ── Carousel slides data ──────────────────────────────────────────────────────
 const SLIDES = [
