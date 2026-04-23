@@ -204,7 +204,7 @@ export default function AppointmentManagement() {
         return (
             <div className="p-6 md:p-8 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#3B82F6] rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#0d7b6d] rounded-full animate-spin" />
                     <p className="text-gray-500 text-base">Đang tải lịch hẹn...</p>
                 </div>
             </div>
@@ -222,7 +222,7 @@ export default function AppointmentManagement() {
                     </div>
                     <button
                         onClick={handleBookNew}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-[#3B82F6] text-white rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
                     >
                         <Plus className="w-5 h-5" />
                         <span>Đặt lịch mới</span>
@@ -243,7 +243,7 @@ export default function AppointmentManagement() {
                     px-4 py-2 rounded-lg font-semibold transition-all duration-300
                     ${
                         activeFilter === tab.value
-                            ? 'bg-[#3B82F6] text-white shadow-md'
+                            ? 'bg-primary text-white shadow-md'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }
                   `}
@@ -258,7 +258,7 @@ export default function AppointmentManagement() {
                         <div className="relative">
                             <button
                                 onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-[#3B82F6] transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-[#0d7b6d] transition-colors"
                             >
                                 <Filter className="w-4 h-4 text-gray-600" />
                                 <span className="text-sm font-semibold text-gray-700">
@@ -282,7 +282,7 @@ export default function AppointmentManagement() {
                                             }}
                                             className={`
                       w-full px-4 py-3 text-left text-sm font-semibold transition-colors
-                      ${timeFilter === filter.value ? 'bg-blue-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50'}
+                      ${timeFilter === filter.value ? 'bg-blue-50 text-[#0d7b6d]' : 'text-gray-700 hover:bg-gray-50'}
                     `}
                                         >
                                             {filter.label}
@@ -309,7 +309,7 @@ export default function AppointmentManagement() {
                                         {/* Left Section - Date & Time */}
                                         <div className="flex items-center gap-4 lg:w-48 flex-shrink-0">
                                             <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                                                <Calendar className="w-6 h-6 text-[#3B82F6]" />
+                                                <Calendar className="w-6 h-6 text-textColor" />
                                             </div>
                                             <div>
                                                 <div className="font-bold text-gray-900">{appointment.date}</div>
@@ -366,7 +366,7 @@ export default function AppointmentManagement() {
                                                 <>
                                                     <button
                                                         onClick={() => handleViewDetails(appointment.id)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#3B82F6] text-[#3B82F6] rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#0d7b6d] text-[#0d7b6d] rounded-lg font-semibold hover:bg-blue-50 transition-colors"
                                                     >
                                                         <Eye className="w-4 h-4" />
                                                         <span>Xem chi tiết</span>
@@ -385,7 +385,7 @@ export default function AppointmentManagement() {
                                             {appointment.status === 'COMPLETED' && (
                                                 <button
                                                     onClick={() => handleViewMedicalRecord(appointment.id)}
-                                                    className="flex items-center gap-2 px-5 py-2 bg-[#3B82F6] text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+                                                    className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                                                 >
                                                     <FileText className="w-4 h-4" />
                                                     <span>Xem hồ sơ bệnh án</span>
@@ -424,13 +424,13 @@ export default function AppointmentManagement() {
                     <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
                         <div className="max-w-md mx-auto">
                             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Calendar className="w-10 h-10 text-[#3B82F6]" />
+                                <Calendar className="w-10 h-10 text-textColor" />
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có lịch hẹn nào</h3>
                             <p className="text-gray-500 mb-6">Đặt lịch khám ngay để được chăm sóc sức khỏe tốt nhất</p>
                             <button
                                 onClick={handleBookNew}
-                                className="inline-flex items-center gap-2 px-8 py-3 bg-[#3B82F6] text-white rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
                             >
                                 <Plus className="w-5 h-5" />
                                 <span>Đặt lịch ngay</span>

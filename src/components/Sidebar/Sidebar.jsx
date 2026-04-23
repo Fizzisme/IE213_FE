@@ -83,11 +83,9 @@ export default function Sidebar({ userInfo, navItems, renderExtra }) {
             console.log(e);
         }
     };
-
     //  Lấy ra từ trong store của zustand cách này khiến code không bị re-render
     const openSidebar = useLayoutStore((s) => s?.openSidebar);
     const toggleSidebar = useLayoutStore((s) => s?.toggleSidebar);
-
     return (
         <aside
             className={`hidden lg:flex lg:flex-col h-full pr-0 pl-6 pt-10 pb-4 bg-white transition-all duration-500 ease-in-out

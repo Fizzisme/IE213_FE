@@ -169,7 +169,7 @@ export default function DashboardNavbar({
                 }
                 .logo-icon {
                     width: 36px; height: 36px; border-radius: 10px;
-                    background: #3B82F6; display: flex; align-items: center; justify-content: center;
+                    background: #0d7b6d; display: flex; align-items: center; justify-content: center;
                 }
                 .logo-text { font-weight: 700; fontSize: 18px; color: #0F172A; }
                 
@@ -200,7 +200,7 @@ export default function DashboardNavbar({
                     padding: 6px 14px; cursor: pointer; font-size: 13px; font-weight: 600; color: #2563EB;
                     transition: 0.2s;
                 }
-                .btn-create:hover { background: #3B82F6; color: white; }
+                .btn-create:hover { background: #0d7b6d; color: white; }
 
                 .btn-logout {
                     display: flex; align-items: center; gap: 6px;
@@ -220,7 +220,7 @@ export default function DashboardNavbar({
                 .user-profile { display: flex; align-items: center; gap: 10px; white-space: nowrap }
                 .avatar {
                     width: 36px; height: 36px; border-radius: 50%;
-                    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+                    background: linear-gradient(135deg, #0d7b6d, #8B5CF6);
                     display: flex; align-items: center; justify-content: center;
                 }
                 .user-name { font-size: 14px; font-weight: 600; color: #0F172A; }

@@ -49,7 +49,7 @@ export default function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4 md:p-8">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg lg:grid-cols-[42%_58%]">
         {/* Left panel */}
-        <aside className="relative hidden overflow-hidden bg-[#3B82F6] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+        <aside className="relative hidden overflow-hidden bg-primary p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15" />
           <div className="absolute -left-12 bottom-16 h-52 w-52 rounded-full bg-white/10" />
 

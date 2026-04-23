@@ -8,103 +8,46 @@ export default function AppointmentList() {
     ];
 
     return (
-        <div
-            style={{
-                background: 'white',
-                borderRadius: 14,
-                border: '1px solid #F1F5F9',
-                overflow: 'hidden',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                animation: 'fadeUp 0.5s ease 0.35s both',
-                minWidth: 0,
-            }}
-        >
-            <div
-                style={{
-                    padding: 'clamp(14px, 3vw, 18px) clamp(14px, 4vw, 22px)',
-                    borderBottom: '1px solid #F1F5F9',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 12,
-                    flexWrap: 'wrap',
-                }}
-            >
-                <h2 style={{ margin: 0, fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 700, color: '#0F172A' }}>Upcoming Appointments</h2>
-                <button
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: 13,
-                        color: '#3B82F6',
-                        fontWeight: 600,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    View all <ChevronRight style={{ width: 14, height: 14 }} />
+        <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow min-w-0" style={{ animation: 'fadeUp 0.5s ease 0.35s both' }}>
+            <div className="p-4 lg:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-sm lg:text-base font-bold text-slate-900">Upcoming Appointments</h2>
+                <button className="bg-transparent border-none cursor-pointer text-xs lg:text-sm text-teal-700 font-semibold flex items-center gap-1 whitespace-nowrap hover:text-teal-800">
+                    View all <ChevronRight className="w-3.5 h-3.5" />
                 </button>
             </div>
-            <div>
+            <div className="divide-y divide-slate-100">
                 {APPOINTMENTS.map((a, i) => (
                     <div
                         key={i}
-                        className="appointment-row"
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: 'clamp(12px, 2.5vw, 16px) clamp(14px, 4vw, 22px)',
-                            borderBottom: i < APPOINTMENTS.length - 1 ? '1px solid #F8FAFC' : 'none',
-                            transition: 'background 0.15s',
-                            cursor: 'pointer',
-                            gap: 'clamp(10px, 2vw, 16px)',
-                        }}
+                        className="appointment-row flex flex-col md:flex-row md:items-center p-3 md:p-4 lg:p-5 cursor-pointer hover:bg-slate-50 transition-colors gap-3 md:gap-4"
                     >
-                        {/* Box 1: Bác sỹ & Chuyên khoa */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flex: 1 }}>
-                            <div
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: '50%',
-                                    background: 'linear-gradient(135deg, #EFF6FF, #DBEAFE)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <User style={{ width: 18, height: 18, color: '#3B82F6' }} />
+                        {/* Box 1: Doctor & Specialty */}
+                        <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
+                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-100 to-blue-200 flex items-center justify-center shrink-0">
+                                <User className="w-4.5 h-4.5 text-teal-700" />
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                                <p style={{ margin: 0, fontSize: 'clamp(12px, 3vw, 14px)', fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div className="min-w-0">
+                                <p className="m-0 text-xs lg:text-sm font-semibold text-slate-900 truncate">
                                     {a.doctor}
                                 </p>
-                                <p style={{ margin: '2px 0 0', fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <p className="m-0 mt-0.5 text-xs text-slate-400 truncate">
                                     {a.specialty}
                                 </p>
                             </div>
                         </div>
-                        
-                        {/* Box 2: Thông tin ngày giờ - Thêm class để xử lý responsive */}
-                        <div className="appointment-meta" style={{ textAlign: 'right' }}>
-                            <div className="date-time-group" style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ margin: 0, fontSize: 'clamp(11px, 2.5vw, 13px)', color: '#475569', fontWeight: 500 }}>{a.date}</p>
-                                <p style={{ margin: '2px 0 4px', fontSize: 'clamp(10px, 2.5vw, 12px)', color: '#94A3B8' }}>{a.time}</p>
+
+                        {/* Box 2: Date, Time & Status */}
+                        <div className="appointment-meta text-left md:text-right md:ml-auto">
+                            <div className="date-time-group flex flex-col md:flex-row md:gap-3 md:items-center mb-2 md:mb-0">
+                                <p className="m-0 text-xs text-slate-600 font-medium">{a.date}</p>
+                                <p className="m-0 text-xs text-slate-400">{a.time}</p>
                             </div>
                             <span
-                                style={{
-                                    fontSize: 'clamp(9px, 2vw, 11px)',
-                                    fontWeight: 600,
-                                    padding: '2px 8px',
-                                    borderRadius: 20,
-                                    background: a.status === 'confirmed' ? '#D1FAE5' : '#FEF3C7',
-                                    color: a.status === 'confirmed' ? '#065F46' : '#92400E',
-                                    display: 'inline-block',
-                                }}
+                                className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${
+                                    a.status === 'confirmed'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-amber-100 text-amber-800'
+                                }`}
                             >
                                 {a.status === 'confirmed' ? 'Đã xác nhận' : 'Chờ duyệt'}
                             </span>
@@ -117,62 +60,6 @@ export default function AppointmentList() {
                 @keyframes fadeUp {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
-                }
-
-                .appointment-row:hover {
-                    background: #F8FAFC;
-                }
-
-                /* Xử lý khi màn hình nhỏ hơn 768px */
-                @media (max-width: 768px) {
-                    .appointment-row {
-                        flex-direction: column !important;
-                        align-items: flex-start !important;
-                        gap: 10px !important;
-                    }
-
-                    .appointment-meta {
-                        text-align: left !important;
-                        width: 100%;
-                        padding-left: 54px; /* Căn lề thẳng với phần tên (40px icon + 14px gap) */
-                    }
-
-                    .date-time-group {
-                        flex-direction: row !important;
-                        gap: 12px;
-                        align-items: center;
-                        margin-bottom: 6px;
-                    }
-
-                    .date-time-group p {
-                        margin: 0 !important;
-                    }
-                }
-
-                @media (max-width: 640px) {
-                    h2 { 
-                        font-size: 14px !important; 
-                    }
-                    
-                    .appointment-meta {
-                        padding-left: 48px !important;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .appointment-row {
-                        padding: 10px 12px !important;
-                    }
-
-                    .appointment-meta {
-                        padding-left: 0 !important;
-                    }
-
-                    .date-time-group {
-                        flex-direction: column !important;
-                        gap: 4px !important;
-                        align-items: flex-start !important;
-                    }
                 }
             `}</style>
         </div>
