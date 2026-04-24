@@ -76,13 +76,7 @@ export default function MobileSheet({ userInfo, navItems, renderExtra }) {
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors z-40"
                 whileTap={{ scale: 0.95 }}
             >
-                <svg className="w-6 h-6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    {/* Thanh trên (dài) */}
-                    <rect x="3" y="6" width="18" height="3" rx="1.5" fill="#8faead" />
-
-                    {/* Thanh dưới (ngắn, centered) */}
-                    <rect x="6" y="14" width="12" height="3" rx="1.5" fill="#8faead" />
-                </svg>
+                <img src="/hamburger-button.png" className={'w-10 h-10'} alt="" />
             </motion.button>
 
             {/* Overlay */}
