@@ -1,25 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { X, Calendar, Clock } from 'lucide-react';
-import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
 export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm, currentAppointment }) {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [description, setDescription] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
 
-    const timeSlots = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    // =========================
+    // Thay thế useEffect bằng kỹ thuật: "Adjusting state during render"
+    // Giúp loại bỏ lỗi cascading renders của linter
+    // =========================
+    const[prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    const [prevAppointment, setPrevAppointment] = useState(currentAppointment);
 
-    const disabledTimes = ['09:00', '14:00'];
+    if (isOpen !== prevIsOpen || currentAppointment !== prevAppointment) {
+        setPrevIsOpen(isOpen);
+        setPrevAppointment(currentAppointment);
+        
+        if (isOpen && currentAppointment) {
+            setIsClosing(false);
+            const date = new Date(currentAppointment.appointmentDateTime);
+            setSelectedDate(date.toLocaleDateString('vi-VN'));
+            setSelectedTime(date.toTimeString().slice(0, 5));
+            setDescription(currentAppointment.description || '');
+        }
+    }
+
+    const timeSlots =['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const disabledTimes =['09:00', '14:00'];
 
     // =========================
     // Generate dates (memo để tránh re-render)
     // =========================
     const dates = useMemo(() => {
-        const result = [];
+        const result =[];
         const today = new Date();
-        const weekdays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        const weekdays =['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
         for (let i = 0; i < 7; i++) {
             const date = new Date(today);
@@ -34,21 +52,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         }
 
         return result;
-    }, []);
-
-    // =========================
-    // Preload data khi mở modal
-    // =========================
-    useEffect(() => {
-        if (isOpen && currentAppointment) {
-            setIsClosing(false);
-            const date = new Date(currentAppointment.appointmentDateTime);
-
-            setSelectedDate(date.toLocaleDateString('vi-VN'));
-            setSelectedTime(date.toTimeString().slice(0, 5));
-            setDescription(currentAppointment.description || '');
-        }
-    }, [isOpen, currentAppointment]);
+    },[]);
 
     // =========================
     // Build ISO datetime
@@ -56,7 +60,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
     const buildDateTime = () => {
         if (!selectedDate || !selectedTime) return null;
 
-        const [day, month, year] = selectedDate.split('/');
+        const[day, month, year] = selectedDate.split('/');
         const [hour, minute] = selectedTime.split(':');
 
         const localDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
@@ -98,8 +102,6 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         if (!onConfirm) return;
 
         try {
-            setIsSubmitting(true);
-
             const appointmentDateTime = buildDateTime();
 
             await onConfirm({
@@ -112,15 +114,21 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         } catch (err) {
             console.error('Reschedule error:', err);
             alert('Đổi lịch thất bại');
-        } finally {
-            setIsSubmitting(false);
-        }
+        } 
     };
 
     if (!isOpen) return null;
 
     return (
-        <AnimatePresence>
+        <AnimatePresence
+            // Di chuyển onAnimationComplete ra đây thành onExitComplete
+            // Đảm bảo lấy được state `isClosing` mới nhất thay vì closure cũ
+            onExitComplete={() => {
+                if (isClosing) {
+                    onClose();
+                }
+            }}
+        >
             {isOpen && !isClosing && (
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -137,12 +145,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                             duration: 0.25,
                             ease: 'easeInOut',
                         }}
-                        onAnimationComplete={() => {
-                            if (isClosing) {
-                                onClose();
-                            }
-                        }}
-                        className="bg-white rounded-2xl w-full max-w-[420px] shadow-2xl max-h-[90vh] overflow-hidden flex flex-col"
+                        className="bg-white rounded-2xl w-full max-w-105 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
@@ -164,13 +167,12 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                             key={date.fullDate}
                                             onClick={() => setSelectedDate(date.fullDate)}
                                             className={`
-                    relative flex flex-col items-center justify-center py-3 px-2 rounded-lg transition-all duration-200
-                    ${
-                        selectedDate === date.fullDate
-                            ? 'bg-primary border-2 border-[#0d7b6d] shadow-md'
-                            : 'bg-white border border-gray-200 hover:border-[#0d7b6d] hover:shadow-sm'
-                    }
-                  `}
+                                                relative flex flex-col items-center justify-center py-3 px-2 rounded-lg transition-all duration-200
+                                                ${selectedDate === date.fullDate
+                                                    ? 'bg-primary border-2 border-[#0d7b6d] shadow-md'
+                                                    : 'bg-white border border-gray-200 hover:border-[#0d7b6d] hover:shadow-sm'
+                                                }
+                                            `}
                                         >
                                             {date.isToday && (
                                                 <span className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full">
@@ -210,15 +212,14 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                                 onClick={() => !isDisabled && setSelectedTime(time)}
                                                 disabled={isDisabled}
                                                 className={`
-                      py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200
-                      ${
-                          isSelected
-                              ? 'bg-primary border-2 border-[#0d7b6d] text-white shadow-md'
-                              : isDisabled
-                              ? 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
-                              : 'bg-white border border-gray-200 text-gray-700 hover:border-[#0d7b6d] hover:shadow-sm'
-                      }
-                    `}
+                                                    py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200
+                                                    ${isSelected
+                                                        ? 'bg-primary border-2 border-[#0d7b6d] text-white shadow-md'
+                                                        : isDisabled
+                                                        ? 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
+                                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-[#0d7b6d] hover:shadow-sm'
+                                                    }
+                                                `}
                                             >
                                                 {time}
                                             </button>
@@ -236,7 +237,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Cập nhật mô tả triệu chứng nếu cần..."
-                                    className="w-full min-h-[80px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0d7b6d] focus:ring-2 focus:ring-blue-100 transition-all resize-none text-sm text-gray-700"
+                                    className="w-full min-h-20 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0d7b6d] focus:ring-2 focus:ring-blue-100 transition-all resize-none text-sm text-gray-700"
                                 />
                             </div>
 
