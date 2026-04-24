@@ -129,7 +129,7 @@ export default function AdminDashboard() {
         setError('');
         try {
             const res = await getAdminUsers();
-            setUsers(res?.data || []);
+            setUsers(res?.data?.data || []);
         } catch (err) {
             setError(err?.message || 'Không thể tải danh sách user');
         } finally {

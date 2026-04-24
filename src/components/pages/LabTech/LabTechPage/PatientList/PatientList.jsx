@@ -1,88 +1,12 @@
-'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Upload } from '@/components/animate-ui/icons/upload.js';
-import { SlidersHorizontal } from '@/components/animate-ui/icons/sliders-horizontal.js';
-import { ArrowUpDown } from '@/components/animate-ui/icons/arrow-up-down.js';
-import { BE_URL } from '@/lib/constans.js';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 import SortButton from '@/components/pages/LabTech/LabTechPage/SortButton/SortButton.jsx';
 import FilterButton from '@/components/pages/LabTech/LabTechPage/FilterButton/FilterButton.jsx';
 import UploadButton from '@/components/pages/LabTech/LabTechPage/UploadButton/UploadButton.jsx';
 import { Bot } from '@/components/animate-ui/icons/bot.js';
-import ZoomOut from '@/components/animate-ui/icons/zoom-out.jsx';
 import { Search } from '@/components/animate-ui/icons/search.js';
-import {
-    CheckCircle2,
-    Activity,
-    Scale,
-    Droplets,
-    FileText,
-    LineChart,
-    CalendarDays,
-    AlertTriangle,
-} from 'lucide-react';
-
-const mockPatients = [
-    {
-        id: 1,
-        name: 'Brad Duncan',
-        time: '9:30',
-        type: 'Cardiogram',
-        avatar: 'https://i.pravatar.cc/40?img=1',
-        complaints: ['Heart pain', 'High pressure', 'Dizziness'],
-        blood: '1K ul',
-        lastChecked: '05.12.2023',
-    },
-    {
-        id: 2,
-        name: 'Alison Cooper',
-        time: '9:00',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=2',
-    },
-    {
-        id: 3,
-        name: 'Linda Huston',
-        time: '12:00',
-        type: 'Annual check-up',
-        avatar: 'https://i.pravatar.cc/40?img=3',
-    },
-    {
-        id: 4,
-        name: 'Murack Culhane',
-        time: '12:40',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=4',
-    },
-    {
-        id: 4,
-        name: 'Murack Culhane',
-        time: '12:40',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=4',
-    },
-    {
-        id: 4,
-        name: 'Murack Culhane',
-        time: '12:40',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=4',
-    },
-    {
-        id: 4,
-        name: 'Murack Culhane',
-        time: '12:40',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=4',
-    },
-    {
-        id: 4,
-        name: 'Murack Culhane',
-        time: '12:40',
-        type: 'Online consultation',
-        avatar: 'https://i.pravatar.cc/40?img=4',
-    },
-];
+import { FileText, CalendarDays } from 'lucide-react';
+import { labTechService } from '@/services/LabTechService.js';
 
 export default function PatientList() {
     const [medicalRecords, setMedicalRecords] = useState([]);
@@ -93,22 +17,17 @@ export default function PatientList() {
         const fetchAll = async () => {
             try {
                 const [recordsRes, resultsRes] = await Promise.all([
-                    fetch(`/api/v1/lab-techs/medical-records`, {
-                        credentials: 'include',
-                    }),
-                    fetch(`/api/v1/lab-techs/test-results`, {
-                        credentials: 'include',
-                    }),
+                    labTechService.getAllMedicalRecords(),
+                    labTechService.getAllTestResults(),
                 ]);
 
-                const [recordsJson, resultsJson] = await Promise.all([recordsRes.json(), resultsRes.json()]);
-
-                if (recordsJson.statusCode === 200) {
-                    setMedicalRecords(recordsJson.data);
+                if (recordsRes.statusCode === 200) {
+                    console.log(recordsRes.data);
+                    setMedicalRecords(recordsRes.data);
                 }
 
-                if (resultsJson.statusCode === 200) {
-                    setTestResults(resultsJson.data);
+                if (resultsRes.statusCode === 200) {
+                    setTestResults(resultsRes.data);
                 }
             } catch (err) {
                 console.error('Fetch error:', err);
@@ -144,7 +63,7 @@ export default function PatientList() {
 
     const fetchDataFilter = async (newFilters) => {
         const merged = { ...filters, ...newFilters };
-        let url = `/api/v1/lab-techs/medical-records`;
+        let url = `/lab-techs/medical-records`;
 
         const params = [];
 
@@ -163,13 +82,8 @@ export default function PatientList() {
         if (params.length > 0) {
             url += `?${params.join('&')}`;
         }
-
-        const res = await fetch(url, {
-            credentials: 'include',
-        });
-
-        const data = await res.json();
-        setMedicalRecords(data.data);
+        const res = await labTechService.getAllMedicalRecords(url);
+        setMedicalRecords(res.data);
     };
 
     const [debounced, setDebounced] = useState(filters.q);

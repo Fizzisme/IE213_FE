@@ -7,6 +7,7 @@ import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { CircleX, Menu } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 import MobileSheet from '@/components/Sidebar/MobileSheet.jsx';
+import { labTechService } from '@/services/LabTechService.js';
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/lab-tech/dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/lab-tech/notifications' },
@@ -16,12 +17,8 @@ export default function LabTechLayout() {
     // Fetch thong tin cua lab-tech
     useEffect(() => {
         const fetchData = async () => {
-            const res = await fetch(`/api/v1/lab-techs/me`, {
-                method: 'GET',
-                credentials: 'include',
-            });
-            const resJson = await res.json();
-            if (resJson.statusCode === 200) setLabTechInfo(resJson.data);
+            const res = await labTechService.getMe();
+            if (res.statusCode === 200) setLabTechInfo(res.data);
         };
         fetchData();
     }, []);
@@ -48,7 +45,7 @@ export default function LabTechLayout() {
         </>
     );
     return (
-        <div className="bg-white flex flex-col lg:flex-row h-screen overflow-hidden hide-scrollbar">
+        <div className="bg-white flex flex-col lg:flex-row h-screen">
             <div className="lg:hidden flex items-center gap-2 px-2 py-3 border-b border-gray-200 bg-white">
                 <MobileSheet
                     userInfo={{ ...labTechInfo, role: 'Kỹ thuật viên phòng lab', status: 'ACTIVE' }}
