@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { CheckCheck, Calendar, Clock, AlertCircle, Info, Bell, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api from '../../../../utils/api';
+import api from '@/utils/api.js';
 
 export default function NotificationPage() {
     const [activeFilter, setActiveFilter] = useState('ALL');

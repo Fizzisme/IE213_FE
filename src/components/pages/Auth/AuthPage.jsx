@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import api from '../../../utils/api';
+
 // XÓA: import { jwtDecode } from 'jwt-decode';
-import { useAuth } from '../../../contexts/AuthContext'; // Import hook vừa tạo
-import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
+
+import { Mail, Lock, Eye, EyeOff, CreditCard, Check } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext.jsx';
+import api from '@/utils/api.js';
 // ── Carousel slides data ──────────────────────────────────────────────────────
 const SLIDES = [
     {
@@ -65,7 +67,13 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
                 onClick={onClick}
                 disabled={active}
                 className={`h-11 transition-all duration-300 flex items-center justify-center border-none relative overflow-hidden shrink-0
-                    ${active ? 'w-11 rounded-full cursor-default' : fullWidth ? 'w-full rounded-lg cursor-pointer' : 'w-36 rounded-lg cursor-pointer'}
+                    ${
+                        active
+                            ? 'w-11 rounded-full cursor-default'
+                            : fullWidth
+                            ? 'w-full rounded-lg cursor-pointer'
+                            : 'w-36 rounded-lg cursor-pointer'
+                    }
                     ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
                 `}
             >

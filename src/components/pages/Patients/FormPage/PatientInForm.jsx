@@ -2,8 +2,8 @@ import React from 'react';
 import { User, Phone, Calendar, Users, Activity, Shield, FileText, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../../utils/api';
-import { useAuth } from '../../../../contexts/AuthContext'; // 1. Import useAuth
+import { useAuth } from '@/contexts/AuthContext.jsx';
+import api from '@/utils/api.js';
 
 export default function PatientInfoForm() {
     const navigate = useNavigate();
@@ -26,17 +26,16 @@ export default function PatientInfoForm() {
 
             // 3. Gửi yêu cầu tạo hồ sơ
             await api.post('/patients', payload);
-            
+
             // 4. CẬP NHẬT LẠI CONTEXT (Rất quan trọng)
             // Lệnh này sẽ gọi lại API /users/me, cập nhật hasProfile: true vào state global
-            await refreshUser(); 
+            await refreshUser();
 
             alert('Hồ sơ đã được lưu thành công!');
-            
+
             // 5. Điều hướng về dashboard
             // Lúc này dashboard nhận được user.hasProfile = true từ Context và ẩn nút "Tạo hồ sơ"
-            navigate('/demo-dashboard'); 
-            
+            navigate('/demo-dashboard');
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || 'Có lỗi xảy ra khi tạo hồ sơ');
@@ -88,7 +87,7 @@ export default function PatientInfoForm() {
                         <div className="flex justify-end mb-6">
                             <button
                                 type="button"
-                                onClick={() => navigate("/demo-dashboard")}
+                                onClick={() => navigate('/demo-dashboard')}
                                 className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-1.5 text-sm font-semibold text-gray-500 hover:bg-gray-100 transition-all"
                             >
                                 <ArrowLeft className="w-4 h-4" />
@@ -105,8 +104,14 @@ export default function PatientInfoForm() {
                             {/* Họ và tên */}
                             <div>
                                 <label className="block text-sm font-bold text-black mb-2">Họ và tên</label>
-                                <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.fullName ? 'border-red-400' : 'border-gray-300'}`}>
-                                    <div className="px-3 py-2.5"><User className="w-5 h-5 text-gray-400" /></div>
+                                <div
+                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
+                                        errors.fullName ? 'border-red-400' : 'border-gray-300'
+                                    }`}
+                                >
+                                    <div className="px-3 py-2.5">
+                                        <User className="w-5 h-5 text-gray-400" />
+                                    </div>
                                     <div className="h-10 w-px bg-gray-300"></div>
                                     <input
                                         type="text"
@@ -115,14 +120,22 @@ export default function PatientInfoForm() {
                                         {...register('fullName', { required: true, minLength: 2 })}
                                     />
                                 </div>
-                                {errors.fullName && <span className="text-red-500 text-xs mt-1 block">Họ tên tối thiểu 2 ký tự</span>}
+                                {errors.fullName && (
+                                    <span className="text-red-500 text-xs mt-1 block">Họ tên tối thiểu 2 ký tự</span>
+                                )}
                             </div>
 
                             {/* Số điện thoại */}
                             <div>
                                 <label className="block text-sm font-bold text-black mb-2">Số điện thoại</label>
-                                <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.phoneNumber ? 'border-red-400' : 'border-gray-300'}`}>
-                                    <div className="px-3 py-2.5"><Phone className="w-5 h-5 text-gray-400" /></div>
+                                <div
+                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
+                                        errors.phoneNumber ? 'border-red-400' : 'border-gray-300'
+                                    }`}
+                                >
+                                    <div className="px-3 py-2.5">
+                                        <Phone className="w-5 h-5 text-gray-400" />
+                                    </div>
                                     <div className="h-10 w-px bg-gray-300"></div>
                                     <input
                                         type="tel"
@@ -134,7 +147,9 @@ export default function PatientInfoForm() {
                                         })}
                                     />
                                 </div>
-                                {errors.phoneNumber && <span className="text-red-500 text-xs mt-1 block">Số điện thoại không hợp lệ</span>}
+                                {errors.phoneNumber && (
+                                    <span className="text-red-500 text-xs mt-1 block">Số điện thoại không hợp lệ</span>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -142,9 +157,14 @@ export default function PatientInfoForm() {
                                 <div>
                                     <label className="block text-sm font-bold text-black mb-2">Giới tính</label>
                                     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                                        <div className="px-3 py-2.5"><Users className="w-5 h-5 text-gray-400" /></div>
+                                        <div className="px-3 py-2.5">
+                                            <Users className="w-5 h-5 text-gray-400" />
+                                        </div>
                                         <div className="h-10 w-px bg-gray-300"></div>
-                                        <select className="flex-1 px-3 py-2.5 outline-none bg-white" {...register('gender')}>
+                                        <select
+                                            className="flex-1 px-3 py-2.5 outline-none bg-white"
+                                            {...register('gender')}
+                                        >
                                             <option value="M">Nam</option>
                                             <option value="F">Nữ</option>
                                         </select>
@@ -154,17 +174,31 @@ export default function PatientInfoForm() {
                                 {/* Năm sinh */}
                                 <div>
                                     <label className="block text-sm font-bold text-black mb-2">Năm sinh</label>
-                                    <div className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${errors.dob ? 'border-red-400' : 'border-gray-300'}`}>
-                                        <div className="px-3 py-2.5"><Calendar className="w-5 h-5 text-gray-400" /></div>
+                                    <div
+                                        className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
+                                            errors.dob ? 'border-red-400' : 'border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="px-3 py-2.5">
+                                            <Calendar className="w-5 h-5 text-gray-400" />
+                                        </div>
                                         <div className="h-10 w-px bg-gray-300"></div>
                                         <input
                                             type="number"
                                             placeholder="1995"
                                             className="flex-1 px-3 py-2.5 outline-none"
-                                            {...register('dob', { required: true, min: 1900, max: new Date().getFullYear() })}
+                                            {...register('dob', {
+                                                required: true,
+                                                min: 1900,
+                                                max: new Date().getFullYear(),
+                                            })}
                                         />
                                     </div>
-                                    {errors.dob && <span className="text-red-500 text-xs mt-1 block">Vui lòng nhập năm sinh hợp lệ</span>}
+                                    {errors.dob && (
+                                        <span className="text-red-500 text-xs mt-1 block">
+                                            Vui lòng nhập năm sinh hợp lệ
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
