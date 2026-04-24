@@ -126,7 +126,7 @@ export default function LabTechLayout() {
 
             {/* Main */}
             <div className="flex-1 bg-white p-4 xl:p-6 min-w-0">
-                <div className="flex justify-end px-2 py-4">
+                <div className="flex justify-end px-2 py-4 lg:hidden">
                     <button
                         onClick={() => setOpenMobileSidebar(true)}
                         className="lg:hidden gap-1.5 border-2 p-1.5 rounded-lg items-center shadow-xs "
