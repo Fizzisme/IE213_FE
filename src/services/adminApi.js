@@ -2,7 +2,7 @@ import axios from 'axios';
 import { BE_URL } from '@/lib/constans.js';
 
 const api = axios.create({
-    baseURL: `${BE_URL}/v1`,
+    baseURL: `/api/v1`,
     withCredentials: true,
 });
 
