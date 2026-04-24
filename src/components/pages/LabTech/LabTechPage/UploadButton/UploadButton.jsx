@@ -76,7 +76,7 @@ export default function UploadButton({ medicalRecordId }) {
                 setLoading(true);
 
                 try {
-                    const res = await fetch(`${BE_URL}/v1/lab-techs/medical-records/${medicalRecordId}/test-results`, {
+                    const res = await fetch(`/api/v1/lab-techs/medical-records/${medicalRecordId}/test-results`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',

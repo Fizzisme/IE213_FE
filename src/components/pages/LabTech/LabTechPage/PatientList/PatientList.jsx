@@ -144,7 +144,7 @@ export default function PatientList() {
 
     const fetchDataFilter = async (newFilters) => {
         const merged = { ...filters, ...newFilters };
-        let url = `${BE_URL}/v1/lab-techs/medical-records`;
+        let url = `/api/v1/lab-techs/medical-records`;
 
         const params = [];
 
