@@ -93,10 +93,10 @@ export default function PatientList() {
         const fetchAll = async () => {
             try {
                 const [recordsRes, resultsRes] = await Promise.all([
-                    fetch(`${BE_URL}/v1/lab-techs/medical-records`, {
+                    fetch(`/api/v1/lab-techs/medical-records`, {
                         credentials: 'include',
                     }),
-                    fetch(`${BE_URL}/v1/lab-techs/test-results`, {
+                    fetch(`/api/v1/lab-techs/test-results`, {
                         credentials: 'include',
                     }),
                 ]);
