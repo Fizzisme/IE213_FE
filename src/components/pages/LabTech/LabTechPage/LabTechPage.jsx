@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import PatientList from '@/components/pages/LabTechPage/PatientList/PatientList.jsx';
-import PatientChart from '@/components/pages/LabTechPage/PatientChart/PatientChart.jsx';
+
+import PatientList from '@/components/pages/LabTech/LabTechPage/PatientList/PatientList.jsx';
+import PatientChart from '@/components/pages/LabTech/LabTechPage/PatientChart/PatientChart.jsx';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 export default function LabTechPage() {
     const [date, setDate] = useState(new Date());
@@ -17,6 +19,8 @@ export default function LabTechPage() {
         },
     ];
 
+    const openSidebar = useLayoutStore((s) => s?.openSidebar);
+
     return (
         <div className="flex h-full">
             {/* MAIN */}
@@ -24,7 +28,7 @@ export default function LabTechPage() {
                 {/* Header*/}
                 <header className="bg-white rounded-2xl p-6 shadow mb-6 hidden sm:flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     {/* LEFT */}
-                    <div className="flex-1">
+                    <div className={`flex-1 pl-10 transition-all duration-500 ${!openSidebar && 'pl-20'}`}>
                         {/* GREETING */}
                         <h1 className="text-2xl font-bold text-primary">Mừng bạn quay lại, Tuấn Phi</h1>
                         <p className="text-gray-500 text-sm mt-1">Chúc bạn một ngày làm việc hiệu quả và chính xác</p>
@@ -44,7 +48,7 @@ export default function LabTechPage() {
                     {/* RIGHT */}
                     <div className="flex items-center gap-4">
                         {/* IMAGE */}
-                        <div className="hidden lg:flex items-center">
+                        <div className="hidden xl:flex items-center">
                             <img src="/labtech-welcome.png" className="max-h-[200px] w-auto object-contain" />
                         </div>
 

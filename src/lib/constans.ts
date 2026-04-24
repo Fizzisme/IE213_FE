@@ -1,1 +1,1 @@
-export const BE_URL = 'http://localhost:8017';
+export const BE_URL = 'http://62.72.46.7:1306';

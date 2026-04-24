@@ -5,9 +5,9 @@ import { SlidersHorizontal } from '@/components/animate-ui/icons/sliders-horizon
 import { ArrowUpDown } from '@/components/animate-ui/icons/arrow-up-down.js';
 import { BE_URL } from '@/lib/constans.js';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
-import SortButton from '@/components/pages/LabTechPage/SortButton/SortButton.jsx';
-import FilterButton from '@/components/pages/LabTechPage/FilterButton/FilterButton.jsx';
-import UploadButton from '@/components/pages/LabTechPage/UploadButton/UploadButton.jsx';
+import SortButton from '@/components/pages/LabTech/LabTechPage/SortButton/SortButton.jsx';
+import FilterButton from '@/components/pages/LabTech/LabTechPage/FilterButton/FilterButton.jsx';
+import UploadButton from '@/components/pages/LabTech/LabTechPage/UploadButton/UploadButton.jsx';
 import { Bot } from '@/components/animate-ui/icons/bot.js';
 import ZoomOut from '@/components/animate-ui/icons/zoom-out.jsx';
 import { Search } from '@/components/animate-ui/icons/search.js';
@@ -93,10 +93,10 @@ export default function PatientList() {
         const fetchAll = async () => {
             try {
                 const [recordsRes, resultsRes] = await Promise.all([
-                    fetch(`${BE_URL}/v1/lab-techs/medical-records`, {
+                    fetch(`/api/v1/lab-techs/medical-records`, {
                         credentials: 'include',
                     }),
-                    fetch(`${BE_URL}/v1/lab-techs/test-results`, {
+                    fetch(`/api/v1/lab-techs/test-results`, {
                         credentials: 'include',
                     }),
                 ]);

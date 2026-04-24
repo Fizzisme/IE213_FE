@@ -2,8 +2,8 @@ import React from 'react';
 import { User, Phone, Calendar, Users, Activity, Shield, FileText, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
-import { useAuth } from '../../contexts/AuthContext'; // 1. Import useAuth
+import api from '../../../../utils/api';
+import { useAuth } from '../../../../contexts/AuthContext'; // 1. Import useAuth
 
 export default function PatientInfoForm() {
     const navigate = useNavigate();
@@ -48,10 +48,10 @@ export default function PatientInfoForm() {
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-[40%_60%]">
                     {/* Cột trái - Giữ nguyên giao diện đẹp của bạn */}
-                    <div className="bg-[#3B82F6] p-10 flex flex-col justify-between text-white">
+                    <div className="bg-primary p-10 flex flex-col justify-between text-white">
                         <div className="flex items-center gap-2">
                             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                                <Activity className="w-6 h-6 text-[#3B82F6]" />
+                                <Activity className="w-6 h-6 text-[#0d7b6d]" />
                             </div>
                             <span className="text-xl font-semibold">HealthHub</span>
                         </div>

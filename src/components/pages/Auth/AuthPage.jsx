@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 // XÓA: import { jwtDecode } from 'jwt-decode';
-import { useAuth } from '../../contexts/AuthContext'; // Import hook vừa tạo
+import { useAuth } from '../../../contexts/AuthContext'; // Import hook vừa tạo
 import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
 // ── Carousel slides data ──────────────────────────────────────────────────────
 const SLIDES = [
@@ -59,44 +59,22 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
     const active = loading || success;
     return (
         // Wrapper duy trì layout, button bên trong thu nhỏ về center
-        <div
-            style={{
-                width: fullWidth ? '100%' : '150px',
-                display: 'flex',
-                justifyContent: align === 'center' ? (active ? 'center' : 'flex-start') : 'flex-start',
-                transition: 'justify-content 0s',
-            }}
-        >
+        <div className={`${fullWidth ? 'w-full flex justify-center' : 'w-36'}`}>
             <button
                 type={type}
                 onClick={onClick}
                 disabled={active}
-                style={{
-                    width: active ? '44px' : fullWidth ? '100%' : '150px',
-                    height: '44px',
-                    borderRadius: active ? '50%' : '8px',
-                    transition: [
-                        'width 0.4s cubic-bezier(0.4,0,0.2,1)',
-                        'border-radius 0.4s cubic-bezier(0.4,0,0.2,1)',
-                        'background-color 0.3s ease',
-                    ].join(', '),
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: 'none',
-                    cursor: active ? 'default' : 'pointer',
-                    backgroundColor: success ? '#10b981' : '#0d7b6d',
-                    flexShrink: 0,
-                    position: 'relative',
-                }}
+                className={`h-11 transition-all duration-300 flex items-center justify-center border-none relative overflow-hidden shrink-0
+                    ${active ? 'w-11 rounded-full cursor-default' : fullWidth ? 'w-full rounded-lg cursor-pointer' : 'w-36 rounded-lg cursor-pointer'}
+                    ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
+                `}
             >
                 {/* Idle label — fade out khi active */}
                 <span
+                    className="absolute transition-all duration-300"
                     style={{
                         opacity: active ? 0 : 1,
                         transform: active ? 'scale(0.6)' : 'scale(1)',
-                        transition: 'opacity 0.2s ease, transform 0.25s ease',
                         color: 'white',
                         fontWeight: 600,
                         fontSize: '15px',
@@ -108,13 +86,8 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
                 </span>
                 {/* Spinner — hiện khi loading */}
                 <span
+                    className="absolute w-5 h-5 border-2.5 border-white/35 border-t-white rounded-full"
                     style={{
-                        position: 'absolute',
-                        width: '20px',
-                        height: '20px',
-                        border: '2.5px solid rgba(255,255,255,0.35)',
-                        borderTopColor: 'white',
-                        borderRadius: '50%',
                         animation: loading ? 'btnSpin 0.7s linear infinite' : 'none',
                         opacity: loading ? 1 : 0,
                         transition: 'opacity 0.2s ease',
@@ -123,22 +96,19 @@ function AnimatedButton({ onClick, loading, success, children, fullWidth = false
 
                 {/* Check — pop in khi success */}
                 <span
+                    className="absolute flex items-center justify-center"
                     style={{
-                        position: 'absolute',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         opacity: success ? 1 : 0,
                         transform: success ? 'scale(1)' : 'scale(0)',
                         transition: 'opacity 0.25s ease, transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
                     }}
                 >
-                    <Check style={{ color: 'white', width: '20px', height: '20px' }} />
+                    <Check className="text-white w-5 h-5" />
                 </span>
 
                 <style>{`
-      @keyframes btnSpin { to { transform: rotate(360deg); } }
-    `}</style>
+                    @keyframes btnSpin { to { transform: rotate(360deg); } }
+                `}</style>
             </button>
         </div>
     );
