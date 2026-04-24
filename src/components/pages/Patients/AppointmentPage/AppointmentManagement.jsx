@@ -16,8 +16,9 @@ import {
     CalendarCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api from '../../../../utils/api';
+
 import RescheduleAppointmentModal from './components/RescheduleAppointmentModal';
+import api from '@/utils/api.js';
 
 export default function AppointmentManagement() {
     const navigate = useNavigate();

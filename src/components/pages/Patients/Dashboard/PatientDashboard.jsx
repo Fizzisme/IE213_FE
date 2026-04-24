@@ -1,9 +1,9 @@
-import { useDashboard } from '../../../../hooks/useDashboard';
 import DashboardNavbar from '../../../ui/dashboard/DashboardNavbar';
 import WelcomeBanner from '../../../ui/dashboard/WelcomeBanner';
 import StatsGrid from '../../../ui/dashboard/StatsGrid';
 import AppointmentList from '../../../ui/dashboard/AppointmentList';
 import RecentActivity from '../../../ui/dashboard/RecentActivity';
+import { useDashboard } from '@/hooks/useDashboard.js';
 export default function DemoDashboard() {
     const { displayName, roleLabel, loginMethod } = useDashboard();
 

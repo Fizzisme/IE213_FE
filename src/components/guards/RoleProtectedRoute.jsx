@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { useAuth } from '@/contexts/AuthContext.jsx';
 
 export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
     const { user, loading } = useAuth();
@@ -17,9 +18,7 @@ export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-slate-100 gap-4">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-slate-900 mb-2">
-                        ❌ Unauthorized
-                    </h1>
+                    <h1 className="text-2xl font-bold text-slate-900 mb-2">❌ Unauthorized</h1>
                     <p className="text-slate-500 text-sm mb-2">
                         Role của bạn: <strong>{user?.role}</strong>
                     </p>
