@@ -1,12 +1,12 @@
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTechPage/Collapsible/Collapsible.jsx';
+import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.tsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import { motion } from 'motion/react';
 import api from '@/utils/api.js';
-import UserProfilePopover from '@/components/pages/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
+import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 
 // Variants cho label
 const labelVariants = {

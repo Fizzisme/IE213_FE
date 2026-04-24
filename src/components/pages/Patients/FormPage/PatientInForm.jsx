@@ -2,8 +2,8 @@ import React from 'react';
 import { User, Phone, Calendar, Users, Activity, Shield, FileText, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
-import { useAuth } from '../../contexts/AuthContext'; // 1. Import useAuth
+import api from '../../../../utils/api';
+import { useAuth } from '../../../../contexts/AuthContext'; // 1. Import useAuth
 
 export default function PatientInfoForm() {
     const navigate = useNavigate();

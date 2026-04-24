@@ -26,5 +26,9 @@ export const useDashboard = () => {
         navigate('/auth', { replace: true });
     };
 
-    return { patient, hasProfile, displayName, roleLabel, loginMethod, handleLogout, navigate };
+    const onNavigateCreate = () => {
+        navigate('/demo-dashboard/create-patient');
+    };
+
+    return { patient, hasProfile, displayName, roleLabel, loginMethod, handleLogout, navigate, onNavigateCreate };
 };

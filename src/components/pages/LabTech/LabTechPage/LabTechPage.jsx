@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import PatientList from '@/components/pages/LabTechPage/PatientList/PatientList.jsx';
-import PatientChart from '@/components/pages/LabTechPage/PatientChart/PatientChart.jsx';
+import PatientList from '@/components/pages/LabTech/LabTechPage/PatientList/PatientList.jsx';
+import PatientChart from '@/components/pages/LabTech/LabTechPage/PatientChart/PatientChart.jsx';
 
 export default function LabTechPage() {
     const [date, setDate] = useState(new Date());
