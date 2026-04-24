@@ -307,8 +307,8 @@ export default function AppointmentManagement() {
                                 >
                                     <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                                         {/* Left Section - Date & Time */}
-                                        <div className="flex items-center gap-4 lg:w-48 flex-shrink-0">
-                                            <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                                        <div className="flex items-center gap-4 lg:w-48 shrink-0">
+                                            <div className="p-3 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg">
                                                 <Calendar className="w-6 h-6 text-textColor" />
                                             </div>
                                             <div>
@@ -411,7 +411,7 @@ export default function AppointmentManagement() {
                                     {appointment.description && (
                                         <div className="mt-4 pt-4 border-t border-gray-100">
                                             <div className="flex items-start gap-2 text-sm">
-                                                <FileText className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                                                <FileText className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
                                                 <span className="text-gray-600">{appointment.description}</span>
                                             </div>
                                         </div>

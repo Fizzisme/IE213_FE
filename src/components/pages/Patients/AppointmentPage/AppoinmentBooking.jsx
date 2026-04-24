@@ -10,19 +10,15 @@ export default function AppointmentBooking() {
     const [patientDescription, setPatientDescription] = useState('');
 
     const [services, setServices] = useState([]);
-    const [loadingServices, setLoadingServices] = useState(false);
 
     // ================= FETCH SERVICES =================
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                setLoadingServices(true);
                 const res = await api.get('/patients/services');
                 setServices(res.data.data || []);
             } catch (err) {
                 console.error('Fetch services error:', err);
-            } finally {
-                setLoadingServices(false);
             }
         };
 
@@ -156,7 +152,7 @@ export default function AppointmentBooking() {
                     relative p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-300
                     ${
                         selectedDate === date.index
-                            ? 'border-[#0d7b6d] bg-gradient-to-br from-green-50 to-green-100 shadow-md scale-105'
+                            ? 'border-[#0d7b6d] bg-linear-to-br from-green-50 to-green-100 shadow-md scale-105'
                             : 'border-gray-200 bg-white hover:border-[#0d7b6d] hover:shadow-sm'
                     }
                   `}
@@ -238,7 +234,7 @@ export default function AppointmentBooking() {
                     w-full p-5 rounded-xl border-2 transition-all duration-300 flex items-center gap-4
                     ${
                         selectedService === service._id
-                            ? 'border-[#0d7b6d] bg-gradient-to-r from-green-50 to-green-100 shadow-md'
+                            ? 'border-[#0d7b6d] bg-linear-to-r from-green-50 to-green-100 shadow-md'
                             : 'border-gray-200 bg-white hover:border-[#0d7b6d] hover:shadow-sm'
                     }
                   `}
@@ -297,7 +293,7 @@ export default function AppointmentBooking() {
 
                             {/* Right Column - Summary Card */}
                             <div className="lg:sticky lg:top-8 h-fit">
-                                <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
+                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
                                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
                                         Tóm tắt lịch khám
                                     </h2>
@@ -305,7 +301,7 @@ export default function AppointmentBooking() {
                                     <div className="space-y-3 sm:space-y-5 mb-6">
                                         {/* Date */}
                                         <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <Calendar className="w-5 h-5 text-[#0d7b6d] mt-0.5 flex-shrink-0" />
+                                            <Calendar className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
                                             <div className="flex-1">
                                                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Ngày khám</div>
                                                 <div className="font-bold text-sm sm:text-base text-gray-900">
@@ -316,7 +312,7 @@ export default function AppointmentBooking() {
 
                                         {/* Time */}
                                         <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <Clock className="w-5 h-5 text-[#0d7b6d] mt-0.5 flex-shrink-0" />
+                                            <Clock className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
                                             <div className="flex-1">
                                                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Giờ khám</div>
                                                 <div className="font-bold text-sm sm:text-base text-gray-900">
@@ -327,7 +323,7 @@ export default function AppointmentBooking() {
 
                                         {/* Service */}
                                         <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 flex-shrink-0" />
+                                            <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
                                             <div className="flex-1">
                                                 <div className="text-xs sm:text-sm text-gray-500 mb-1">Dịch vụ</div>
                                                 <div className="font-bold text-sm sm:text-base text-gray-900">
@@ -339,7 +335,7 @@ export default function AppointmentBooking() {
                                         {/* Notes */}
                                         {patientDescription && (
                                             <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                                <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 flex-shrink-0" />
+                                                <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
                                                 <div className="flex-1">
                                                     <div className="text-xs sm:text-sm text-gray-500 mb-1">Ghi chú</div>
                                                     <div className="text-xs sm:text-sm text-gray-700 line-clamp-2">
@@ -361,7 +357,7 @@ export default function AppointmentBooking() {
                                     </div>
 
                                     {/* Cost */}
-                                    <div className="mb-6 p-4 sm:p-5 bg-gradient-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
+                                    <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <DollarSign className="w-5 h-5" />

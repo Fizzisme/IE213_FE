@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
-import { adminLogin } from "../../services/adminApi";
-import { setAccessToken } from "../../utils/auth";
+import { adminLogin } from "../../../services/adminApi";
+import { setAccessToken } from "../../../utils/auth";
 
 function Field({ icon: Icon, ...props }) {
   return (
