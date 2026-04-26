@@ -1,25 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import api from '../../../utils/api';
-import { useAuth } from '../../../contexts/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
 
-// ── Constants ──────────────────────────────────────────────────────────────────
-const SPIN_KEYFRAMES = `
-    @keyframes btnSpin {
-        to { transform: rotate(360deg); }
-    }
-`;
+// XÓA: import { jwtDecode } from 'jwt-decode';
 
-// Inject keyframes once on mount
-if (typeof document !== 'undefined' && !document.getElementById('btnspin-keyframes')) {
-    const styleTag = document.createElement('style');
-    styleTag.id = 'btnspin-keyframes';
-    styleTag.textContent = SPIN_KEYFRAMES;
-    document.head.appendChild(styleTag);
-}
-
+import { Mail, Lock, Eye, EyeOff, CreditCard, Check } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext.jsx';
+import api from '@/utils/api.js';
+// ── Carousel slides data ──────────────────────────────────────────────────────
 const SLIDES = [
     {
         title: 'Nâng cao hiệu quả chăm sóc sức khỏe',
@@ -46,20 +34,33 @@ const SLIDES = [
         img: 'https://www.news-medical.net/image-handler/picture/2021/1/shutterstock_1067569886_(1).jpg',
     },
 ];
-
-const CAROUSEL_INTERVAL = 4000;
-const ANIMATION_DELAY = 900;
-const ROUTES_BY_ROLE = {
-    PATIENT: '/demo-dashboard',
-    LAB_TECH: '/lab-tech/dashboard',
-    DOCTOR: '/',
-};
-
-// ── Reusable Components ─────────────────────────────────────────────────────────
-
-const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false, type = 'button' }) => {
+// ── Reusable InputField — PHẢI đặt NGOÀI AuthPage ────────────────────────────
+const InputField = ({ label, type, icon: Icon, name, placeholder, value, onChange, ...props }) => (
+    <div>
+        <label className="block text-sm font-bold text-black mb-2">{label}</label>
+        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+            <div className="flex items-center px-3 py-2.5">
+                <Icon className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="h-10 w-px bg-gray-300" />
+            <input
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                value={value ?? ''}
+                onChange={onChange}
+                className="flex-1 px-3 py-2.5 outline-none bg-transparent"
+                {...props}
+            />
+        </div>
+    </div>
+);
+// ── Button states ─────────────────────────────────────────────────────────────
+// idle → loading → success
+function AnimatedButton({ onClick, loading, success, children, fullWidth = false, type = 'button', align }) {
     const active = loading || success;
     return (
+        // Wrapper duy trì layout, button bên trong thu nhỏ về center
         <div className={`${fullWidth ? 'w-full flex justify-center' : 'w-36'}`}>
             <button
                 type={type}
@@ -76,93 +77,130 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                     ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
                 `}
             >
+                {/* Idle label — fade out khi active */}
                 <span
-                    className={`
-                        absolute
-                        text-white font-semibold text-[15px] whitespace-nowrap pointer-events-none
-                        transition-all duration-300
-                        ${active ? 'opacity-0 scale-[0.6]' : 'opacity-100 scale-100'}
-                    `}
+                    className="absolute transition-all duration-300"
+                    style={{
+                        opacity: active ? 0 : 1,
+                        transform: active ? 'scale(0.6)' : 'scale(1)',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '15px',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                    }}
                 >
                     {children}
                 </span>
+                {/* Spinner — hiện khi loading */}
                 <span
-                    className={`
-                        absolute w-5 h-5 border-2 border-white/30 border-t-white rounded-full
-                        transition-opacity duration-200 ease-in-out
-                        ${loading ? 'opacity-100' : 'opacity-0'}
-                    `}
+                    className="absolute w-5 h-5 border-2.5 border-white/35 border-t-white rounded-full"
                     style={{
-                        animation: loading ? 'btnSpin 0.8s linear infinite' : 'none',
+                        animation: loading ? 'btnSpin 0.7s linear infinite' : 'none',
+                        opacity: loading ? 1 : 0,
+                        transition: 'opacity 0.2s ease',
                     }}
                 />
+
+                {/* Check — pop in khi success */}
                 <span
-                    className={`
-                        absolute flex items-center justify-center
-                        transition-all duration-300
-                        ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
-                        ${success ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-                    `}
+                    className="absolute flex items-center justify-center"
+                    style={{
+                        opacity: success ? 1 : 0,
+                        transform: success ? 'scale(1)' : 'scale(0)',
+                        transition: 'opacity 0.25s ease, transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
+                    }}
                 >
                     <Check className="text-white w-5 h-5" />
                 </span>
+
+                <style>{`
+                    @keyframes btnSpin { to { transform: rotate(360deg); } }
+                `}</style>
             </button>
         </div>
     );
-};
-
-const MetamaskButtonContent = ({ isIdle }) => (
-    <span className="flex items-center gap-3">
-        <img
-            src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
-            alt="MetaMask"
-            className="w-5 h-5"
-        />
-        <span className={`font-semibold transition-colors duration-200 ${isIdle ? 'text-white' : 'text-transparent'}`}>
-            Đăng nhập bằng MetaMask
-        </span>
-    </span>
-);
-
-// ── Main Component ─────────────────────────────────────────────────────────────
+}
 export default function AuthPage() {
     const navigate = useNavigate();
-    const { loginMetaMask } = useAuth();
+    const { user, login, loginMetaMask } = useAuth();
+
+    // Auth state
+    const [isLoginMode, setIsLoginMode] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        nationId: '',
+        password: '',
+        phoneNumber: '',
+    });
+    // Button animation state
+    const [loginBtn, setLoginBtn] = useState('idle');
     const [metamaskBtn, setMetamaskBtn] = useState('idle');
     const [activeSlide, setActiveSlide] = useState(0);
-    // Check wallet availability on mount
-    const hasWallet = !!window.ethereum;
 
-    // Auto-advance carousel
-    const nextSlide = useCallback(() => {
-        setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+    // Auto-advance carousel every 4s
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+        }, 4000);
+        return () => clearInterval(timer);
     }, []);
 
-    useEffect(() => {
-        const timer = setInterval(nextSlide, CAROUSEL_INTERVAL);
-        return () => clearInterval(timer);
-    }, [nextSlide]);
+    const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleNavigate = useCallback(
-        (role, loginMethod) => {
-            const route = ROUTES_BY_ROLE[role];
-            if (route) {
-                navigate(route, { state: { loginMethod } });
+    const handleTraditionalAuth = async (e) => {
+        e.preventDefault();
+        setLoginBtn('loading');
+        try {
+            if (isLoginMode) {
+                // ✅ Chờ login xong mới điều hướng
+                const userData = await login({
+                    nationId: formData.nationId,
+                    password: formData.password,
+                });
+
+                // ✅ Check user data trước khi redirect
+                if (!userData) {
+                    alert('Lỗi: Không nhận được dữ liệu người dùng');
+                    setLoginBtn('idle');
+                    return;
+                }
+
+                setLoginBtn('success');
+
+                // ✅ Delay để animation hoàn tất, sau đó điều hướng
+                setTimeout(() => {
+                    if (userData.role === 'PATIENT') {
+                        navigate('/demo-dashboard', { state: { loginMethod: 'local' } });
+                    } else if (userData.role === 'LAB_TECH') {
+                        navigate('/lab-tech/dashboard', { state: { loginMethod: 'local' } });
+                    } else if (userData.role === 'DOCTOR') {
+                        navigate('/', { state: { loginMethod: 'local' } }); // Anh điền vào sau navigate chỗ a muốn
+                    } else {
+                        alert('Role không được hỗ trợ: ' + userData.role);
+                        setLoginBtn('idle');
+                    }
+                }, 900);
             } else {
-                alert(`Role không được hỗ trợ: ${role}`);
+                await api.post('/auth/register', formData);
+                setLoginBtn('success');
+                setTimeout(() => {
+                    setLoginBtn('idle');
+                    setIsLoginMode(true);
+                    alert('Đăng ký thành công! Vui lòng đăng nhập.');
+                }, 900);
             }
-        },
-        [navigate],
-    );
+        } catch (error) {
+            console.error('❌ Auth error:', error.response?.data);
+            const d = error.response?.data;
+            alert(d?.errors?.[0]?.message || d?.message || 'Có lỗi xảy ra!');
+            setLoginBtn('idle');
+        }
+    };
 
     const handleMetaMaskAuth = async () => {
-        if (!hasWallet) {
-            alert('Vui lòng cài đặt MetaMask!');
-            return;
-        }
-
+        if (!window.ethereum) return alert('Vui lòng cài đặt MetaMask!');
         setMetamaskBtn('loading');
-
         try {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
@@ -172,6 +210,7 @@ export default function AuthPage() {
             const nonce = phase1.data.data?.nonce || phase1.data.nonce;
             const signature = await signer.signMessage(nonce);
 
+            // ✅ Chờ MetaMask login xong
             const userData = await loginMetaMask(walletAddress, signature);
 
             if (!userData) {
@@ -181,24 +220,31 @@ export default function AuthPage() {
             }
 
             setMetamaskBtn('success');
-            setTimeout(() => handleNavigate(userData.role, 'metamask'), ANIMATION_DELAY);
+            setTimeout(() => {
+                if (userData.role === 'PATIENT') {
+                    navigate('/demo-dashboard', { state: { loginMethod: 'metamask' } });
+                } else if (userData.role === 'LAB_TECH') {
+                    navigate('/lab-tech/dashboard', { state: { loginMethod: 'metamask' } });
+                } else if (userData.role === 'DOCTOR') {
+                    navigate('/', { state: { loginMethod: 'metamask' } }); // Anh điền vào sau navigate chỗ a muốn
+                    alert('Role không được hỗ trợ: ' + userData.role);
+                    setMetamaskBtn('idle');
+                }
+            }, 900);
         } catch (error) {
             console.error('❌ MetaMask error:', error);
-            if (error.code === 'ACTION_REJECTED') {
-                alert('Đã từ chối ký xác nhận!');
-            } else {
-                alert(error.response?.data?.message || 'Kết nối MetaMask thất bại!');
-            }
+            if (error.code === 'ACTION_REJECTED') alert('Đã từ chối ký xác nhận!');
+            else alert(error.response?.data?.message || 'Kết nối MetaMask thất bại!');
             setMetamaskBtn('idle');
         }
     };
-
     return (
         <div className="min-h-screen bg-[#F4F7F6] flex items-center justify-center p-4 md:p-6 font-sans">
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-[40%_60%]">
-                    {/* LEFT COLUMN */}
+                    {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
                     <div className="bg-primary p-8 md:p-10 hidden md:flex flex-col text-white gap-10 justify-center">
+                        {/* SLIDE IMAGE */}
                         <div className="flex justify-center relative h-56">
                             {SLIDES.map((s, i) => (
                                 <img
@@ -209,17 +255,18 @@ export default function AuthPage() {
                                         opacity: i === activeSlide ? 1 : 0,
                                         transition: 'opacity 0.6s ease',
                                     }}
-                                    alt={s.title}
                                 />
                             ))}
                         </div>
 
                         <div>
+                            {/* TEXT */}
                             <div className="text-left">
                                 <h2 className="text-xl font-semibold mb-2">{SLIDES[activeSlide].title}</h2>
                                 <p className="text-sm opacity-80">{SLIDES[activeSlide].desc}</p>
                             </div>
 
+                            {/* DOTS */}
                             <div className="flex justify-center gap-2 mt-4">
                                 {SLIDES.map((_, i) => (
                                     <button
@@ -228,42 +275,173 @@ export default function AuthPage() {
                                         className={`h-2 rounded-full transition-all ${
                                             i === activeSlide ? 'w-6 bg-white' : 'w-2 bg-white/40'
                                         }`}
-                                        aria-label={`Slide ${i + 1}`}
                                     />
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN */}
+                    {/* ── RIGHT COLUMN ────────────────────────────────────────────── */}
                     <div className="p-8 md:p-12">
                         <div className="mb-8">
-                            <h1 className="text-3xl font-bold text-black mb-2">Đăng nhập tài khoản</h1>
-                            <p className="text-gray-500">Kết nối bằng MetaMask để truy cập HealthHub</p>
+                            <h1 className="text-3xl font-bold text-black mb-2">
+                                {isLoginMode ? 'Đăng nhập tài khoản' : 'Tạo tài khoản mới'}
+                            </h1>
+                            <p className="text-gray-500">
+                                {isLoginMode
+                                    ? 'Truy cập bảng điều khiển y tế và quản lý hồ sơ bệnh nhân'
+                                    : 'Tham gia HealthHub ngay hôm nay để quản lý y tế hiệu quả hơn'}
+                            </p>
                         </div>
 
-                        <form className="space-y-5">
+                        <form onSubmit={handleTraditionalAuth} className="space-y-5">
+                            {/* Register-only fields */}
+                            {!isLoginMode && (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
+                                        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 bg-white"></div>
+                                    </div>
+                                    <InputField
+                                        label="Địa chỉ Email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="nguyenvana@gmail.com"
+                                        icon={Mail}
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </>
+                            )}
+
+                            {/* Shared fields */}
+                            <InputField
+                                label="Số CCCD/CMND"
+                                name="nationId"
+                                type="text"
+                                placeholder="Nhập số CCCD 12 chữ số hoặc CMND 9 chữ số"
+                                icon={CreditCard}
+                                value={formData.nationId}
+                                onChange={handleInputChange}
+                                required
+                                pattern="(\d{9}|\d{12})"
+                            />
+
+                            <div>
+                                <label className="block text-sm font-bold text-black mb-2">Mật khẩu</label>
+                                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 bg-white">
+                                    <div className="flex items-center px-3 py-2.5">
+                                        <Lock className="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <div className="h-10 w-px bg-gray-300" />
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        value={formData.password}
+                                        placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)"
+                                        onChange={handleInputChange}
+                                        required
+                                        minLength="8"
+                                        className="flex-1 px-3 py-2.5 outline-none bg-transparent"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="px-3 py-2.5 text-gray-400 hover:text-gray-600 transition"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isLoginMode && (
+                                <div className="flex items-center justify-between pt-2">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                                        />
+                                        <span className="text-sm text-gray-700">Ghi nhớ tôi</span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="text-sm text-emerald-500 font-medium hover:underline"
+                                    >
+                                        Quên mật khẩu của bạn?
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Animated submit button */}
+                            <div className="mt-4">
+                                <AnimatedButton
+                                    type="submit"
+                                    loading={loginBtn === 'loading'}
+                                    success={loginBtn === 'success'}
+                                    align="start"
+                                    fullWidth={!isLoginMode}
+                                >
+                                    {isLoginMode ? 'Đăng nhập' : 'Tạo tài khoản'}
+                                </AnimatedButton>
+                            </div>
+
+                            {/* Divider */}
                             <div className="relative py-4">
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-gray-300" />
                                 </div>
                                 <div className="relative flex justify-center text-sm">
-                                    <span className="px-4 bg-white text-gray-500">Kết nối ví điện tử</span>
+                                    <span className="px-4 bg-white text-gray-500">
+                                        Hoặc kết nối tới ví điện tử của bạn
+                                    </span>
                                 </div>
                             </div>
 
+                            {/* MetaMask — animated */}
                             <div className="flex justify-center">
                                 <AnimatedButton
                                     onClick={handleMetaMaskAuth}
+                                    align="center"
                                     loading={metamaskBtn === 'loading'}
                                     success={metamaskBtn === 'success'}
                                     fullWidth
-                                    disabled={!hasWallet}
                                 >
-                                    <MetamaskButtonContent isIdle={metamaskBtn === 'idle'} />
+                                    <span className="flex items-center gap-3">
+                                        <img
+                                            src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
+                                            alt="MetaMask"
+                                            style={{ width: 22, height: 22 }}
+                                        />
+                                        <span
+                                            style={{
+                                                color: metamaskBtn === 'idle' ? 'white' : 'transparent',
+                                                transition: 'color 0.2s',
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            Đăng nhập bằng MetaMask
+                                        </span>
+                                    </span>
                                 </AnimatedButton>
                             </div>
                         </form>
+
+                        <div className="mt-8 text-center text-sm">
+                            <span className="text-gray-600">
+                                {isLoginMode ? 'Chưa có tài khoản? ' : 'Đã có tài khoản? '}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsLoginMode(!isLoginMode);
+                                    setLoginBtn('idle');
+                                    setMetamaskBtn('idle');
+                                }}
+                                className="text-emerald-500 font-semibold hover:underline"
+                            >
+                                {isLoginMode ? 'Đăng ký' : 'Đăng nhập'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
