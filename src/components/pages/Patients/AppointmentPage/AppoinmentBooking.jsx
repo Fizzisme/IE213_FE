@@ -283,7 +283,7 @@ export default function AppointmentBooking() {
 
                     {/* Right Column - Summary Card */}
                     <div className="lg:sticky lg:top-8 h-fit">
-                        <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
+                        <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-green-100">
                             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">Tóm tắt lịch khám</h2>
 
                             <div className="space-y-3 sm:space-y-5 mb-6">
@@ -335,7 +335,7 @@ export default function AppointmentBooking() {
                             </div>
 
                             {/* Doctor Info */}
-                            <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-blue-200">
+                            <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
                                 <div className="flex items-center gap-3">
                                     <User className="w-5 h-5 text-[#0d7b6d]" />
                                     <div className="text-xs sm:text-sm text-gray-600">
@@ -346,7 +346,7 @@ export default function AppointmentBooking() {
 
                             {/* Right Column - Summary Card */}
                             <div className="lg:sticky lg:top-8 h-fit">
-                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
+                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-green-100">
                                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
                                         Tóm tắt lịch khám
                                     </h2>
@@ -404,25 +404,25 @@ export default function AppointmentBooking() {
                                 </div>
                             </div>
 
-                                    {/* Cost */}
-                                    <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <DollarSign className="w-5 h-5" />
-                                                <span className="font-semibold text-sm sm:text-base">Chi phí khám</span>
-                                            </div>
-                                            <div className="text-xl sm:text-2xl font-bold">
-                                                {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
-                                            </div>
-                                        </div>
+                            {/* Cost */}
+                            <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <DollarSign className="w-5 h-5" />
+                                        <span className="font-semibold text-sm sm:text-base">Chi phí khám</span>
                                     </div>
+                                    <div className="text-xl sm:text-2xl font-bold">
+                                        {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
+                                    </div>
+                                </div>
+                            </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="space-y-3">
-                                        <button
-                                            onClick={handleConfirm}
-                                            disabled={!isFormValid}
-                                            className={`
+                            {/* Action Buttons */}
+                            <div className="space-y-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!isFormValid}
+                                    className={`
                   w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-white transition-all duration-300 text-sm sm:text-base
                   ${
                       isFormValid
