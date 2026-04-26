@@ -24,6 +24,21 @@ export default function DashboardLayout() {
 
     const renderExtra = () => (
         <>
+            {/* HEADER */}
+            <div className="p-4 bg-gray-50 flex items-center justify-between">
+                <div
+                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border
+            ${
+                loginMethod === 'metamask'
+                    ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
+                    : 'bg-green-100 text-blue-700 border-green-300'
+            }`}
+                >
+                    {loginMethod === 'metamask' ? <Wallet size={12} /> : <Shield size={12} />}
+                    {loginMethod === 'metamask' ? 'MetaMask' : 'CCCD'}
+                </div>
+            </div>
+
             {/* SEARCH */}
             <div className="p-3 border-t">
                 <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">

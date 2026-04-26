@@ -6,7 +6,7 @@ import { adminLogin } from '@/services/adminApi.js';
 
 function Field({ icon: Icon, ...props }) {
     return (
-        <div className="group flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 transition-all duration-200 hover:border-blue-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
+        <div className="group flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 transition-all duration-200 hover:border-green-300 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-blue-200">
             <Icon className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-blue-600" />
             <input
                 {...props}
@@ -121,7 +121,7 @@ export default function AdminLogin() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 disabled:cursor-not-allowed disabled:opacity-70"
+                                className="group mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white transition-all duration-200 hover:bg-green-700 hover:shadow-lg hover:shadow-blue-200 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập Admin'}
                                 {!loading && (
