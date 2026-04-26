@@ -27,11 +27,12 @@ export default function AppointmentList() {
     const now = new Date();
 
     const upcomingAppointments = appointments.filter((a) => {
+        const validStatus = ['PENDING', 'CONFIRMED'].includes(a.status);
         const date = new Date(a.appointmentDateTime);
-        return date >= now;
+        return validStatus && date >= now;
     });
     const sortedAppointments = upcomingAppointments.sort(
-        (a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate),
+        (a, b) => new Date(a.appointmentDateTime) - new Date(b.appointmentDateTime),
     );
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);

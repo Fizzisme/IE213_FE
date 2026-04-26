@@ -158,16 +158,16 @@ export default function Sidebar({ userInfo, navItems, renderExtra }) {
             ))}
 
             {/* DATABASES */}
-            <motion.p
+            {/* <motion.p
                 variants={sectionVariants}
                 animate={openSidebar ? 'open' : 'closed'}
                 initial="open"
                 className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
             >
                 DỮ LIỆU
-            </motion.p>
+            </motion.p> */}
             {/*Collapsible của database*/}
-            <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} />
+            {/* <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} /> */}
             {/* User */}
             <UserProfilePopover
                 user={userInfo}

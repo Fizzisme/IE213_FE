@@ -334,75 +334,10 @@ export default function AppointmentBooking() {
                                 )}
                             </div>
 
-                            {/* Doctor Info */}
-                            <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
-                                <div className="flex items-center gap-3">
-                                    <User className="w-5 h-5 text-[#0d7b6d]" />
-                                    <div className="text-xs sm:text-sm text-gray-600">
-                                        Bác sĩ sẽ được phân công tự động
-                                    </div>
-                                </div>
-                            </div>
+                        
 
                             {/* Right Column - Summary Card */}
-                            <div className="lg:sticky lg:top-8 h-fit">
-                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-green-100">
-                                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
-                                        Tóm tắt lịch khám
-                                    </h2>
-
-                                    <div className="space-y-3 sm:space-y-5 mb-6">
-                                        {/* Date */}
-                                        <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <Calendar className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-xs sm:text-sm text-gray-500 mb-1">Ngày khám</div>
-                                                <div className="font-bold text-sm sm:text-base text-gray-900">
-                                                    {selectedDateObj ? selectedDateObj.fullDate : '---'}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Time */}
-                                        <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <Clock className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-xs sm:text-sm text-gray-500 mb-1">Giờ khám</div>
-                                                <div className="font-bold text-sm sm:text-base text-gray-900">
-                                                    {selectedTime || '---'}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Service */}
-                                        <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                            <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="text-xs sm:text-sm text-gray-500 mb-1">Dịch vụ</div>
-                                                <div className="font-bold text-sm sm:text-base text-gray-900">
-                                                    {selectedServiceObj?.name || '---'}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Notes */}
-                                        {patientDescription && (
-                                            <div className="flex items-start gap-3 p-3 sm:p-4 bg-white rounded-lg border border-gray-200">
-                                                <FileText className="w-5 h-5 text-[#0d7b6d] mt-0.5 shrink-0" />
-                                                <div className="flex-1">
-                                                    <div className="text-xs sm:text-sm text-gray-500 mb-1">Ghi chú</div>
-                                                    <div className="text-xs sm:text-sm text-gray-700 line-clamp-2">
-                                                        {patientDescription}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="text-xl sm:text-2xl font-bold">
-                                        {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
-                                    </div>
-                                </div>
-                            </div>
+                            
 
                             {/* Cost */}
                             <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">

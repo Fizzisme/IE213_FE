@@ -124,7 +124,7 @@ export default function MobileSheet({ userInfo, navItems, renderExtra }) {
                                 />
                             ))}
 
-                            {/* DATABASES */}
+                            {/* DATABASES
                             <p className="text-xs font-bold text-gray-400 px-2 mt-6 mb-4 tracking-wider uppercase">
                                 Dữ liệu
                             </p>
@@ -134,7 +134,7 @@ export default function MobileSheet({ userInfo, navItems, renderExtra }) {
                                 openSidebar={true}
                                 labelVariants={labelVariants}
                                 isMobile={true}
-                            />
+                            /> */}
                         </div>
 
                         {/* Footer - User Profile */}

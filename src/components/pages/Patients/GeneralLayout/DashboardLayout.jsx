@@ -13,8 +13,8 @@ const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/demo-dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/demo-dashboard/notifications' },
     { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments-manage' },
-    { icon: Activity, label: 'Sức khỏe', to: '/demo-dashboard/health' },
-    { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills' },
+    // { icon: Activity, label: 'Sức khỏe', to: '/demo-dashboard/health' },
+//     { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills' },
 ];
 
 export default function DashboardLayout() {
