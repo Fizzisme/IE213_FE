@@ -404,25 +404,25 @@ export default function AppointmentBooking() {
                                 </div>
                             </div>
 
-                                    {/* Cost */}
-                                    <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <DollarSign className="w-5 h-5" />
-                                                <span className="font-semibold text-sm sm:text-base">Chi phí khám</span>
-                                            </div>
-                                            <div className="text-xl sm:text-2xl font-bold">
-                                                {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
-                                            </div>
-                                        </div>
+                            {/* Cost */}
+                            <div className="mb-6 p-4 sm:p-5 bg-linear-to-r from-[#0d7b6d] to-[#04d3b8] rounded-lg text-white">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <DollarSign className="w-5 h-5" />
+                                        <span className="font-semibold text-sm sm:text-base">Chi phí khám</span>
                                     </div>
+                                    <div className="text-xl sm:text-2xl font-bold">
+                                        {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}đ
+                                    </div>
+                                </div>
+                            </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="space-y-3">
-                                        <button
-                                            onClick={handleConfirm}
-                                            disabled={!isFormValid}
-                                            className={`
+                            {/* Action Buttons */}
+                            <div className="space-y-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!isFormValid}
+                                    className={`
                   w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-white transition-all duration-300 text-sm sm:text-base
                   ${
                       isFormValid

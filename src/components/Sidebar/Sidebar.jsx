@@ -70,7 +70,6 @@ const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
 };
 
 export default function Sidebar({ userInfo, navItems, renderExtra }) {
-    console.log(userInfo);
     // Lấy path của URL
     const path = useLocation().pathname;
     const navigate = useNavigate();

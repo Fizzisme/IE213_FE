@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
-import api from '../../../utils/api';
-import { useAuth } from '../../../contexts/AuthContext';
-import { Mail, Lock, Eye, EyeOff, Activity, User, Phone, Calendar, CreditCard, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext.jsx';
+import api from '@/utils/api.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SPIN_KEYFRAMES = `
@@ -52,7 +52,8 @@ const ANIMATION_DELAY = 900;
 const ROUTES_BY_ROLE = {
     PATIENT: '/demo-dashboard',
     LAB_TECH: '/lab-tech/dashboard',
-    DOCTOR: '/',
+    DOCTOR: '/doctor/dashboard',
+    ADMIN: '/admin',
 };
 
 // ── Reusable Components ─────────────────────────────────────────────────────────

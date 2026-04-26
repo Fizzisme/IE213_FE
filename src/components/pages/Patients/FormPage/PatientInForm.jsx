@@ -21,7 +21,7 @@ export default function PatientInfoForm() {
                 fullName: data.fullName,
                 phoneNumber: data.phoneNumber,
                 gender: data.gender,
-                dob: parseInt(data.dob),
+                birthYear: parseInt(data.birthYear),
             };
 
             // 3. Gửi yêu cầu tạo hồ sơ
@@ -47,14 +47,7 @@ export default function PatientInfoForm() {
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-[40%_60%]">
                     {/* Cột trái - Giữ nguyên giao diện đẹp của bạn */}
-                    <div className="bg-primary p-10 flex flex-col justify-between text-white">
-                        <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                                <Activity className="w-6 h-6 text-[#0d7b6d]" />
-                            </div>
-                            <span className="text-xl font-semibold">HealthHub</span>
-                        </div>
-
+                    <div className="bg-primary p-10 flex flex-col justify-center text-white">
                         <div className="my-8">
                             <img
                                 src="https://images.unsplash.com/photo-1758691462814-485c3672e447?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpY2FsJTIwZm9ybSUyMHBhdGllbnQlMjByZWNvcmRzfGVufDF8fHx8MTc3MzQxNjA4N3ww"
@@ -105,7 +98,7 @@ export default function PatientInfoForm() {
                             <div>
                                 <label className="block text-sm font-bold text-black mb-2">Họ và tên</label>
                                 <div
-                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
+                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary ${
                                         errors.fullName ? 'border-red-400' : 'border-gray-300'
                                     }`}
                                 >
@@ -129,7 +122,7 @@ export default function PatientInfoForm() {
                             <div>
                                 <label className="block text-sm font-bold text-black mb-2">Số điện thoại</label>
                                 <div
-                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
+                                    className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary ${
                                         errors.phoneNumber ? 'border-red-400' : 'border-gray-300'
                                     }`}
                                 >
@@ -156,7 +149,7 @@ export default function PatientInfoForm() {
                                 {/* Giới tính */}
                                 <div>
                                     <label className="block text-sm font-bold text-black mb-2">Giới tính</label>
-                                    <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                    <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary">
                                         <div className="px-3 py-2.5">
                                             <Users className="w-5 h-5 text-gray-400" />
                                         </div>
@@ -175,8 +168,8 @@ export default function PatientInfoForm() {
                                 <div>
                                     <label className="block text-sm font-bold text-black mb-2">Năm sinh</label>
                                     <div
-                                        className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 ${
-                                            errors.dob ? 'border-red-400' : 'border-gray-300'
+                                        className={`flex items-center border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary ${
+                                            errors.birthYear ? 'border-red-400' : 'border-gray-300'
                                         }`}
                                     >
                                         <div className="px-3 py-2.5">
@@ -187,14 +180,14 @@ export default function PatientInfoForm() {
                                             type="number"
                                             placeholder="1995"
                                             className="flex-1 px-3 py-2.5 outline-none"
-                                            {...register('dob', {
+                                            {...register('birthYear', {
                                                 required: true,
                                                 min: 1900,
                                                 max: new Date().getFullYear(),
                                             })}
                                         />
                                     </div>
-                                    {errors.dob && (
+                                    {errors.birthYear && (
                                         <span className="text-red-500 text-xs mt-1 block">
                                             Vui lòng nhập năm sinh hợp lệ
                                         </span>
@@ -204,7 +197,7 @@ export default function PatientInfoForm() {
 
                             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div className="flex gap-3">
-                                    <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                    <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-600">
                                         Thông tin của bạn được bảo mật theo tiêu chuẩn y tế.
                                     </p>

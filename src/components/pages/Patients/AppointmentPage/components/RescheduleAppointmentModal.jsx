@@ -12,13 +12,13 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
     // Thay thế useEffect bằng kỹ thuật: "Adjusting state during render"
     // Giúp loại bỏ lỗi cascading renders của linter
     // =========================
-    const[prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
     const [prevAppointment, setPrevAppointment] = useState(currentAppointment);
 
     if (isOpen !== prevIsOpen || currentAppointment !== prevAppointment) {
         setPrevIsOpen(isOpen);
         setPrevAppointment(currentAppointment);
-        
+
         if (isOpen && currentAppointment) {
             setIsClosing(false);
             const date = new Date(currentAppointment.appointmentDateTime);
@@ -28,16 +28,16 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         }
     }
 
-    const timeSlots =['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-    const disabledTimes =['09:00', '14:00'];
+    const timeSlots = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    const disabledTimes = ['09:00', '14:00'];
 
     // =========================
     // Generate dates (memo để tránh re-render)
     // =========================
     const dates = useMemo(() => {
-        const result =[];
+        const result = [];
         const today = new Date();
-        const weekdays =['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        const weekdays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
         for (let i = 0; i < 7; i++) {
             const date = new Date(today);
@@ -52,7 +52,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         }
 
         return result;
-    },[]);
+    }, []);
 
     // =========================
     // Build ISO datetime
@@ -60,7 +60,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
     const buildDateTime = () => {
         if (!selectedDate || !selectedTime) return null;
 
-        const[day, month, year] = selectedDate.split('/');
+        const [day, month, year] = selectedDate.split('/');
         const [hour, minute] = selectedTime.split(':');
 
         const localDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
@@ -114,7 +114,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
         } catch (err) {
             console.error('Reschedule error:', err);
             alert('Đổi lịch thất bại');
-        } 
+        }
     };
 
     if (!isOpen) return null;
@@ -151,7 +151,10 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                         {/* Header */}
                         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
                             <h2 className="text-lg font-medium text-gray-900">Đặt lại lịch hẹn</h2>
-                            <button onClick={handleCloseWithAnimation} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button
+                                onClick={handleCloseWithAnimation}
+                                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
                                 <X className="w-5 h-5 text-gray-500" />
                             </button>
                         </div>
@@ -168,9 +171,10 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                             onClick={() => setSelectedDate(date.fullDate)}
                                             className={`
                                                 relative flex flex-col items-center justify-center py-3 px-2 rounded-lg transition-all duration-200
-                                                ${selectedDate === date.fullDate
-                                                    ? 'bg-primary border-2 border-[#0d7b6d] shadow-md'
-                                                    : 'bg-white border border-gray-200 hover:border-[#0d7b6d] hover:shadow-sm'
+                                                ${
+                                                    selectedDate === date.fullDate
+                                                        ? 'bg-primary border-2 border-[#0d7b6d] shadow-md'
+                                                        : 'bg-white border border-gray-200 hover:border-[#0d7b6d] hover:shadow-sm'
                                                 }
                                             `}
                                         >
@@ -213,11 +217,12 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                                                 disabled={isDisabled}
                                                 className={`
                                                     py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200
-                                                    ${isSelected
-                                                        ? 'bg-primary border-2 border-[#0d7b6d] text-white shadow-md'
-                                                        : isDisabled
-                                                        ? 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
-                                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-[#0d7b6d] hover:shadow-sm'
+                                                    ${
+                                                        isSelected
+                                                            ? 'bg-primary border-2 border-[#0d7b6d] text-white shadow-md'
+                                                            : isDisabled
+                                                            ? 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
+                                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-[#0d7b6d] hover:shadow-sm'
                                                     }
                                                 `}
                                             >
