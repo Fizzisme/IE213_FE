@@ -21,10 +21,10 @@ export default function StatsGrid() {
 
         fetchAppointments();
     }, []);
+    console.log(appointments);
     if (!appointments) return null; // hoặc skeleton loading
-    const upcomingAppointments = appointments?.filter((a) => a.status === 'PENDING' || 'CONFIRMED') || [];
+    const upcomingAppointments = appointments?.filter((a) => a.status === 'PENDING' || a.status === 'CONFIRMED') || [];
     const now = new Date();
-
     // clone để tránh mutate
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
@@ -40,7 +40,6 @@ export default function StatsGrid() {
     endOfWeek.setHours(23, 59, 59, 999);
     const appointmentsThisWeek = upcomingAppointments.filter((a) => {
         const date = new Date(a.appointmentDateTime);
-        console.log(date);
         return date >= startOfWeek && date <= endOfWeek;
     });
     const upcomingCount = upcomingAppointments.length;
