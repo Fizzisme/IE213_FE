@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         initAuth();
     }, []);
 
-    // ✅ FIX: Login phải chờ xong tất cả
+    // ✅ Login bằng Căn cước công dân
     const login = async (credentials) => {
         try {
             const res = await api.post('/auth/login/nationId', credentials);
@@ -87,10 +87,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ✅ FIX: MetaMask login cũng phải chờ xong
-    const loginMetaMask = async (walletAddress, signature) => {
+    // ✅ CẬP NHẬT: MetaMask login hỗ trợ registrationSignature cho Onboarding
+    const loginMetaMask = async (walletAddress, signature, registrationSignature) => {
         try {
-            const res = await api.post('/auth/login/wallet', { walletAddress, signature });
+            // Gửi cả 3 tham số lên Backend:
+            // walletAddress: địa chỉ ví
+            // signature: chữ ký của nonce (để login)
+            // registrationSignature: chữ ký "REGISTER_ZUNI_PATIENT" (để onboarding gasless)
+            const res = await api.post('/auth/login/wallet', {
+                walletAddress,
+                signature,
+                registrationSignature,
+            });
+
             const userData = res?.data?.data;
 
             if (!userData) {
@@ -104,7 +113,6 @@ export const AuthProvider = ({ children }) => {
                 await _fetchCurrentPatient();
             }
 
-            console.log('✅ MetaMask login success:', userData);
             return userData;
         } catch (err) {
             console.error('❌ MetaMask login error:', err);

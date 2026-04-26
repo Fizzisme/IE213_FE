@@ -4,12 +4,14 @@ import { ethers } from 'ethers';
 import { Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import api from '@/utils/api.js';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SPIN_KEYFRAMES = `
-    @keyframes btnSpin {
-        to { transform: rotate(360deg); }
-    }
+   @keyframes btnSpin {
+       to { transform: rotate(360deg); }
+   }
 `;
 
 // Inject keyframes once on mount
@@ -53,7 +55,7 @@ const ROUTES_BY_ROLE = {
     PATIENT: '/demo-dashboard',
     LAB_TECH: '/lab-tech/dashboard',
     DOCTOR: '/doctor/dashboard',
-    ADMIN: '/admin',
+    ADMIN: '/admin/dashboard',
 };
 
 // ── Reusable Components ─────────────────────────────────────────────────────────
@@ -67,43 +69,43 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                 onClick={onClick}
                 disabled={active}
                 className={`h-11 transition-all duration-300 flex items-center justify-center border-none relative overflow-hidden shrink-0
-                    ${
-                        active
-                            ? 'w-11 rounded-full cursor-default'
-                            : fullWidth
-                            ? 'w-full rounded-lg cursor-pointer'
-                            : 'w-36 rounded-lg cursor-pointer'
-                    }
-                    ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
-                `}
+                   ${
+                       active
+                           ? 'w-11 rounded-full cursor-default'
+                           : fullWidth
+                           ? 'w-full rounded-lg cursor-pointer'
+                           : 'w-36 rounded-lg cursor-pointer'
+                   }
+                   ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
+               `}
             >
                 <span
                     className={`
-                        absolute
-                        text-white font-semibold text-[15px] whitespace-nowrap pointer-events-none
-                        transition-all duration-300
-                        ${active ? 'opacity-0 scale-[0.6]' : 'opacity-100 scale-100'}
-                    `}
+                       absolute
+                       text-white font-semibold text-[15px] whitespace-nowrap pointer-events-none
+                       transition-all duration-300
+                       ${active ? 'opacity-0 scale-[0.6]' : 'opacity-100 scale-100'}
+                   `}
                 >
                     {children}
                 </span>
                 <span
                     className={`
-                        absolute w-5 h-5 border-2 border-white/30 border-t-white rounded-full
-                        transition-opacity duration-200 ease-in-out
-                        ${loading ? 'opacity-100' : 'opacity-0'}
-                    `}
+                       absolute w-5 h-5 border-2 border-white/30 border-t-white rounded-full
+                       transition-opacity duration-200 ease-in-out
+                       ${loading ? 'opacity-100' : 'opacity-0'}
+                   `}
                     style={{
                         animation: loading ? 'btnSpin 0.8s linear infinite' : 'none',
                     }}
                 />
                 <span
                     className={`
-                        absolute flex items-center justify-center
-                        transition-all duration-300
-                        ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
-                        ${success ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-                    `}
+                       absolute flex items-center justify-center
+                       transition-all duration-300
+                       ease-[cubic-bezier(0.175,0.885,0.32,1.275)]
+                       ${success ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
+                   `}
                 >
                     <Check className="text-white w-5 h-5" />
                 </span>
@@ -131,10 +133,8 @@ export default function AuthPage() {
     const { loginMetaMask } = useAuth();
     const [metamaskBtn, setMetamaskBtn] = useState('idle');
     const [activeSlide, setActiveSlide] = useState(0);
-    // Check wallet availability on mount
     const hasWallet = !!window.ethereum;
 
-    // Auto-advance carousel
     const nextSlide = useCallback(() => {
         setActiveSlide((prev) => (prev + 1) % SLIDES.length);
     }, []);
@@ -150,7 +150,7 @@ export default function AuthPage() {
             if (route) {
                 navigate(route, { state: { loginMethod } });
             } else {
-                alert(`Role không được hỗ trợ: ${role}`);
+                toast.error(`Role không được hỗ trợ: ${role}`);
             }
         },
         [navigate],
@@ -158,7 +158,7 @@ export default function AuthPage() {
 
     const handleMetaMaskAuth = async () => {
         if (!hasWallet) {
-            alert('Vui lòng cài đặt MetaMask!');
+            toast.error('Vui lòng cài đặt metamask');
             return;
         }
 
@@ -169,14 +169,25 @@ export default function AuthPage() {
             const signer = await provider.getSigner();
             const walletAddress = await signer.getAddress();
 
+            // Giai đoạn 1: Lấy Nonce
             const phase1 = await api.post('/auth/login/wallet', { walletAddress });
             const nonce = phase1.data.data?.nonce || phase1.data.nonce;
+
+            // Giai đoạn 2: Ký lần 1 (Login)
+            toast.info('Vui lòng ký xác thực đăng nhập...');
             const signature = await signer.signMessage(nonce);
 
-            const userData = await loginMetaMask(walletAddress, signature);
+            // Giai đoạn 3: Ký lần 2 (Onboarding) - ✅ SỬA: hash trước rồi mới ký
+            // Truyền Uint8Array (getBytes) → ethers prefix với \n32 → khớp với toEthSignedMessageHash() trong contract
+            toast.info('Vui lòng ký xác nhận tham gia hệ thống...');
+            const msgHash = ethers.keccak256(ethers.toUtf8Bytes('REGISTER_ZUNI_PATIENT'));
+            const registrationSignature = await signer.signMessage(ethers.getBytes(msgHash));
+
+            // Giai đoạn 4: Gửi cả 2 chữ ký lên AuthContext/Backend
+            const userData = await loginMetaMask(walletAddress, signature, registrationSignature);
 
             if (!userData) {
-                alert('Lỗi: Không nhận được dữ liệu người dùng');
+                toast.error('Lỗi: Không nhận được dữ liệu người dùng');
                 setMetamaskBtn('idle');
                 return;
             }
@@ -185,10 +196,10 @@ export default function AuthPage() {
             setTimeout(() => handleNavigate(userData.role, 'metamask'), ANIMATION_DELAY);
         } catch (error) {
             console.error('❌ MetaMask error:', error);
-            if (error.code === 'ACTION_REJECTED') {
-                alert('Đã từ chối ký xác nhận!');
+            if (error.code === 'ACTION_REJECTED' || error.code === 4001) {
+                toast.error('Bạn đã từ chối ký xác nhận!');
             } else {
-                alert(error.response?.data?.message || 'Kết nối MetaMask thất bại!');
+                toast.warning(error.response?.data?.message || 'Kết nối MetaMask thất bại!');
             }
             setMetamaskBtn('idle');
         }
@@ -267,6 +278,7 @@ export default function AuthPage() {
                         </form>
                     </div>
                 </div>
+                <Toaster className={'bg-primary'} />
             </div>
         </div>
     );

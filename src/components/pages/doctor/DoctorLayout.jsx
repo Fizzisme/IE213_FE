@@ -61,7 +61,7 @@ export default function DoctorLayout() {
         );
     };
     return (
-        <div className="bg-white flex flex-col lg:flex-row h-screen overflow-hidden hide-scrollbar">
+        <div className="bg-white flex flex-col lg:flex-row h-screen">
             <div className="lg:hidden flex items-center gap-2 px-2 py-3 border-b border-gray-200 bg-white">
                 <MobileSheet
                     userInfo={{ ...doctorInfo, role: 'Bác sĩ', status: 'ACTIVE' }}
