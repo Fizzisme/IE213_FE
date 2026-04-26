@@ -243,7 +243,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
 
                             {/* Summary Card */}
                             {(selectedDate || selectedTime) && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
                                         TÓM TẮT
                                     </div>
@@ -281,7 +281,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
                             </button>
                             <button
                                 onClick={handleConfirm}
-                                className="px-5 py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+                                className="px-5 py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
                             >
                                 Xác nhận
                             </button>

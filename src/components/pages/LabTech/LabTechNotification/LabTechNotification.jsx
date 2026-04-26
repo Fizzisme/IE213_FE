@@ -61,7 +61,7 @@ const mockNotifications = [
 const typeConfig = {
     success: { icon: CheckCircle, color: 'text-emerald-500', dot: 'bg-emerald-400' },
     warning: { icon: AlertCircle, color: 'text-amber-500', dot: 'bg-amber-400' },
-    info: { icon: Info, color: 'text-blue-500', dot: 'bg-blue-400' },
+    info: { icon: Info, color: 'text-blue-500', dot: 'bg-green-400' },
 };
 
 export default function LabTechNotification() {

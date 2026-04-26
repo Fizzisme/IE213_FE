@@ -36,7 +36,7 @@ export default function DashboardLayout() {
             ${
                 loginMethod === 'metamask'
                     ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                    : 'bg-blue-100 text-blue-700 border-blue-300'
+                    : 'bg-green-100 text-blue-700 border-green-300'
             }`}
                 >
                     {loginMethod === 'metamask' ? <Wallet size={12} /> : <Shield size={12} />}

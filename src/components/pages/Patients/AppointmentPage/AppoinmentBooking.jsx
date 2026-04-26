@@ -283,7 +283,7 @@ export default function AppointmentBooking() {
 
                     {/* Right Column - Summary Card */}
                     <div className="lg:sticky lg:top-8 h-fit">
-                        <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
+                        <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-green-100">
                             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">Tóm tắt lịch khám</h2>
 
                             <div className="space-y-3 sm:space-y-5 mb-6">
@@ -335,7 +335,7 @@ export default function AppointmentBooking() {
                             </div>
 
                             {/* Doctor Info */}
-                            <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-blue-200">
+                            <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
                                 <div className="flex items-center gap-3">
                                     <User className="w-5 h-5 text-[#0d7b6d]" />
                                     <div className="text-xs sm:text-sm text-gray-600">
@@ -346,7 +346,7 @@ export default function AppointmentBooking() {
 
                             {/* Right Column - Summary Card */}
                             <div className="lg:sticky lg:top-8 h-fit">
-                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-blue-100">
+                                <div className="bg-linear-to-br from-white to-green-50 rounded-xl p-4 sm:p-6 shadow-lg border border-green-100">
                                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
                                         Tóm tắt lịch khám
                                     </h2>

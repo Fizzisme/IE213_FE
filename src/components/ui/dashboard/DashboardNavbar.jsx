@@ -115,7 +115,7 @@ export default function DashboardNavbar({
                                     onClick={() => handleMobileAction(onNavigateCreate)}
                                     className="mobile-action-btn text-primary"
                                 >
-                                    <div className="action-icon bg-blue-50 text-blue-600">
+                                    <div className="action-icon bg-green-50 text-blue-600">
                                         <User size={18} />
                                     </div>
                                     <span>Tạo hồ sơ y tế mới</span>
@@ -328,7 +328,7 @@ export default function DashboardNavbar({
                 
                 .text-primary { color: #0F172A; }
                 .text-danger { color: #EF4444; }
-                .bg-blue-50 { background: #EFF6FF; }
+                .bg-green-50 { background: #EFF6FF; }
                 .text-blue-600 { color: #2563EB; }
                 .bg-red-50 { background: #FEF2F2; }
                 .text-red-600 { color: #DC2626; }

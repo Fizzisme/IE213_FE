@@ -126,13 +126,13 @@ export default function NotificationPage() {
                 return {
                     label: 'Nhắc nhở',
                     icon: <Bell className="w-5 h-5" />,
-                    color: 'text-blue-600 bg-blue-50',
+                    color: 'text-blue-600 bg-green-50',
                 };
             case 'SYSTEM':
                 return {
                     label: 'Hệ thống',
                     icon: <Info className="w-5 h-5" />,
-                    color: 'text-blue-600 bg-blue-50',
+                    color: 'text-blue-600 bg-green-50',
                 };
             default:
                 return {
@@ -275,7 +275,7 @@ export default function NotificationPage() {
                                                 className={`p-5 rounded-xl transition-all duration-300 border group ${
                                                     n.isRead
                                                         ? 'bg-white border-gray-100 hover:shadow-md'
-                                                        : 'bg-blue-50 border-blue-200 hover:shadow-md hover:border-blue-300'
+                                                        : 'bg-green-50 border-green-200 hover:shadow-md hover:border-green-300'
                                                 }`}
                                             >
                                                 <div className="flex gap-3">
@@ -330,7 +330,7 @@ export default function NotificationPage() {
                                 className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
                                     loadingMore
                                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                        : 'bg-primary text-white hover:bg-blue-600 shadow-md'
+                                        : 'bg-primary text-white hover:bg-green-600 shadow-md'
                                 }`}
                             >
                                 {loadingMore ? 'Đang tải...' : 'Tải thêm'}

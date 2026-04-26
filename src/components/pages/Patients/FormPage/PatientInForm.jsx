@@ -202,7 +202,7 @@ export default function PatientInfoForm() {
                                 </div>
                             </div>
 
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div className="flex gap-3">
                                     <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-600">
@@ -216,7 +216,7 @@ export default function PatientInfoForm() {
                                 type="submit"
                                 disabled={isSubmitting}
                                 className={`w-full text-white font-semibold py-3 px-8 rounded-lg transition-colors ${
-                                    isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                                    isSubmitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
                                 }`}
                             >
                                 {isSubmitting ? 'Đang lưu...' : 'Lưu hồ sơ bệnh nhân'}
