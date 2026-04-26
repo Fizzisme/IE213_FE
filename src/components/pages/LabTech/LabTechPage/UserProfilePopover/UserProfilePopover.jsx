@@ -80,7 +80,7 @@ export default function UserProfilePopover({
                     <div className="text-sm space-y-2">
                         <div className="flex justify-between">
                             <span className="text-gray-500">Giới tính</span>
-                            <span>{user?.gender === 'M' ? 'Nam' : 'Nữ'}</span>
+                            <span>{user?.gender === 'M' ? 'Nam' : user?.gender === 'F' ? 'Nữ' : 'Chưa cập nhật'}</span>
                         </div>
 
                         <div className="flex justify-between">

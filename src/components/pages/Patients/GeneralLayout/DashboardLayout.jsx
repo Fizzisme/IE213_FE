@@ -7,8 +7,9 @@ import { Check, Menu, Pill, Search, Shield, User, Wallet } from 'lucide-react';
 import { Activity } from '@/components/animate-ui/icons/activity.js';
 import { Calendar } from '@/components/Calendar/Calendar.js';
 import { useDashboard } from '@/hooks/useDashboard.js';
+import { Toaster } from '@/components/ui/sonner.js';
 
-const NAV_ITEMS =[
+const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/demo-dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/demo-dashboard/notifications' },
     { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments-manage' },
@@ -17,33 +18,12 @@ const NAV_ITEMS =[
 ];
 
 export default function DashboardLayout() {
-    const {
-        patient,
-        roleLabel,
-        loginMethod,
-        hasProfile,
-        onNavigateCreate,
-    } = useDashboard();
-    
+    const { patient, roleLabel, loginMethod, hasProfile, onNavigateCreate } = useDashboard();
+
     console.log(patient);
-    
+
     const renderExtra = () => (
         <>
-            {/* HEADER */}
-            <div className="p-4 bg-gray-50 flex items-center justify-between">
-                <div
-                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border
-            ${
-                loginMethod === 'metamask'
-                    ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
-                    : 'bg-blue-100 text-blue-700 border-blue-300'
-            }`}
-                >
-                    {loginMethod === 'metamask' ? <Wallet size={12} /> : <Shield size={12} />}
-                    {loginMethod === 'metamask' ? 'MetaMask' : 'CCCD'}
-                </div>
-            </div>
-
             {/* SEARCH */}
             <div className="p-3 border-t">
                 <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
@@ -62,7 +42,7 @@ export default function DashboardLayout() {
                 ) : (
                     <button
                         onClick={onNavigateCreate}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 w-full text-left"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 w-full text-left cursor-pointer"
                     >
                         <User size={16} />
                         <span className="text-sm">Tạo hồ sơ y tế</span>
@@ -81,13 +61,7 @@ export default function DashboardLayout() {
                     navItems={NAV_ITEMS}
                     renderExtra={renderExtra}
                 />
-                <img
-                    src="/AEGITAS2.png"
-                    height={20}
-                    width={80}
-                    alt="logo"
-                    className="select-none ml-1"
-                />
+                <img src="/AEGITAS2.png" height={20} width={80} alt="logo" className="select-none ml-1" />
             </div>
 
             {/* Desktop Sidebar */}
@@ -106,6 +80,8 @@ export default function DashboardLayout() {
                     </div>
                 </div>
             </div>
+
+            <Toaster className={'bg-primary'} />
         </div>
     );
 }

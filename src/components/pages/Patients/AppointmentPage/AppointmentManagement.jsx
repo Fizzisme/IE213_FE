@@ -19,11 +19,15 @@ import { motion } from 'framer-motion';
 
 import RescheduleAppointmentModal from './components/RescheduleAppointmentModal';
 import api from '@/utils/api.js';
+import { useSearchParams } from 'react-router-dom';
 
 export default function AppointmentManagement() {
+    const [searchParams] = useSearchParams();
+    const tabFromUrl = searchParams.get('tab');
+
+    const [activeFilter, setActiveFilter] = useState(tabFromUrl || 'ALL');
     const navigate = useNavigate();
     const [open, setIsOpen] = useState(false);
-    const [activeFilter, setActiveFilter] = useState('ALL');
     const [timeFilter, setTimeFilter] = useState('ALL_TIME');
     const [showTimeDropdown, setShowTimeDropdown] = useState(false);
     const [appointments, setAppointments] = useState([]);
@@ -175,9 +179,9 @@ export default function AppointmentManagement() {
             case 'COMPLETED':
                 return {
                     label: 'Đã hoàn thành',
-                    bgColor: 'bg-blue-100',
+                    bgColor: 'bg-green-100',
                     textColor: 'text-blue-700',
-                    borderColor: 'border-blue-300',
+                    borderColor: 'border-green-300',
                 };
             case 'CANCELLED':
                 return {
@@ -283,7 +287,7 @@ export default function AppointmentManagement() {
                                             }}
                                             className={`
                       w-full px-4 py-3 text-left text-sm font-semibold transition-colors
-                      ${timeFilter === filter.value ? 'bg-blue-50 text-[#0d7b6d]' : 'text-gray-700 hover:bg-gray-50'}
+                      ${timeFilter === filter.value ? 'bg-green-50 text-[#0d7b6d]' : 'text-gray-700 hover:bg-gray-50'}
                     `}
                                         >
                                             {filter.label}
@@ -304,7 +308,7 @@ export default function AppointmentManagement() {
                             return (
                                 <div
                                     key={appointment.id}
-                                    className="bg-white rounded-xl p-5 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-blue-200"
+                                    className="bg-white rounded-xl p-5 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-green-200"
                                 >
                                     <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                                         {/* Left Section - Date & Time */}
@@ -367,14 +371,14 @@ export default function AppointmentManagement() {
                                                 <>
                                                     <button
                                                         onClick={() => handleViewDetails(appointment.id)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#0d7b6d] text-[#0d7b6d] rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#0d7b6d] text-[#0d7b6d] rounded-lg font-semibold hover:bg-green-50 transition-colors"
                                                     >
                                                         <Eye className="w-4 h-4" />
                                                         <span>Xem chi tiết</span>
                                                     </button>
                                                     <button
                                                         onClick={() => handleViewDetails(appointment.id)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 border-2 border-blue-200 text-blue-700 rounded-lg font-semibold hover:bg-blue-100 transition-colors"
+                                                        className="flex items-center gap-2 px-4 py-2 bg-green-50 border-2 border-green-200 text-blue-700 rounded-lg font-semibold hover:bg-green-100 transition-colors"
                                                     >
                                                         <FileText className="w-4 h-4" />
                                                         <span className="hidden md:inline">Chuẩn bị hồ sơ</span>
@@ -386,7 +390,7 @@ export default function AppointmentManagement() {
                                             {appointment.status === 'COMPLETED' && (
                                                 <button
                                                     onClick={() => handleViewMedicalRecord(appointment.id)}
-                                                    className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+                                                    className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg font-bold hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
                                                 >
                                                     <FileText className="w-4 h-4" />
                                                     <span>Xem hồ sơ bệnh án</span>
@@ -424,14 +428,14 @@ export default function AppointmentManagement() {
                 ) : (
                     <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
                         <div className="max-w-md mx-auto">
-                            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Calendar className="w-10 h-10 text-textColor" />
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có lịch hẹn nào</h3>
                             <p className="text-gray-500 mb-6">Đặt lịch khám ngay để được chăm sóc sức khỏe tốt nhất</p>
                             <button
                                 onClick={handleBookNew}
-                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
                             >
                                 <Plus className="w-5 h-5" />
                                 <span>Đặt lịch ngay</span>

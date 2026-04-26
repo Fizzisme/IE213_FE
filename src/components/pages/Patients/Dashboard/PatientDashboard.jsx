@@ -1,4 +1,3 @@
-import DashboardNavbar from '../../../ui/dashboard/DashboardNavbar';
 import WelcomeBanner from '../../../ui/dashboard/WelcomeBanner';
 import StatsGrid from '../../../ui/dashboard/StatsGrid';
 import AppointmentList from '../../../ui/dashboard/AppointmentList';

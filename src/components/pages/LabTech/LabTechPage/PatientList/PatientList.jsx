@@ -7,6 +7,7 @@ import { Bot } from '@/components/animate-ui/icons/bot.js';
 import { Search } from '@/components/animate-ui/icons/search.js';
 import { FileText, CalendarDays } from 'lucide-react';
 import { labTechService } from '@/services/LabTechService.js';
+import { formatDateVN } from '@/utils/formater.js';
 
 export default function PatientList() {
     const [medicalRecords, setMedicalRecords] = useState([]);
@@ -36,11 +37,7 @@ export default function PatientList() {
 
         fetchAll();
     }, []);
-    const formatDateVN = (date) => {
-        return new Date(date).toLocaleString('vi-VN', {
-            timeZone: 'Asia/Ho_Chi_Minh',
-        });
-    };
+
     const testResultsMap = useMemo(() => {
         return testResults.reduce((acc, t) => {
             acc[t.medicalRecordId] = t;
