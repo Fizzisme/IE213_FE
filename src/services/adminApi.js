@@ -44,10 +44,21 @@ export async function getAdminUserDetail(userId) {
 
 export async function approveUser(userId) {
     try {
+        // Backend sẽ trả về needsBlockchain và dữ liệu để gọi Smart Contract
         const res = await api.patch(`/admins/users/${userId}/approve`);
         return res.data;
     } catch (error) {
         throw normalizeError(error, 'Duyệt user thất bại');
+    }
+}
+
+// ✅ THÊM MỚI: Hàm xác minh giao dịch sau khi Admin ký MetaMask thành công
+export async function verifyOnboarding(userId, txHash) {
+    try {
+        const res = await api.post(`/admins/users/${userId}/verify-onboarding`, { txHash });
+        return res.data;
+    } catch (error) {
+        throw normalizeError(error, 'Xác minh giao dịch Onboarding thất bại');
     }
 }
 

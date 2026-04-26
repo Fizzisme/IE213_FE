@@ -7,6 +7,7 @@ import { getDoctorPatientDetail, createMedicalRecord } from '../../../services/d
 // import { Select } from 'radix-ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.js';
 import { doctorService } from '@/services/doctorService.js';
+import { toast } from 'sonner';
 
 export default function DoctorPatientDetail() {
     const { patientId } = useParams();
@@ -50,35 +51,40 @@ export default function DoctorPatientDetail() {
 
     // Xử lý gửi Form tạo Bệnh án
     const onSubmit = async (data) => {
-        setSubmitError('');
-        setSubmitSuccess(false);
+        const truePatientId = patient?._id || patient?.id;
 
-        try {
-            const truePatientId = patient?._id || patient?.id;
-
-            if (!truePatientId) {
-                throw new Error('Không xác định được ID bệnh nhân');
-            }
-
-            const res = await doctorService.createMedicalRecord(truePatientId, {
-                type: data.type,
-                note: data.note,
-            });
-
-            // nếu API bạn trả về statusCode
-            if (!res || res.statusCode !== 200) {
-                throw new Error(res?.message || 'Tạo bệnh án thất bại');
-            }
-
-            setSubmitSuccess(true);
-            reset();
-
-            setTimeout(() => {
-                navigate('/doctor/medical-records');
-            }, 1200);
-        } catch (err) {
-            setSubmitError(err.message || 'Có lỗi xảy ra khi khởi tạo bệnh án.');
+        if (!truePatientId) {
+            toast.error('Không xác định được ID bệnh nhân');
+            return;
         }
+
+        toast.promise(
+            async () => {
+                const res = await doctorService.createMedicalRecord(truePatientId, {
+                    type: data.type,
+                    note: data.note,
+                });
+
+                if (!res || res.statusCode !== 201) {
+                    throw new Error(res?.message || 'Tạo bệnh án thất bại');
+                }
+
+                reset();
+                return res;
+            },
+            {
+                loading: 'Đang tạo bệnh án...',
+                success: () => {
+                    setTimeout(() => {
+                        navigate('/doctor/medical-records');
+                    }, 1200);
+                    return { message: 'Tạo hồ sơ bệnh án thành công' };
+                },
+                error: (err) => ({
+                    message: <p className="text-red-400">{err?.message || 'Có lỗi xảy ra khi khởi tạo bệnh án.'}</p>,
+                }),
+            },
+        );
     };
 
     if (loadingPatient) {
@@ -143,7 +149,8 @@ export default function DoctorPatientDetail() {
 
                             <div className="space-y-4 text-sm">
                                 <p>
-                                    <b>Giới tính:</b> {patient.gender === 'M' ? 'Nam' : 'Nữ'}
+                                    <b>Giới tính:</b>{' '}
+                                    {patient.gender === 'M' ? 'Nam' : patient.gender === 'N' ? 'Nữ' : 'Không xác định'}
                                 </p>
                                 <p>
                                     <b>Năm sinh:</b> {patient.birthYear}
