@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Navigate, Route } from 'react-router-dom';
 import { RoleProtectedRoute } from '@/components/guards/RoleProtectedRoute.jsx';
 import DoctorLayout from '@/components/pages/doctor/DoctorLayout.jsx';
