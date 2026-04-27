@@ -137,17 +137,6 @@ export default function NotificationPage() {
         }
     };
 
-    const formatDateTime = (iso) => {
-        const d = new Date(iso);
-        return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} • ${d
-            .getHours()
-            .toString()
-            .padStart(2, '0')}:${d
-            .getMinutes()
-            .toString()
-            .padStart(2, '0')}`;
-    };
-
     const groupByDate = (list) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -303,7 +292,7 @@ export default function NotificationPage() {
                                                                 </p>
 
                                                                 <div className="text-xs text-gray-500 mt-2 font-medium">
-                                                                    {cfg.label} • {formatDateTime(n.createdAt)}
+                                                                    {cfg.label} • {formatDateVN(n.createdAt)}
                                                                 </div>
 
                                                                 {n.metadata?.reason && (
