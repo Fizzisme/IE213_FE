@@ -2,6 +2,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/animate-ui
 import { motion } from 'motion/react';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 import { LogOut } from '@/components/animate-ui/icons/log-out.js';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 const userVariants = {
     open: {
         opacity: 1,
@@ -22,12 +23,7 @@ const userVariants = {
         },
     },
 };
-export default function UserProfilePopover({
-    user,
-    openSidebar,
-    onLogout,
-    renderExtra, // Cho phép inject UI riêng (lab tech, doctor,...)
-}) {
+export default function UserProfilePopover({ openSidebar, onLogout }) {
     // Hàm lấy chữ cái đầu của tên
     const getInitials = (name) => {
         if (!name) return '';
@@ -38,6 +34,8 @@ export default function UserProfilePopover({
             .slice(0, 2)
             .toUpperCase();
     };
+    const { userInfo, role, renderExtra } = useLayoutStore();
+
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -53,7 +51,7 @@ export default function UserProfilePopover({
                         transition={{ duration: 0.5 }}
                         className="rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-bold text-xs"
                     >
-                        {getInitials(user?.fullName)}
+                        {getInitials(userInfo?.fullName)}
                     </motion.div>
 
                     {/* Info */}
@@ -62,8 +60,8 @@ export default function UserProfilePopover({
                         animate={openSidebar ? 'open' : 'closed'}
                         className="overflow-hidden whitespace-nowrap"
                     >
-                        <p className="text-sm font-semibold">{user?.fullName}</p>
-                        <p className="text-xs text-gray-400">{user?.role}</p>
+                        <p className="text-sm font-semibold">{userInfo?.fullName}</p>
+                        <p className="text-xs text-gray-400">{role}</p>
                     </motion.div>
                 </div>
             </PopoverTrigger>
@@ -72,30 +70,32 @@ export default function UserProfilePopover({
                 <div className="space-y-4">
                     {/* Header */}
                     <div>
-                        <p className="font-semibold text-lg">{user?.fullName}</p>
-                        <p className="text-sm text-gray-500">{user?.department}</p>
+                        <p className="font-semibold text-lg">{userInfo?.fullName}</p>
+                        <p className="text-sm text-gray-500">{userInfo?.department}</p>
                     </div>
 
                     {/* Base info */}
                     <div className="text-sm space-y-2">
                         <div className="flex justify-between">
                             <span className="text-gray-500">Giới tính</span>
-                            <span>{user?.gender === 'M' ? 'Nam' : user?.gender === 'F' ? 'Nữ' : 'Chưa cập nhật'}</span>
+                            <span>
+                                {userInfo?.gender === 'M' ? 'Nam' : userInfo?.gender === 'F' ? 'Nữ' : 'Chưa cập nhật'}
+                            </span>
                         </div>
 
                         <div className="flex justify-between">
                             <span className="text-gray-500">Trạng thái</span>
                             <span
                                 className={`font-medium ${
-                                    user?.status === 'ACTIVE' ? 'text-green-600' : 'text-red-500'
+                                    userInfo?.status === 'ACTIVE' ? 'text-green-600' : 'text-red-500'
                                 }`}
                             >
-                                {user?.status === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
+                                {userInfo?.status === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
                             </span>
                         </div>
 
                         {/* inject thêm phần riêng */}
-                        {renderExtra && renderExtra(user)}
+                        {renderExtra && renderExtra(userInfo)}
                     </div>
 
                     {/* Logout */}

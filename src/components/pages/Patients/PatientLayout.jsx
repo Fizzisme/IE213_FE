@@ -1,26 +1,34 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar/Sidebar.jsx';
 import MobileSheet from '@/components/Sidebar/MobileSheet.jsx';
-import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
-import { Bell } from '@/components/animate-ui/icons/bell.js';
-import { Check, Menu, Pill, Search, Shield, User, Wallet } from 'lucide-react';
-import { Activity } from '@/components/animate-ui/icons/activity.js';
-import { Calendar } from '@/components/Calendar/Calendar.js';
+import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.tsx';
+import { Bell } from '@/components/animate-ui/icons/bell.tsx';
+import { Check, Search, Shield, User, Wallet } from 'lucide-react';
+import { Calendar } from '@/components/Calendar/Calendar.tsx';
 import { useDashboard } from '@/hooks/useDashboard.js';
-import { Toaster } from '@/components/ui/sonner.js';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { useEffect } from 'react';
+import DashBoardLayout from '@/components/layouts/DashBoardLayout.jsx';
 
 const NAV_ITEMS = [
-    { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/demo-dashboard' },
-    { icon: Bell, label: 'Thông báo', to: '/demo-dashboard/notifications' },
-    { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/demo-dashboard/appointments-manage' },
+    { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/patient/dashboard' },
+    { icon: Bell, label: 'Thông báo', to: '/patient/notifications' },
+    { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/patient/appointments-manage' },
     // { icon: Activity, label: 'Sức khỏe', to: '/demo-dashboard/health' },
-//     { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills' },
+    //     { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills' },
 ];
 
-export default function DashboardLayout() {
+export default function PatientLayout() {
     const { patient, roleLabel, loginMethod, hasProfile, onNavigateCreate } = useDashboard();
 
-    console.log(patient);
+    const { setUserInfo, setRole, setNavItems, setRenderExtra } = useLayoutStore();
+
+    useEffect(() => {
+        setUserInfo(patient);
+        setRole(roleLabel);
+        setRenderExtra(renderExtra);
+        setNavItems(NAV_ITEMS);
+    }, [patient, roleLabel]);
 
     const renderExtra = () => (
         <>
@@ -67,36 +75,5 @@ export default function DashboardLayout() {
         </>
     );
 
-    return (
-        <div className="bg-white flex flex-col lg:flex-row h-screen hide-scrollbar">
-            {/* Mobile Top Bar - Đã sửa ở đây */}
-            <div className="lg:hidden flex items-center gap-2 px-2 py-3 border-b border-gray-200 bg-white">
-                <MobileSheet
-                    userInfo={{ ...patient, role: roleLabel, status: 'ACTIVE' }}
-                    navItems={NAV_ITEMS}
-                    renderExtra={renderExtra}
-                />
-                <img src="/AEGITAS2.png" height={20} width={80} alt="logo" className="select-none ml-1" />
-            </div>
-
-            {/* Desktop Sidebar */}
-            <Sidebar
-                userInfo={{ ...patient, role: roleLabel, status: 'ACTIVE' }}
-                navItems={NAV_ITEMS}
-                renderExtra={renderExtra}
-            />
-
-            <div className="flex-1 bg-white p-4 lg:p-6 min-w-0 overflow-hidden">
-                <div className="bg-[#f5f5f5] rounded-3xl h-full w-full overflow-hidden">
-                    <div className="flex h-full">
-                        <main className="flex-1 p-4 lg:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
-                            <Outlet />
-                        </main>
-                    </div>
-                </div>
-            </div>
-
-            <Toaster className={'bg-primary'} />
-        </div>
-    );
+    return <DashBoardLayout />;
 }

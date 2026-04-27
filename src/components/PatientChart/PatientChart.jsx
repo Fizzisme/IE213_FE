@@ -1,6 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import { useEffect, useRef } from 'react';
-import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 
 export default function PatientChart() {
     const option = {
@@ -148,7 +148,7 @@ export default function PatientChart() {
     };
 
     const chartRef = useRef(null);
-    const openSidebar = useLayoutStore((s) => s?.openSidebar);
+    const openSidebar = useSidebarStore((s) => s?.openSidebar);
 
     useEffect(() => {
         // Đợi CSS transition sidebar settle hẳn rồi mới resize

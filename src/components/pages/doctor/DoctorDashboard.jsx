@@ -1,62 +1,14 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    Search,
-    Users,
-    Activity,
-    FilePlus,
-    Calendar as CalendarIcon,
-    Phone,
-    Clock,
-    Video,
-    Users as UsersIcon,
-    Coffee,
-} from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getDoctorPatients } from '../../../services/doctorApi';
 
-// Import Calendar component (Giống với LabTechPage)
-import { Calendar } from '@/components/ui/calendar';
-import PatientChart from '@/components/pages/LabTech/LabTechPage/PatientChart/PatientChart.jsx';
 import { Button } from '@/components/ui/button.js';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 
-// Mock data cho Lịch trình khám bệnh của Bác sĩ
-const DOCTOR_SCHEDULE = [
-    {
-        title: 'Tư vấn trực tuyến',
-        sub: 'Nguyễn Thị Lan',
-        time: '09:00 – 09:30',
-        color: 'text-teal-600',
-        bg: 'bg-teal-50',
-        icon: Video,
-    },
-    {
-        title: 'Khám tim mạch',
-        sub: 'Trần Văn Bình',
-        time: '09:30 – 10:00',
-        color: 'text-purple-600',
-        bg: 'bg-purple-50',
-        icon: Activity,
-    },
-    {
-        title: 'Nghỉ giải lao',
-        sub: '15 phút',
-        time: '',
-        color: 'text-slate-400',
-        bg: 'bg-slate-100',
-        icon: Coffee,
-        isBreak: true,
-    },
-    {
-        title: 'Hội chẩn khoa',
-        sub: 'Phòng họp B',
-        time: '10:45 – 11:45',
-        color: 'text-amber-600',
-        bg: 'bg-amber-50',
-        icon: UsersIcon,
-    },
-];
+const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
+const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
 
 export default function DoctorDashboard() {
     const navigate = useNavigate();
@@ -132,7 +84,9 @@ export default function DoctorDashboard() {
                     </div>
                 </header>
 
-                <PatientChart />
+                <Suspense fallback={<div className="h-40 animate-pulse bg-slate-100 rounded-2xl" />}>
+                    <PatientChart />
+                </Suspense>
 
                 {/* ================= MAIN CONTENT ================= */}
                 <div className="grid xl:grid-cols-[1fr_320px] gap-6 flex-1 min-h-0">
@@ -185,13 +139,15 @@ export default function DoctorDashboard() {
 
                     {/* RIGHT: SCHEDULE */}
                     <div className="hidden lg:block">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={(d) => d && setDate(d)}
-                            captionLayout="dropdown"
-                            events={myEvents}
-                        />
+                        <Suspense fallback={<div className="h-64 w-64 rounded-2xl bg-slate-100 animate-pulse" />}>
+                            <Calendar
+                                events={myEvents}
+                                mode="single"
+                                selected={date}
+                                onSelect={(d) => d && setDate(d)}
+                                captionLayout="dropdown"
+                            />
+                        </Suspense>
                     </div>
                 </div>
             </main>

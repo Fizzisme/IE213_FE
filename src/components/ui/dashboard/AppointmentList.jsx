@@ -66,7 +66,7 @@ export default function AppointmentList() {
             <div className="p-4 lg:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="m-0 text-sm lg:text-base font-bold text-slate-900">Upcoming Appointments</h2>
                 <button
-                    onClick={() => navigate('/demo-dashboard/appointments-manage?tab=UPCOMING')}
+                    onClick={() => navigate('/patient/appointments-manage?tab=UPCOMING')}
                     className="bg-transparent border-none cursor-pointer text-xs lg:text-sm text-teal-700 font-semibold flex items-center gap-1 whitespace-nowrap hover:text-teal-800"
                 >
                     View all <ChevronRight className="w-3.5 h-3.5" />

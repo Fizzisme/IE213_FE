@@ -76,27 +76,6 @@ export async function updateDiagnosis(recordId, payload) {
     }
 }
 
-// ==========================================
-// 3. KẾT QUẢ XÉT NGHIỆM (TEST RESULTS)
-// ==========================================
-
-export async function getDoctorTestResults(params = {}) {
-    try {
-        const res = await api.get('/doctors/test-results', { params });
-        return res.data;
-    } catch (error) {
-        throw normalizeError(error, 'Không thể tải danh sách kết quả xét nghiệm');
-    }
-}
-
-export async function getDoctorTestResultDetail(testResultId) {
-    try {
-        const res = await api.get(`/doctors/test-results/${testResultId}`);
-        return res.data;
-    } catch (error) {
-        throw normalizeError(error, 'Không thể tải chi tiết kết quả xét nghiệm');
-    }
-}
 export async function getDoctorProfile() {
     try {
         const res = await api.get('/doctors/me');

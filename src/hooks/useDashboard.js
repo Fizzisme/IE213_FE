@@ -38,7 +38,7 @@ export const useDashboard = () => {
     };
 
     const onNavigateCreate = () => {
-        navigate('/demo-dashboard/create-patient');
+        navigate('/patient/create-patient');
     };
 
     return { patient, hasProfile, displayName, roleLabel, loginMethod, handleLogout, navigate, onNavigateCreate };

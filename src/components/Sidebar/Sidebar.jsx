@@ -3,10 +3,11 @@ import { FileText } from 'lucide-react';
 import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.tsx';
-import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 import { motion } from 'motion/react';
 import api from '@/utils/api.js';
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 // Variants cho label
 const labelVariants = {
@@ -69,7 +70,9 @@ const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
     );
 };
 
-export default function Sidebar({ userInfo, navItems, renderExtra }) {
+export default function Sidebar() {
+    const { navItems } = useLayoutStore();
+
     // Lấy path của URL
     const path = useLocation().pathname;
     const navigate = useNavigate();
@@ -83,8 +86,8 @@ export default function Sidebar({ userInfo, navItems, renderExtra }) {
         }
     };
     //  Lấy ra từ trong store của zustand cách này khiến code không bị re-render
-    const openSidebar = useLayoutStore((s) => s?.openSidebar);
-    const toggleSidebar = useLayoutStore((s) => s?.toggleSidebar);
+    const openSidebar = useSidebarStore((s) => s?.openSidebar);
+    const toggleSidebar = useSidebarStore((s) => s?.toggleSidebar);
     return (
         <aside
             className={`hidden lg:flex lg:flex-col h-full pr-0 pl-6 pt-10 pb-4 bg-white transition-all duration-500 ease-in-out
@@ -169,12 +172,7 @@ export default function Sidebar({ userInfo, navItems, renderExtra }) {
             {/*Collapsible của database*/}
             {/* <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} /> */}
             {/* User */}
-            <UserProfilePopover
-                user={userInfo}
-                onLogout={onLogout}
-                openSidebar={openSidebar}
-                renderExtra={renderExtra}
-            />
+            <UserProfilePopover onLogout={onLogout} openSidebar={openSidebar} />
         </aside>
     );
 }
