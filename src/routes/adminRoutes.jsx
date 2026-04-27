@@ -1,9 +1,9 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 import { RoleProtectedRoute } from '@/components/guards/RoleProtectedRoute.jsx';
 import AdminLayout from '@/components/pages/Admin/AdminLayout.jsx';
-import AdminUsers from '@/components/pages/Admin/AdminUsers.jsx';
 
+const AdminUsers = React.lazy(() => import('@/components/pages/Admin/AdminUsers.jsx'));
 const AdminDashboard = React.lazy(() => import('@/components/pages/Admin/AdminDashboard'));
 
 export const adminRoutes = (
@@ -16,6 +16,7 @@ export const adminRoutes = (
                 </RoleProtectedRoute>
             }
         >
+            <Route index element={<Navigate to="dashboard" />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
         </Route>

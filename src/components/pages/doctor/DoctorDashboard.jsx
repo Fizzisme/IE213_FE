@@ -1,13 +1,11 @@
 import React, { useState, Suspense } from 'react';
-import { useAuthStore } from '@/stores/useAuthStore.js';
 import { motion } from 'framer-motion';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
 const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
 
 export default function DoctorDashboard() {
-    const user = useAuthStore((s) => s.user);
-
     // State Lịch (Calendar)
     const [date, setDate] = useState(new Date());
 
@@ -20,6 +18,8 @@ export default function DoctorDashboard() {
             dates: [new Date()],
         },
     ];
+
+    const userInfo = useLayoutStore((state) => state.userInfo);
 
     return (
         <div className="flex h-full">
@@ -36,7 +36,7 @@ export default function DoctorDashboard() {
                         {/* LEFT: Lời chào & Trích dẫn */}
                         <div className="flex-1 sm:pl-6 transition-all duration-500">
                             <h1 className="text-2xl font-bold text-primary">
-                                Mừng bạn quay lại, BS. {user?.fullName || 'Chuyên khoa'}
+                                Mừng bạn quay lại, BS. {userInfo?.fullName || 'Chuyên khoa'}
                             </h1>
 
                             <p className="text-gray-500 text-sm mt-1">Chúc bạn một ngày khám bệnh hiệu quả</p>
