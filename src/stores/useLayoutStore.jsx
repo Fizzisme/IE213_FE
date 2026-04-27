@@ -1,7 +1,20 @@
 import { create } from 'zustand';
 
 export const useLayoutStore = create((set) => ({
-    openSidebar: true,
-    toggleSidebar: () => set((state) => ({ openSidebar: !state.openSidebar })),
-    setOpenSidebar: (value) => set({ openSidebar: value }),
+    userInfo: null,
+    role: '',
+    renderExtra: () => <div></div>,
+    navItems: [],
+    setUserInfo: (user) => {
+        set({ userInfo: user });
+    },
+    setRole: (role) => {
+        set({ role: role });
+    },
+    setRenderExtra: (renderExtra) => {
+        set({ renderExtra: renderExtra });
+    },
+    setNavItems: (navItems) => {
+        set({ navItems: navItems });
+    },
 }));

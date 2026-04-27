@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ethers } from 'ethers';
 import { Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import api from '@/utils/api.js';
@@ -52,7 +51,7 @@ const SLIDES = [
 const CAROUSEL_INTERVAL = 4000;
 const ANIMATION_DELAY = 900;
 const ROUTES_BY_ROLE = {
-    PATIENT: '/demo-dashboard',
+    PATIENT: '/patient/dashboard',
     LAB_TECH: '/lab-tech/dashboard',
     DOCTOR: '/doctor/dashboard',
     ADMIN: '/admin/dashboard',
@@ -76,7 +75,7 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                            ? 'w-full rounded-lg cursor-pointer'
                            : 'w-36 rounded-lg cursor-pointer'
                    }
-                   ${success ? 'bg-emerald-500' : 'bg-teal-700 hover:bg-teal-800'}
+                   ${success ? 'bg-primary' : 'bg-teal-700 hover:bg-teal-800'}
                `}
             >
                 <span
@@ -120,6 +119,7 @@ const MetamaskButtonContent = ({ isIdle }) => (
             src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
             alt="MetaMask"
             className="w-5 h-5"
+            loading="lazy"
         />
         <span className={`font-semibold transition-colors duration-200 ${isIdle ? 'text-white' : 'text-transparent'}`}>
             Đăng nhập bằng MetaMask
@@ -165,6 +165,9 @@ export default function AuthPage() {
         setMetamaskBtn('loading');
 
         try {
+            // Import khi cần
+            const { ethers } = await import('ethers');
+
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const walletAddress = await signer.getAddress();
@@ -222,6 +225,8 @@ export default function AuthPage() {
                                         transition: 'opacity 0.6s ease',
                                     }}
                                     alt={s.title}
+                                    loading={i === 0 ? 'eager' : 'lazy'}
+                                    fetchpriority={i === 0 ? 'high' : 'auto'}
                                 />
                             ))}
                         </div>
@@ -229,7 +234,7 @@ export default function AuthPage() {
                         <div>
                             <div className="text-left">
                                 <h2 className="text-xl font-semibold mb-2">{SLIDES[activeSlide].title}</h2>
-                                <p className="text-sm opacity-80">{SLIDES[activeSlide].desc}</p>
+                                <p className="text-sm opacity-80 min-h-[60px]">{SLIDES[activeSlide].desc}</p>
                             </div>
 
                             <div className="flex justify-center gap-2 mt-4">
@@ -248,34 +253,56 @@ export default function AuthPage() {
                     </div>
 
                     {/* RIGHT COLUMN */}
-                    <div className="p-8 md:p-12">
-                        <div className="mb-8">
-                            <h1 className="text-3xl font-bold text-black mb-2">Đăng nhập tài khoản</h1>
-                            <p className="text-gray-500">Kết nối bằng MetaMask để truy cập HealthHub</p>
+                    <div className="px-8 pb-8 pt-4 md:p-12 flex flex-col justify-center h-full">
+                        {/* Header */}
+                        <div className="mb-10">
+                            <p className={'flex justify-center items-center'}>
+                                <img
+                                    src="AEGITAS.png"
+                                    alt="logo"
+                                    width={200}
+                                    height={200}
+                                    fetchpriority="high"
+                                    loading="eager"
+                                />
+                            </p>
+
+                            <p className="text-slate-500 text-sm flex justify-center">
+                                Kết nối ví MetaMask để truy cập hệ thống{' '}
+                                <span className="font-semibold text-primary ml-2">Aegitas</span>
+                            </p>
                         </div>
 
-                        <form className="space-y-5">
-                            <div className="relative py-4">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-4 bg-white text-gray-500">Kết nối ví điện tử</span>
-                                </div>
-                            </div>
+                        {/* Quote */}
+                        <div className="mb-10 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                            <p className="italic text-slate-600 text-sm leading-relaxed">
+                                "Not your keys, not your crypto."
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1 not-italic">— Web3 Principle</p>
+                        </div>
 
-                            <div className="flex justify-center">
-                                <AnimatedButton
-                                    onClick={handleMetaMaskAuth}
-                                    loading={metamaskBtn === 'loading'}
-                                    success={metamaskBtn === 'success'}
-                                    fullWidth
-                                    disabled={!hasWallet}
-                                >
-                                    <MetamaskButtonContent isIdle={metamaskBtn === 'idle'} />
-                                </AnimatedButton>
+                        {/* Divider */}
+                        <div className="relative mb-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-slate-200" />
                             </div>
-                        </form>
+                            <div className="relative flex justify-center">
+                                <span className="px-3 bg-white text-xs text-slate-400 font-medium">
+                                    Kết nối ví điện tử
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Button */}
+                        <AnimatedButton
+                            onClick={handleMetaMaskAuth}
+                            loading={metamaskBtn === 'loading'}
+                            success={metamaskBtn === 'success'}
+                            fullWidth
+                            disabled={!hasWallet}
+                        >
+                            <MetamaskButtonContent isIdle={metamaskBtn === 'idle'} />
+                        </AnimatedButton>
                     </div>
                 </div>
                 <Toaster className={'bg-primary'} />

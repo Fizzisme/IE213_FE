@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { CheckCheck, Calendar, Clock, AlertCircle, Info, Bell, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api from '@/utils/api.js';
+import { patientService } from '@/services/patientService.js';
 
 export default function NotificationPage() {
     const [activeFilter, setActiveFilter] = useState('ALL');
@@ -17,17 +17,14 @@ export default function NotificationPage() {
             if (isInitial) setLoading(true);
             else setLoadingMore(true);
 
-            const params = {
-                limit: 10,
-            };
-            if (cursorValue) {
-                params.cursor = cursorValue;
-            }
+            const params = { limit: 10 };
+            if (cursorValue) params.cursor = cursorValue;
 
-            const res = await api.get('patients/notifications/me', { params });
-            const rawData = res.data.data.data || [];
-            const nextCursor = res.data.data.nextCursor || null;
-            const hasMoreFromServer = res.data.data.hasMore;
+            const res = await patientService.getNotifications(params);
+            const rawData = res?.data?.data || [];
+            const nextCursor = res?.data?.nextCursor || null;
+            const hasMoreFromServer = res?.data?.hasMore;
+
             const normalized = rawData.map((n) => ({
                 id: n._id,
                 event: n.event,
@@ -38,11 +35,8 @@ export default function NotificationPage() {
                 metadata: n.metadata || {},
             }));
 
-            if (isInitial) {
-                setNotifications(normalized);
-            } else {
-                setNotifications((prev) => [...prev, ...normalized]);
-            }
+            if (isInitial) setNotifications(normalized);
+            else setNotifications((prev) => [...prev, ...normalized]);
 
             setCursor(nextCursor);
             setHasMore(hasMoreFromServer);
@@ -60,7 +54,7 @@ export default function NotificationPage() {
 
     const markOne = async (id) => {
         try {
-            await api.patch(`patients/notifications/${id}/read`);
+            await patientService.markNotificationRead(id);
             setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
         } catch (err) {
             console.error('Mark read error:', err);
@@ -69,7 +63,7 @@ export default function NotificationPage() {
 
     const markAllRead = async () => {
         try {
-            await api.patch(`patients/notifications/read-all`);
+            await patientService.markAllNotificationsRead();
             setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         } catch (err) {
             console.error('Mark all read error:', err);
@@ -78,7 +72,7 @@ export default function NotificationPage() {
 
     const deleteOne = async (id) => {
         try {
-            await api.delete(`patients/notifications/${id}`);
+            await patientService.deleteNotification(id);
             setNotifications((prev) => prev.filter((n) => n.id !== id));
         } catch (err) {
             console.error('Delete notification error:', err);
@@ -87,7 +81,7 @@ export default function NotificationPage() {
 
     const deleteAll = async () => {
         try {
-            await api.delete(`patients/notifications/delete-all`);
+            await patientService.deleteAllNotifications();
             setNotifications([]);
             setCursor(null);
             setHasMore(true);

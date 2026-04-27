@@ -6,34 +6,7 @@ import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Coll
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 import api from '@/utils/api.js';
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
-
-const labelVariants = {
-    open: {
-        opacity: 1,
-        transition: { duration: 0.2 },
-    },
-    closed: {
-        opacity: 0,
-        transition: { duration: 0.1 },
-    },
-};
-
-const sectionVariants = {
-    open: {
-        opacity: 1,
-        maxHeight: 40,
-        marginTop: '1rem',
-        marginBottom: '0.25rem',
-        transition: { duration: 0.3, ease: 'easeInOut' },
-    },
-    closed: {
-        opacity: 0,
-        maxHeight: 0,
-        marginTop: 0,
-        marginBottom: 0,
-        transition: { duration: 0.3, ease: 'easeInOut' },
-    },
-};
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
     return (
@@ -51,7 +24,9 @@ const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
     );
 };
 
-export default function MobileSheet({ userInfo, navItems, renderExtra }) {
+export default function MobileSheet() {
+    const { navItems } = useLayoutStore();
+
     const [isOpen, setIsOpen] = useState(false);
     const path = useLocation().pathname;
     const navigate = useNavigate();
@@ -139,13 +114,7 @@ export default function MobileSheet({ userInfo, navItems, renderExtra }) {
 
                         {/* Footer - User Profile */}
                         <div className="border-t border-gray-100 p-6">
-                            <UserProfilePopover
-                                user={userInfo}
-                                onLogout={onLogout}
-                                openSidebar={true}
-                                renderExtra={renderExtra}
-                                isMobile={true}
-                            />
+                            <UserProfilePopover onLogout={onLogout} openSidebar={true} isMobile={true} />
                         </div>
                     </motion.div>
                 )}

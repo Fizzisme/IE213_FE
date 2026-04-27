@@ -113,7 +113,7 @@ export default function RescheduleAppointmentModal({ isOpen, onClose, onConfirm,
             onClose();
         } catch (err) {
             console.error('Reschedule error:', err);
-            alert('Đổi lịch thất bại');
+            toast.error('Đổi lịch thất bại');
         }
     };
 

@@ -1,12 +1,9 @@
-'use client';
-
-import { useState } from 'react';
-import { Calendar } from '@/components/ui/calendar';
-
+import React, { Suspense, useState } from 'react';
 import PatientList from '@/components/pages/LabTech/LabTechPage/PatientList/PatientList.jsx';
-import PatientChart from '@/components/pages/LabTech/LabTechPage/PatientChart/PatientChart.jsx';
-import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 
+const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
+const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
 export default function LabTechPage() {
     const [date, setDate] = useState(new Date());
 
@@ -19,7 +16,7 @@ export default function LabTechPage() {
         },
     ];
 
-    const openSidebar = useLayoutStore((s) => s?.openSidebar);
+    const openSidebar = useSidebarStore((s) => s?.openSidebar);
 
     return (
         <div className="flex h-full">
@@ -54,19 +51,23 @@ export default function LabTechPage() {
 
                         {/* CALENDAR */}
                         <div className="hidden lg:block">
-                            <Calendar
-                                events={myEvents}
-                                mode="single"
-                                selected={date}
-                                onSelect={(d) => d && setDate(d)}
-                                captionLayout="dropdown"
-                            />
+                            <Suspense fallback={<div className="h-64 w-64 rounded-2xl bg-slate-100 animate-pulse" />}>
+                                <Calendar
+                                    events={myEvents}
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={(d) => d && setDate(d)}
+                                    captionLayout="dropdown"
+                                />
+                            </Suspense>
                         </div>
                     </div>
                 </header>
 
                 {/* Chart */}
-                <PatientChart />
+                <Suspense fallback={<div className="h-40 animate-pulse bg-slate-100 rounded-2xl" />}>
+                    <PatientChart />
+                </Suspense>
 
                 {/* Content box */}
                 <PatientList />
