@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
-import api from '@/utils/api.js';
+
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
@@ -29,17 +27,6 @@ export default function MobileSheet() {
 
     const [isOpen, setIsOpen] = useState(false);
     const path = useLocation().pathname;
-    const navigate = useNavigate();
-
-    const onLogout = async () => {
-        try {
-            await api.delete('/auth/logout');
-            navigate('/');
-            setIsOpen(false);
-        } catch (e) {
-            console.log(e);
-        }
-    };
 
     const handleClose = () => setIsOpen(false);
 
@@ -114,7 +101,7 @@ export default function MobileSheet() {
 
                         {/* Footer - User Profile */}
                         <div className="border-t border-gray-100 p-6">
-                            <UserProfilePopover onLogout={onLogout} openSidebar={true} isMobile={true} />
+                            <UserProfilePopover openSidebar={true} isMobile={true} />
                         </div>
                     </motion.div>
                 )}

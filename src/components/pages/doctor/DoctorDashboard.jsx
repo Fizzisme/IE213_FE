@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getDoctorPatients } from '../../../services/doctorApi';
+import { useAuthStore } from '@/stores/useAuthStore.js';
+import { doctorService } from '@/services/doctorService.js';
 
 import { Button } from '@/components/ui/button.js';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
@@ -12,7 +12,7 @@ const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) =>
 
 export default function DoctorDashboard() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const user = useAuthStore((s) => s.user);
 
     // State Bệnh nhân
     const [patients, setPatients] = useState([]);
@@ -28,7 +28,7 @@ export default function DoctorDashboard() {
             setLoading(true);
             setError('');
             try {
-                const res = await getDoctorPatients();
+                const res = await doctorService.getDoctorPatients();
                 const dataList = res?.data || res || [];
                 setPatients(Array.isArray(dataList) ? dataList : []);
             } catch (err) {

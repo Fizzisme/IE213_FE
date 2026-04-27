@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Activity, FileText, Clock, AlertCircle, CheckCircle2, ClipboardList } from 'lucide-react';
-import { getDoctorMedicalRecords } from '../../../services/doctorApi';
-
-const STATUS_COLORS = {
-    CREATED: 'bg-blue-100 text-blue-700 border-blue-200',
-    HAS_RESULT: 'bg-amber-100 text-amber-700 border-amber-200 animate-pulse shadow-sm',
-    DIAGNOSED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    COMPLETE: 'bg-slate-100 text-slate-700 border-slate-200',
-    COMPLETED: 'bg-slate-100 text-slate-700 border-slate-200',
-};
+import { ArrowLeft, Activity, FileText, ClipboardList } from 'lucide-react';
+import { doctorService } from '@/services/doctorService.js';
 
 const STATUS_LABELS = {
     CREATED: 'Đang chờ Lab',
@@ -31,7 +23,7 @@ export default function DoctorMedicalRecords() {
             setLoading(true);
             setError('');
             try {
-                const res = await getDoctorMedicalRecords(filterStatus ? { status: filterStatus } : {});
+                const res = await doctorService.getDoctorMedicalRecords(filterStatus ? { status: filterStatus } : {});
                 const dataList = res?.data?.data || res?.data || res || [];
                 setRecords(Array.isArray(dataList) ? dataList : []);
             } catch (err) {

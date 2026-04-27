@@ -1,6 +1,5 @@
-import { Calendar, Pill, Heart, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import api from '@/utils/api';
+import { patientService } from '@/services/patientService.js';
 export default function RecentActivity() {
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -34,11 +33,11 @@ export default function RecentActivity() {
             try {
                 setLoading(true);
 
-                const res = await api.get('patients/notifications/me', {
-                    params: { limit: 5 },
+                const res = await patientService.getNotifications({
+                    limit: 5,
                 });
 
-                const rawData = res.data.data.data || [];
+                const rawData = res.data || [];
 
                 const normalized = rawData.map((n) => ({
                     id: n._id,

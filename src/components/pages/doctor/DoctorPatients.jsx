@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search, Calendar, Phone, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getDoctorPatients } from '../../../services/doctorApi';
 import { formatDateVN } from '@/utils/formater.js';
+import { doctorService } from '@/services/doctorService.js';
 export default function DoctorPatients() {
     const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ export default function DoctorPatients() {
         const fetch = async () => {
             setLoading(true);
             try {
-                const res = await getDoctorPatients();
+                const res = await doctorService.getDoctorPatients();
                 const data = res?.data || res || [];
                 setPatients(Array.isArray(data) ? data : []);
             } catch (e) {

@@ -1,6 +1,3 @@
-import { Outlet } from 'react-router-dom';
-import Sidebar from '@/components/Sidebar/Sidebar.jsx';
-import MobileSheet from '@/components/Sidebar/MobileSheet.jsx';
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.tsx';
 import { Bell } from '@/components/animate-ui/icons/bell.tsx';
 import { Check, Search, Shield, User, Wallet } from 'lucide-react';

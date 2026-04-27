@@ -1,22 +1,21 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthStore } from '@/stores/useAuthStore.js';
 import { useEffect } from 'react';
+
 export const useDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { patient, logout } = useAuth();
-    console.log(patient);
-    // Lấy loginMethod từ state (khi vừa login) hoặc từ sessionStorage (khi quay lại)
+    const patient = useAuthStore((s) => s.patient);
+    const logout = useAuthStore((s) => s.logout);
+
     const stateLoginMethod = location.state?.loginMethod;
 
-    // Nếu có loginMethod mới từ state, lưu vào sessionStorage
     useEffect(() => {
         if (stateLoginMethod) {
             sessionStorage.setItem('loginMethod', stateLoginMethod);
         }
     }, [stateLoginMethod]);
 
-    // Đọc từ sessionStorage làm fallback
     const loginMethod = stateLoginMethod || sessionStorage.getItem('loginMethod') || 'local';
 
     const displayName =

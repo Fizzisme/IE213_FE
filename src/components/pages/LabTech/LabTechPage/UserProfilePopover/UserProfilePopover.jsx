@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 import { LogOut } from '@/components/animate-ui/icons/log-out.js';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { useAuthStore } from '@/stores/useAuthStore.js';
 const userVariants = {
     open: {
         opacity: 1,
@@ -23,7 +24,9 @@ const userVariants = {
         },
     },
 };
-export default function UserProfilePopover({ openSidebar, onLogout }) {
+export default function UserProfilePopover({ openSidebar }) {
+    const { logout } = useAuthStore();
+
     // Hàm lấy chữ cái đầu của tên
     const getInitials = (name) => {
         if (!name) return '';
@@ -101,7 +104,7 @@ export default function UserProfilePopover({ openSidebar, onLogout }) {
                     {/* Logout */}
                     <AnimateIcon
                         animateOnHover
-                        onClick={onLogout}
+                        onClick={logout}
                         className="w-full flex items-center justify-center gap-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 py-2 rounded-lg cursor-pointer"
                     >
                         <LogOut size={16} />

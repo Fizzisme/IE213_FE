@@ -1,11 +1,9 @@
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
-import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.tsx';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 import { motion } from 'motion/react';
-import api from '@/utils/api.js';
+
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
@@ -76,15 +74,7 @@ export default function Sidebar() {
     // Lấy path của URL
     const path = useLocation().pathname;
     const navigate = useNavigate();
-    // Hàm logout
-    const onLogout = async () => {
-        try {
-            await api.delete('/auth/logout');
-            navigate('/');
-        } catch (e) {
-            console.log(e);
-        }
-    };
+
     //  Lấy ra từ trong store của zustand cách này khiến code không bị re-render
     const openSidebar = useSidebarStore((s) => s?.openSidebar);
     const toggleSidebar = useSidebarStore((s) => s?.toggleSidebar);
@@ -172,7 +162,7 @@ export default function Sidebar() {
             {/*Collapsible của database*/}
             {/* <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} /> */}
             {/* User */}
-            <UserProfilePopover onLogout={onLogout} openSidebar={openSidebar} />
+            <UserProfilePopover openSidebar={openSidebar} />
         </aside>
     );
 }

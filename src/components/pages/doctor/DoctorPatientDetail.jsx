@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Activity, User } from 'lucide-react';
-import { getDoctorPatientDetail, createMedicalRecord } from '../../../services/doctorApi';
 
 // import { Select } from 'radix-ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.js';
@@ -35,7 +34,7 @@ export default function DoctorPatientDetail() {
             setLoadingPatient(true);
             setError('');
             try {
-                const res = await getDoctorPatientDetail(patientId);
+                const res = await doctorService.getDoctorPatientDetail(patientId);
                 setPatient(res?.data?.data || res?.data || res);
             } catch (err) {
                 setError(err.message || 'Không thể tải thông tin bệnh nhân. Vui lòng thử lại.');

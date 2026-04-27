@@ -23,7 +23,6 @@ export default function PatientList() {
                 ]);
 
                 if (recordsRes.statusCode === 200) {
-                    console.log(recordsRes.data);
                     setMedicalRecords(recordsRes.data);
                 }
 

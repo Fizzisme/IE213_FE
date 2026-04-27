@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Activity, FileText, AlertTriangle, Stethoscope, Microscope, User } from 'lucide-react';
-import { getDoctorMedicalRecordDetail, updateDiagnosis } from '../../../services/doctorApi';
+import { Activity, FileText, AlertTriangle, Stethoscope, Microscope, User } from 'lucide-react';
+import { doctorService } from '@/services/doctorService.js';
 
 export default function DoctorDiagnosis() {
     const { medicalRecordId } = useParams();
@@ -26,7 +26,8 @@ export default function DoctorDiagnosis() {
             setLoading(true);
             try {
                 // Gọi API lấy chi tiết
-                const res = await getDoctorMedicalRecordDetail(medicalRecordId);
+                const res = await doctorService.getDoctorMedicalRecordDetail(medicalRecordId);
+
                 const data = res?.data?.data || res?.data || res;
                 setRecord(data);
             } catch (err) {
@@ -51,10 +52,9 @@ export default function DoctorDiagnosis() {
                 throw new Error('Không tìm thấy mã Kết quả Xét nghiệm. Vui lòng thử lại.');
             }
 
-            await updateDiagnosis(medicalRecordId, {
+            await doctorService.updateDiagnosis(medicalRecordId, {
                 testResultId: testResultId,
                 diagnosis: formData.diagnosis,
-                // ✅ SỬA LẠI Ở ĐÂY: Dùng key 'notes' để gửi lên BE thay vì 'prescription'
                 notes: formData.prescription || '',
             });
 

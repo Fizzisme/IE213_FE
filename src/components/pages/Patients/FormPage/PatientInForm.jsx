@@ -1,14 +1,14 @@
 import React from 'react';
-import { User, Phone, Calendar, Users, Activity, Shield, FileText, ArrowLeft } from 'lucide-react';
+import { User, Phone, Calendar, Users, Shield, FileText, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext.jsx';
+import { useAuthStore } from '@/stores/useAuthStore.js';
 import { patientService } from '@/services/patientService.js';
 import { toast } from 'sonner';
 
 export default function PatientInfoForm() {
     const navigate = useNavigate();
-    const { refreshUser } = useAuth(); // 2. Lấy hàm refreshUser từ Context
+    const refreshUser = useAuthStore((s) => s.refreshUser);
 
     const {
         register,

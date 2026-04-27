@@ -24,7 +24,6 @@ export default function AdminUsers() {
         setError('');
         try {
             const res = await adminService.getAdminUsers(params);
-            console.log(res);
             setUsers(res?.data || []);
         } catch (err) {
             setError(err?.message || 'Không thể tải danh sách user');

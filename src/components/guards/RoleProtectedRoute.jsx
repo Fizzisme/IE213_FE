@@ -1,18 +1,15 @@
+// RoleProtectedRoute.jsx
 import { Navigate } from 'react-router-dom';
-
 import { LoadingScreen } from '@/components/common/LoadingScreen';
-import { useAuth } from '@/contexts/AuthContext.jsx';
+import { useAuthStore } from '@/stores/useAuthStore.js';
 
 export const RoleProtectedRoute = ({ children, allowedRoles = [] }) => {
-    const { user, loading } = useAuth();
+    const user = useAuthStore((s) => s.user);
+    const loading = useAuthStore((s) => s.loading);
 
-    if (loading) {
-        return <LoadingScreen />;
-    }
+    if (loading) return <LoadingScreen />;
 
-    if (!user) {
-        return <Navigate to="/" replace />;
-    }
+    if (!user) return <Navigate to="/" replace />;
 
     if (!allowedRoles.includes(user?.role)) {
         return (

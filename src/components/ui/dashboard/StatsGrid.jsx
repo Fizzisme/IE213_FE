@@ -1,7 +1,8 @@
 //import { STATS } from '../../../constants/dashboardData';
 import { Calendar, Pill, Heart, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import api from '@/utils/api.js';
+
+import { patientService } from '@/services/patientService.js';
 export default function StatsGrid() {
     const [appointments, setAppointments] = useState();
     const [loading, setLoading] = useState(false);
@@ -9,8 +10,8 @@ export default function StatsGrid() {
         const fetchAppointments = async () => {
             try {
                 setLoading(true);
-                const res = await api.get('patients/appointments/me');
-                setAppointments(res.data.data);
+                const res = await patientService.getAppointments();
+                setAppointments(res.data);
             } catch (err) {
                 console.error(err);
                 alert('Lỗi khi tải lịch hẹn');
@@ -21,7 +22,7 @@ export default function StatsGrid() {
 
         fetchAppointments();
     }, []);
-    console.log(appointments);
+
     if (!appointments) return null; // hoặc skeleton loading
     const upcomingAppointments = appointments?.filter((a) => a.status === 'PENDING' || a.status === 'CONFIRMED') || [];
     const now = new Date();
@@ -44,12 +45,12 @@ export default function StatsGrid() {
     });
     const upcomingCount = upcomingAppointments.length;
     const thisWeekCount = appointmentsThisWeek.length;
-    console.log(thisWeekCount);
+
     const STATS = [
         {
             label: 'Lịch hẹn sắp tới',
             value: loading ? '...' : upcomingCount,
-            delta: thisWeekCount ? `+ ${thisWeekCount} trong tuần này`: '',
+            delta: thisWeekCount ? `+ ${thisWeekCount} trong tuần này` : '',
             icon: Calendar,
             color: '#0d7b6d',
             bgColor: 'bg-teal-50',
