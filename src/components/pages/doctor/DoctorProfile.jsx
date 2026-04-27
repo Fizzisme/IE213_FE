@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, Mail, Phone, Building2 } from 'lucide-react';
 import { doctorService } from '@/services/doctorService.js';
+import { getInitials } from '@/utils/formater.js';
 
 export default function DoctorProfile() {
     const [profile, setProfile] = useState(null);
@@ -23,20 +24,10 @@ export default function DoctorProfile() {
         fetchProfile();
     }, []);
 
-    const getInitials = (name) => {
-        if (!name) return 'BS';
-        return name
-            .split(' ')
-            .map((w) => w[0])
-            .join('')
-            .slice(0, 2)
-            .toUpperCase();
-    };
-
     if (loading) {
         return (
             <div className="flex h-full items-center justify-center">
-                <Activity className="h-6 w-6 animate-spin text-blue-500 mr-2" />
+                <Activity className="h-6 w-6 animate-spin text-primary mr-2" />
                 <span className="text-slate-500 font-medium">Đang tải hồ sơ...</span>
             </div>
         );

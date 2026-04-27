@@ -4,6 +4,7 @@ import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 import { LogOut } from '@/components/animate-ui/icons/log-out.js';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import { useAuthStore } from '@/stores/useAuthStore.js';
+import { getInitials } from '@/utils/formater.js';
 const userVariants = {
     open: {
         opacity: 1,
@@ -27,16 +28,6 @@ const userVariants = {
 export default function UserProfilePopover({ openSidebar }) {
     const { logout } = useAuthStore();
 
-    // Hàm lấy chữ cái đầu của tên
-    const getInitials = (name) => {
-        if (!name) return '';
-        return name
-            .split(' ')
-            .map((w) => w[0])
-            .join('')
-            .slice(0, 2)
-            .toUpperCase();
-    };
     const { userInfo, role, renderExtra } = useLayoutStore();
 
     return (

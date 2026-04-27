@@ -3,14 +3,14 @@ import Sidebar from '@/components/Sidebar/Sidebar.jsx';
 import { Outlet } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner.js';
 
-export default function DashBoardLayout() {
+export default function DashBoardLayout({ documents }) {
     return (
         <div className="bg-white flex flex-col lg:flex-row h-screen overflow-hidden">
             <div className="lg:hidden flex items-center gap-2 px-2 py-3 border-b border-gray-200 bg-white">
-                <MobileSheet />
+                <MobileSheet documents={documents} />
             </div>
             {/* Sidebar */}
-            <Sidebar />
+            <Sidebar documents={documents} />
 
             {/* Main */}
             <div className="flex-1 min-w-0 overflow-hidden p-4 xl:p-6">

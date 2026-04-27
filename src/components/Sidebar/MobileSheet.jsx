@@ -5,6 +5,8 @@ import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
+import { FileText } from 'lucide-react';
 
 const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
     return (
@@ -22,7 +24,7 @@ const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
     );
 };
 
-export default function MobileSheet() {
+export default function MobileSheet({ documents }) {
     const { navItems } = useLayoutStore();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -86,17 +88,27 @@ export default function MobileSheet() {
                                 />
                             ))}
 
-                            {/* DATABASES
-                            <p className="text-xs font-bold text-gray-400 px-2 mt-6 mb-4 tracking-wider uppercase">
-                                Dữ liệu
-                            </p>
-                            <Collapsible
-                                icon={FileText}
-                                label="Tài liệu"
-                                openSidebar={true}
-                                labelVariants={labelVariants}
-                                isMobile={true}
-                            /> */}
+                            {documents && (
+                                <>
+                                    {/* DATABASES */}
+                                    <motion.p
+                                        variants={sectionVariants}
+                                        animate={openSidebar ? 'open' : 'closed'}
+                                        initial="open"
+                                        className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
+                                    >
+                                        DỮ LIỆU
+                                    </motion.p>
+                                    {/*Collapsible của database*/}
+                                    <Collapsible
+                                        icon={FileText}
+                                        label={'Tài liệu'}
+                                        openSidebar={openSidebar}
+                                        labelVariants={labelVariants}
+                                        documents={documents}
+                                    />
+                                </>
+                            )}
                         </div>
 
                         {/* Footer - User Profile */}

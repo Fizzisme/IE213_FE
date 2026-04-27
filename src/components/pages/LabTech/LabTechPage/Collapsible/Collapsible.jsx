@@ -17,13 +17,7 @@ const chevronVariants = {
     },
 };
 
-const documents = [
-    { label: 'Dosage guidelines', path: '/lab-tech/documents/dosage' },
-    { label: 'Case study', path: '/documents/case-study' },
-    { label: 'Treatment protocol', path: '/documents/treatment' },
-];
-
-export default function Collapsible({ icon: Icon, label, openSidebar, labelVariants }) {
+export default function Collapsible({ icon: Icon, label, openSidebar, labelVariants, documents }) {
     const [open, setOpen] = useState(true);
     const [ref, { height }] = useMeasure();
     const h = height + 5;

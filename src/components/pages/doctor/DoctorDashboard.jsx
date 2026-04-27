@@ -1,155 +1,88 @@
-import React, { useEffect, useState, useMemo, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import React, { useState, Suspense } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore.js';
-import { doctorService } from '@/services/doctorService.js';
-
-import { Button } from '@/components/ui/button.js';
-import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
+import { motion } from 'framer-motion';
 
 const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
 const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
 
 export default function DoctorDashboard() {
-    const navigate = useNavigate();
     const user = useAuthStore((s) => s.user);
-
-    // State Bệnh nhân
-    const [patients, setPatients] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [keyword, setKeyword] = useState('');
 
     // State Lịch (Calendar)
     const [date, setDate] = useState(new Date());
 
-    useEffect(() => {
-        const loadPatients = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const res = await doctorService.getDoctorPatients();
-                const dataList = res?.data || res || [];
-                setPatients(Array.isArray(dataList) ? dataList : []);
-            } catch (err) {
-                setError(err.message || 'Không thể tải danh sách bệnh nhân');
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadPatients();
-    }, []);
-
-    const filteredPatients = useMemo(() => {
-        return patients.filter((p) => {
-            const searchStr = keyword.toLowerCase();
-            return p.fullName?.toLowerCase().includes(searchStr) || p.phoneNumber?.includes(searchStr);
-        });
-    }, [patients, keyword]);
-
-    const getPatientId = (patient) => patient?.userId || patient?._id || patient?.id;
-
     // Events đánh dấu trên lịch
-    const myEvents = [{ id: 'khamBenh', label: 'Lịch khám', color: '#3B82F6', dates: [new Date()] }];
+    const myEvents = [
+        {
+            id: 'khamBenh',
+            label: 'Lịch khám',
+            color: '#0d7b6d',
+            dates: [new Date()],
+        },
+    ];
 
     return (
-        <div className="flex min-h-screen">
-            <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto h-full">
-                {/* ================= HEADER ================= */}
-                <header className="bg-white rounded-2xl p-6 shadow mb-6 flex flex-col lg:flex-row lg:items-center justify-center gap-6">
-                    {/* LEFT */}
-                    <div className="text-center">
-                        <h1 className="text-2xl font-bold text-primary">
-                            Mừng bạn quay lại, BS. {user?.fullName || 'Chuyên khoa'}
-                        </h1>
+        <div className="flex h-full">
+            {/* CUỘN TOÀN TRANG */}
+            <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-7xl mx-auto flex flex-col gap-6"
+                >
+                    {/* ================= HEADER ================= */}
+                    <header className="bg-white rounded-2xl p-6 shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        {/* LEFT: Lời chào & Trích dẫn */}
+                        <div className="flex-1 sm:pl-6 transition-all duration-500">
+                            <h1 className="text-2xl font-bold text-primary">
+                                Mừng bạn quay lại, BS. {user?.fullName || 'Chuyên khoa'}
+                            </h1>
 
-                        <p className="text-gray-500 text-sm mt-1">Chúc bạn một ngày khám bệnh hiệu quả</p>
+                            <p className="text-gray-500 text-sm mt-1">Chúc bạn một ngày khám bệnh hiệu quả</p>
 
-                        <div className="mt-6 lg:border-l-4 border-primary pl-4 italic text-gray-600 w-full">
-                            “Nghề y là nghề của trái tim và trách nhiệm.”
-                            <span className="block mt-2 text-xs text-gray-400 not-italic">— Medical Ethics</span>
+                            <div className="mt-6 border-l-4 border-primary pl-4 italic text-gray-600 max-w-lg">
+                                “Nghề y là nghề của trái tim và trách nhiệm.”
+                                <span className="block mt-2 text-xs text-gray-400 not-italic">— Medical Ethics</span>
+                            </div>
+
+                            <p className="mt-3 text-xs text-gray-400">
+                                Mỗi quyết định của bạn ảnh hưởng trực tiếp đến sức khỏe bệnh nhân.
+                            </p>
                         </div>
 
-                        <p className="mt-3 text-xs text-gray-400">
-                            Mỗi quyết định của bạn ảnh hưởng trực tiếp đến sức khỏe bệnh nhân.
-                        </p>
-                    </div>
-
-                    {/* RIGHT */}
-                    <div className="flex items-center gap-4">
-                        {/* IMAGE */}
-                        <div className="hidden lg:flex items-center">
-                            <img src="/doctor-welcome.png" alt="doctor welcome" className="max-h-[200px]" />
-                        </div>
-                    </div>
-                </header>
-
-                <Suspense fallback={<div className="h-40 animate-pulse bg-slate-100 rounded-2xl" />}>
-                    <PatientChart />
-                </Suspense>
-
-                {/* ================= MAIN CONTENT ================= */}
-                <div className="grid xl:grid-cols-[1fr_320px] gap-6 flex-1 min-h-0">
-                    {/* LEFT: PATIENT LIST */}
-                    <section className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-0">
-                        {/* HEADER */}
-                        <div className="p-5 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <h2 className="text-lg font-bold text-textColor">Danh sách bệnh nhân</h2>
-
-                            <AnimateIcon
-                                animateOnHover
-                                className="border-2 px-1.5 hover:bg-[#f6f6f7] hover:shadow-sm  shadow-xs rounded-lg bg-[#f5f5f5] select-none cursor-pointer flex gap-1.5 items-center"
-                            >
-                                <Search className={'size-4'} />
-                                <input
-                                    value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
-                                    placeholder="Tìm kiếm..."
-                                    className="flex-1 p-1 text-sm outline-none border-none"
+                        {/* RIGHT: Hình minh họa & Lịch */}
+                        <div className="flex items-center gap-6">
+                            {/* IMAGE */}
+                            <div className="hidden xl:flex items-center">
+                                <img
+                                    src="/doctor-welcome.png"
+                                    alt="doctor welcome"
+                                    className="max-h-[200px] w-auto object-contain"
                                 />
-                            </AnimateIcon>
-                        </div>
+                            </div>
 
-                        {/* LIST */}
-                        <div className="p-5 overflow-y-auto flex-1">
-                            {loading && <p>Đang tải...</p>}
-                            {error && <p className="text-red-500">{error}</p>}
-
-                            <div className="grid gap-4 lg:grid-cols-2">
-                                {filteredPatients.map((p) => {
-                                    const pId = getPatientId(p);
-                                    return (
-                                        <div key={pId} className="border rounded-2xl p-4 hover:shadow-md transition">
-                                            <p className="font-bold text-textColor">{p.fullName}</p>
-
-                                            <p className="text-sm text-gray-500">{p.phoneNumber}</p>
-
-                                            <Button
-                                                onClick={() => navigate(`/doctor/patients/${pId}/create-record`)}
-                                                className="mt-3 text-xs bg-primary text-white px-3 py-1 rounded-lg cursor-pointer"
-                                            >
-                                                Tạo bệnh án
-                                            </Button>
-                                        </div>
-                                    );
-                                })}
+                            {/* CALENDAR */}
+                            <div className="hidden lg:block shrink-0">
+                                <Suspense
+                                    fallback={
+                                        <div className="h-[280px] w-[280px] rounded-2xl bg-slate-100 animate-pulse" />
+                                    }
+                                >
+                                    <Calendar
+                                        events={myEvents}
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={(d) => d && setDate(d)}
+                                        captionLayout="dropdown"
+                                    />
+                                </Suspense>
                             </div>
                         </div>
-                    </section>
+                    </header>
 
-                    {/* RIGHT: SCHEDULE */}
-                    <div className="hidden lg:block">
-                        <Suspense fallback={<div className="h-64 w-64 rounded-2xl bg-slate-100 animate-pulse" />}>
-                            <Calendar
-                                events={myEvents}
-                                mode="single"
-                                selected={date}
-                                onSelect={(d) => d && setDate(d)}
-                                captionLayout="dropdown"
-                            />
-                        </Suspense>
-                    </div>
-                </div>
+                    <PatientChart />
+                </motion.div>
             </main>
         </div>
     );
