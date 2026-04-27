@@ -1,123 +1,152 @@
 import { BE_URL } from '@/lib/constans.js';
 
 class PatientService {
-    async request(endpoint, options) {
+    async request(endpoint, options = {}) {
         const url = `${BE_URL}${endpoint}`;
+
+        const response = await fetch(url, {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(options.headers || {}),
+            },
+            ...options,
+        });
+
+        let data = null;
         try {
-            const response = await fetch(url, {
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options?.headers,
-                },
-                ...options,
-            });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    errorData?.message || errorData?.errors?.[0]?.message || `HTTP error! status: ${response.status}`,
-                );
-            }
-            return await response.json();
-        } catch (error) {
-            console.error(`API request failed for ${endpoint}:`, error);
-            throw error;
+            data = await response.json();
+        } catch (e) {
+            data = null;
         }
+
+        if (!response.ok) {
+            throw new Error(data?.message || data?.errors?.[0]?.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return data;
     }
 
-    // ── DỊCH VỤ ─────────────────────────────────────
+    unwrap(response) {
+        return response?.data ?? response;
+    }
+
+    // ---- SERVICES ----
     async getServices() {
-        return await this.request('/patients/services');
+        return this.request('/patients/services');
     }
 
-    // ── LỊCH HẸN ────────────────────────────────────
+    // ---- APPOINTMENTS ----
     async getAppointments(params = {}) {
         const query = new URLSearchParams(params).toString();
         const endpoint = query ? `/patients/appointments/me?${query}` : '/patients/appointments/me';
-        return await this.request(endpoint);
-    }
-
-    async rescheduleAppointment(appointmentId, payload) {
-        return await this.request(`/patients/appointments/${appointmentId}/reschedule`, {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-        });
+        return this.request(endpoint);
     }
 
     async createAppointment(payload) {
-        return await this.request('/patients/appointments', {
+        return this.request('/patients/appointments', {
             method: 'POST',
             body: JSON.stringify(payload),
         });
     }
 
     async cancelAppointment(appointmentId) {
-        return await this.request(`/patients/appointments/${appointmentId}/cancel`, {
+        return this.request(`/patients/appointments/${appointmentId}/cancel`, {
             method: 'PATCH',
         });
     }
 
-    // ── HỒ SƠ ───────────────────────────────────────
-    async getMe() {
-        return await this.request('/patients/me');
+    async rescheduleAppointment(appointmentId, payload) {
+        return this.request(`/patients/appointments/${appointmentId}/reschedule`, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        });
     }
 
-    async getProfile() {
-        return await this.request('/patients/profile');
+    // ---- BLOCKCHAIN ACCESS CONTROL ----
+    async prepareGrantAccess(appointmentId) {
+        return this.request(`/patients/appointments/${appointmentId}/prepare-grant-access`);
+    }
+
+    async verifyGrantAccess(appointmentId, txHashOrPayload) {
+        const txHash = typeof txHashOrPayload === 'string' ? txHashOrPayload : txHashOrPayload?.txHash;
+
+        return this.request(`/patients/appointments/${appointmentId}/verify-grant-access`, {
+            method: 'POST',
+            body: JSON.stringify({ txHash }),
+        });
+    }
+
+    async prepareRevokeAccess(appointmentId) {
+        return this.request(`/patients/appointments/${appointmentId}/prepare-revoke-access`);
+    }
+
+    async verifyRevokeAccess(appointmentId, txHashOrPayload) {
+        const txHash = typeof txHashOrPayload === 'string' ? txHashOrPayload : txHashOrPayload?.txHash;
+
+        return this.request(`/patients/appointments/${appointmentId}/verify-revoke-access`, {
+            method: 'POST',
+            body: JSON.stringify({ txHash }),
+        });
+    }
+
+    // ---- PROFILE ----
+    async getMe() {
+        return this.request('/patients/me');
     }
 
     async createProfile(payload) {
-        return await this.request('/patients', {
+        return this.request('/patients', {
             method: 'POST',
             body: JSON.stringify(payload),
         });
     }
 
-    async updateProfile(payload) {
-        return await this.request('/patients/profile', {
-            method: 'PUT',
-            body: JSON.stringify(payload),
-        });
+    // Aliases for backward compatibility
+    async getProfile() {
+        return this.getMe();
     }
 
-    // ── BỆNH ÁN ─────────────────────────────────────
-    async getMedicalRecords(params = {}) {
-        const query = new URLSearchParams(params).toString();
-        const endpoint = query ? `/patients/medical-records?${query}` : '/patients/medical-records';
-        return await this.request(endpoint);
+    async updateProfile() {
+        throw new Error('Endpoint /patients/profile is not available in current backend routes.');
     }
 
-    async getMedicalRecordDetail(recordId) {
-        return await this.request(`/patients/medical-records/${recordId}`);
+    // ---- MEDICAL RECORDS (not available in current backend patient routes) ----
+    async getMedicalRecords() {
+        throw new Error('Endpoint /patients/medical-records is not available in current backend routes.');
     }
 
-    // ── THÔNG BÁO ───────────────────────────────────────
+    async getMedicalRecordDetail() {
+        throw new Error('Endpoint /patients/medical-records/:id is not available in current backend routes.');
+    }
+
+    // ---- NOTIFICATIONS ----
     async getNotifications(params = {}) {
         const query = new URLSearchParams(params).toString();
         const endpoint = query ? `/patients/notifications/me?${query}` : '/patients/notifications/me';
-        return await this.request(endpoint);
+        return this.request(endpoint);
     }
 
     async markNotificationRead(id) {
-        return await this.request(`/patients/notifications/${id}/read`, {
+        return this.request(`/patients/notifications/${id}/read`, {
             method: 'PATCH',
         });
     }
 
     async markAllNotificationsRead() {
-        return await this.request('/patients/notifications/read-all', {
+        return this.request('/patients/notifications/read-all', {
             method: 'PATCH',
         });
     }
 
     async deleteNotification(id) {
-        return await this.request(`/patients/notifications/${id}`, {
+        return this.request(`/patients/notifications/${id}`, {
             method: 'DELETE',
         });
     }
 
     async deleteAllNotifications() {
-        return await this.request('/patients/notifications/delete-all', {
+        return this.request('/patients/notifications/delete-all', {
             method: 'DELETE',
         });
     }

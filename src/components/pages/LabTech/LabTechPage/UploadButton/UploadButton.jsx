@@ -136,8 +136,6 @@ export default function UploadButton({ medicalRecordId }) {
         form.insulin === '' ||
         form.bmi === '' ||
         loading;
-    console.log('loading ', loading);
-    console.log(isDisabled);
 
     const isObese = Number(form.bmi) > 30;
     return (

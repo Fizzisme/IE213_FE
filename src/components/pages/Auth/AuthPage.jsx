@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext.jsx';
-import api from '@/utils/api.js';
+import { useAuthStore } from '@/stores/useAuthStore.js';
+import { authService } from '@/services/authService.js';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner.js';
 
@@ -130,7 +130,7 @@ const MetamaskButtonContent = ({ isIdle }) => (
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function AuthPage() {
     const navigate = useNavigate();
-    const { loginMetaMask } = useAuth();
+    const loginMetaMask = useAuthStore((s) => s.loginMetaMask);
     const [metamaskBtn, setMetamaskBtn] = useState('idle');
     const [activeSlide, setActiveSlide] = useState(0);
     const hasWallet = !!window.ethereum;
@@ -165,28 +165,26 @@ export default function AuthPage() {
         setMetamaskBtn('loading');
 
         try {
-            // Import khi cần
             const { ethers } = await import('ethers');
 
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const walletAddress = await signer.getAddress();
 
-            // Giai đoạn 1: Lấy Nonce
-            const phase1 = await api.post('/auth/login/wallet', { walletAddress });
-            const nonce = phase1.data.data?.nonce || phase1.data.nonce;
+            // ✅ Giai đoạn 1: Lấy Nonce
+            const phase1 = await authService.getNonce(walletAddress);
+            const nonce = phase1?.data?.nonce || phase1?.nonce;
 
-            // Giai đoạn 2: Ký lần 1 (Login)
+            // Giai đoạn 2: Ký lần 1
             toast.info('Vui lòng ký xác thực đăng nhập...');
             const signature = await signer.signMessage(nonce);
 
-            // Giai đoạn 3: Ký lần 2 (Onboarding) - ✅ SỬA: hash trước rồi mới ký
-            // Truyền Uint8Array (getBytes) → ethers prefix với \n32 → khớp với toEthSignedMessageHash() trong contract
+            // Giai đoạn 3: Ký lần 2
             toast.info('Vui lòng ký xác nhận tham gia hệ thống...');
             const msgHash = ethers.keccak256(ethers.toUtf8Bytes('REGISTER_ZUNI_PATIENT'));
             const registrationSignature = await signer.signMessage(ethers.getBytes(msgHash));
 
-            // Giai đoạn 4: Gửi cả 2 chữ ký lên AuthContext/Backend
+            // Giai đoạn 4: Login
             const userData = await loginMetaMask(walletAddress, signature, registrationSignature);
 
             if (!userData) {
@@ -202,7 +200,7 @@ export default function AuthPage() {
             if (error.code === 'ACTION_REJECTED' || error.code === 4001) {
                 toast.error('Bạn đã từ chối ký xác nhận!');
             } else {
-                toast.warning(error.response?.data?.message || 'Kết nối MetaMask thất bại!');
+                toast.warning(error.message || 'Kết nối MetaMask thất bại!');
             }
             setMetamaskBtn('idle');
         }

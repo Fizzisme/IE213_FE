@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, Mail, Phone, Shield, BadgeCheck, User as UserIcon, Award, Building2 } from 'lucide-react';
-import { getDoctorProfile } from '../../../services/doctorApi';
+import { Activity, Mail, Phone, Building2 } from 'lucide-react';
 import { doctorService } from '@/services/doctorService.js';
 
 export default function DoctorProfile() {

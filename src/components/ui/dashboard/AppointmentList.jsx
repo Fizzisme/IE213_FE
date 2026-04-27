@@ -1,7 +1,9 @@
 import { ChevronRight, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import api from '@/utils/api.js';
+
 import { useNavigate } from 'react-router-dom';
+import { patientService } from '@/services/patientService.js';
+import { toast } from 'sonner';
 export default function AppointmentList() {
     const navigate = useNavigate();
 
@@ -12,11 +14,11 @@ export default function AppointmentList() {
         const fetchAppointments = async () => {
             try {
                 setLoading(true);
-                const res = await api.get('patients/appointments/me');
-                setAppointments(res.data.data);
+                const res = await patientService.getAppointments();
+                setAppointments(res?.data);
             } catch (err) {
                 console.error(err);
-                alert('Lỗi khi tải lịch hẹn');
+                toast.error('Lỗi khi tải lịch hẹn');
             } finally {
                 setLoading(false);
             }
