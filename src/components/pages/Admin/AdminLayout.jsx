@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
-import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { ShieldCheck } from 'lucide-react';
 import { adminService } from '@/services/adminService.js';
 import { Users } from '@/components/animate-ui/icons/users.js';
@@ -11,7 +10,6 @@ import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/admin/dashboard' },
-    { icon: Bell, label: 'Thông báo', to: '/admin/notifications' },
     { icon: Users, label: 'Người dùng', to: '/admin/users' },
 ];
 

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { LayoutDashboard } from '@/components/animate-ui/icons/layout-dashboard.js';
-import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { User } from 'lucide-react';
 import { doctorService } from '@/services/doctorService.js';
 import { ClipboardList } from '@/components/animate-ui/icons/clipboard-list.js';
@@ -14,7 +13,6 @@ import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/doctor/dashboard' },
-    { icon: Bell, label: 'Thông báo', to: '/doctor/notifications' },
     { icon: ClipboardList, label: 'Quản lý Bệnh án', to: '/doctor/medical-records' },
     { icon: Users, label: 'Bệnh nhân', to: '/doctor/patients' },
     { icon: Clock3, label: 'Lịch hẹn', to: '/doctor/appointments' },

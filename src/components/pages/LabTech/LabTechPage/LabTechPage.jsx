@@ -2,6 +2,7 @@ import React, { Suspense, useState } from 'react';
 import PatientList from '@/components/pages/LabTech/LabTechPage/PatientList/PatientList.jsx';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 import { motion } from 'framer-motion';
+import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 
 const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
 const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
@@ -20,6 +21,8 @@ export default function LabTechPage() {
 
     const openSidebar = useSidebarStore((s) => s?.openSidebar);
 
+    const userInfo = useLayoutStore((state) => state.userInfo);
+
     return (
         <div className="flex h-full">
             {/* MAIN */}
@@ -35,7 +38,7 @@ export default function LabTechPage() {
                         {/* LEFT */}
                         <div className={`flex-1 sm:pl-10 transition-all duration-500 ${!openSidebar && 'pl-20'}`}>
                             {/* GREETING */}
-                            <h1 className="text-2xl font-bold text-primary">Mừng bạn quay lại, Tuấn Phi</h1>
+                            <h1 className="text-2xl font-bold text-primary">Mừng bạn quay lại, {userInfo?.fullName}</h1>
                             <p className="text-gray-500 text-sm mt-1">
                                 Chúc bạn một ngày làm việc hiệu quả và chính xác
                             </p>
