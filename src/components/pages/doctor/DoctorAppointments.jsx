@@ -1,27 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Calendar, Clock, User, CheckCircle2, XCircle, AlertCircle, BadgeDollarSign } from 'lucide-react';
+import {
+    Calendar,
+    Clock,
+    User,
+    CheckCircle2,
+    XCircle,
+    AlertCircle,
+    BadgeDollarSign,
+    FileText,
+    Loader2,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { doctorService } from '@/services/doctorService.js';
 
 const STATUS_CONFIG = {
     PENDING: {
         label: 'Đang chờ',
-        className: 'bg-amber-100 text-amber-700 border-amber-200',
+        className: 'bg-amber-50 text-amber-700 border-amber-200',
         icon: AlertCircle,
     },
     CONFIRMED: {
         label: 'Xác nhận',
-        className: 'bg-primary text-white',
+        className: 'bg-primary text-white border-primary',
         icon: Clock,
     },
     COMPLETED: {
         label: 'Hoàn thành',
-        className: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+        className: 'bg-green-50 text-green-700 border-green-200',
         icon: CheckCircle2,
     },
     CANCELLED: {
-        label: 'Hủy',
-        className: 'bg-rose-100 text-rose-700 border-rose-200',
+        label: 'Đã hủy',
+        className: 'bg-red-50 text-red-700 border-red-200',
         icon: XCircle,
     },
 };
@@ -86,124 +97,210 @@ export default function DoctorAppointments() {
             toast.success(`Lịch hẹn ${status.toLowerCase()} thành công.`);
         } catch (err) {
             console.error('Update failed', err);
-            toast.error(err?.message || 'Xác nhận thất bại');
+            toast.error(err?.message || 'Cập nhật trạng thái thất bại');
         } finally {
             setUpdatingId(null);
         }
     };
 
     return (
-        <div className="p-4 md:p-6 lg:p-8 space-y-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-textColor">Lịch khám</h1>
-                    <p className="text-sm text-gray-500">Quản lý và phê duyệt các cuộc hẹn của bệnh nhân</p>
-                </div>
+        <div className="flex h-full">
+            {/* KHÓA CUỘN NGOÀI: overflow-hidden */}
+            <main className="flex-1 p-4 xl:p-6 flex flex-col h-full overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    /* CHIA CHIỀU CAO: min-h-0 giúp flex-1 co giãn đúng chuẩn box */
+                    className="w-full max-w-7xl mx-auto flex flex-col flex-1 h-full min-h-0"
+                >
+                    {/* ================= HEADER ================= */}
+                    <header className="bg-white rounded-2xl p-6 shadow mb-6 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-[#04d3b8] flex items-center justify-center text-white shadow-md shrink-0">
+                                <Calendar className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-primary">Lịch khám</h1>
+                                <p className="text-gray-500 text-sm mt-1">
+                                    Quản lý và phê duyệt các cuộc hẹn của bệnh nhân
+                                </p>
+                            </div>
+                        </div>
+                    </header>
 
-                <div className="flex items-center gap-1 rounded-xl border bg-white p-1 shadow-sm flex-wrap">
-                    <button
-                        onClick={() => setFilter('')}
-                        className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer ${
-                            filter === '' ? 'bg-slate-100 font-semibold' : 'text-gray-500'
-                        }`}
-                    >
-                        All
-                    </button>
-
-                    {Object.keys(STATUS_CONFIG).map((key) => (
-                        <button
-                            key={key}
-                            onClick={() => setFilter(key)}
-                            className={`px-3 py-1.5 text-sm rounded-lg cursor-pointer ${
-                                filter === key ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-500'
-                            }`}
-                        >
-                            {STATUS_CONFIG[key].label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border shadow-sm p-5 max-h-[600px] overflow-y-auto">
-                {loading ? (
-                    <div className="text-center text-gray-500 py-10">Đang tải...</div>
-                ) : error ? (
-                    <div className="text-center text-rose-500 py-10">{error}</div>
-                ) : filtered.length === 0 ? (
-                    <div className="text-center text-gray-400 py-10">Không có lịch khám</div>
-                ) : (
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {filtered.map((a) => {
-                            const status = STATUS_CONFIG[a.status] || {};
-                            const Icon = status.icon || Clock;
-
-                            return (
-                                <div
-                                    key={a._id}
-                                    className="border rounded-2xl p-4 hover:shadow-md transition flex flex-col gap-3"
+                    {/* ================= CONTENT BOX ================= */}
+                    <div className="bg-white rounded-2xl p-6 shadow flex flex-col flex-1 min-h-0">
+                        {/* FILTERS */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100 shrink-0">
+                            <div className="flex flex-wrap gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-200">
+                                <button
+                                    onClick={() => setFilter('')}
+                                    className={`px-4 py-2 text-sm rounded-lg font-bold whitespace-nowrap cursor-pointer transition-all duration-300 ${
+                                        filter === ''
+                                            ? 'bg-primary text-white shadow-md'
+                                            : 'text-gray-500 hover:text-primary hover:bg-white'
+                                    }`}
                                 >
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="font-bold text-textColor">#{String(a._id).slice(-6)}</p>
-                                            <p className="text-xs text-gray-400">{formatDate(a.createdAt)}</p>
-                                        </div>
+                                    Tất cả
+                                </button>
 
-                                        <span
-                                            className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${status.className ||
-                                                ''}`}
-                                        >
-                                            <Icon className="w-3 h-3" />
-                                            {status.label || a.status}
-                                        </span>
-                                    </div>
+                                {Object.keys(STATUS_CONFIG).map((key) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setFilter(key)}
+                                        className={`px-4 py-2 text-sm rounded-lg font-bold whitespace-nowrap cursor-pointer transition-all duration-300 ${
+                                            filter === key
+                                                ? 'bg-primary text-white shadow-md'
+                                                : 'text-gray-500 hover:text-primary hover:bg-white'
+                                        }`}
+                                    >
+                                        {STATUS_CONFIG[key].label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
 
-                                    <div className="text-sm text-gray-600 space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <User size={14} />
-                                            {typeof a.patientId === 'object' ? a.patientId?._id || 'N/A' : a.patientId}
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Calendar size={14} />
-                                            {formatDate(a.appointmentDateTime)}
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <BadgeDollarSign size={14} />
-                                            {Number(a.price || 0).toLocaleString('vi-VN')}d
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-2 flex gap-2">
-                                        {a.status === 'PENDING' && (
-                                            <>
-                                                <button
-                                                    onClick={() => handleUpdate(a._id, 'CONFIRMED')}
-                                                    disabled={updatingId === a._id}
-                                                    className="flex-1 text-xs bg-primary text-white py-2 rounded-lg hover:bg-primary/80 disabled:opacity-50 cursor-pointer"
-                                                >
-                                                    {updatingId === a._id ? 'Đang xác nhận...' : 'Xác nhận'}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleUpdate(a._id, 'Hủy')}
-                                                    disabled={updatingId === a._id}
-                                                    className="flex-1 text-xs bg-rose-500 text-white py-2 rounded-lg hover:bg-rose-600 disabled:opacity-50 cursor-pointer"
-                                                >
-                                                    {updatingId === a._id ? 'Đang xác nhận...' : 'Hủy'}
-                                                </button>
-                                            </>
-                                        )}
-
-                                        <button className="flex-1 text-xs border py-2 rounded-lg hover:bg-gray-50">
-                                            Chi tiết
-                                        </button>
-                                    </div>
+                        {/* ================= LIST (THANH CUỘN BÊN TRONG) ================= */}
+                        <div className="flex-1 overflow-y-auto pr-2">
+                            {loading ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                                    <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+                                    <p className="font-medium">Đang tải danh sách lịch khám...</p>
                                 </div>
-                            );
-                        })}
+                            ) : error ? (
+                                <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-center font-medium">
+                                    {error}
+                                </div>
+                            ) : filtered.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center text-center py-12">
+                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Calendar className="w-8 h-8 text-gray-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-1">Không có lịch khám nào</h3>
+                                    <p className="text-gray-500 text-sm">
+                                        Chưa tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 pb-4">
+                                    {filtered.map((a) => {
+                                        const status = STATUS_CONFIG[a.status] || {};
+                                        const Icon = status.icon || Clock;
+                                        const isProcessing = updatingId === a._id;
+
+                                        return (
+                                            <div
+                                                key={a._id}
+                                                className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 hover:border-primary/30 flex flex-col"
+                                            >
+                                                {/* INFO HEADER */}
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900 text-lg">
+                                                            #{String(a._id).slice(-6)}
+                                                        </h3>
+                                                        <p className="text-xs text-gray-500 font-medium">
+                                                            Tạo: {formatDate(a.createdAt)}
+                                                        </p>
+                                                    </div>
+
+                                                    <span
+                                                        className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full border font-bold uppercase tracking-wide ${status.className ||
+                                                            'bg-gray-100 text-gray-600 border-gray-200'}`}
+                                                    >
+                                                        <Icon className="w-3.5 h-3.5" />
+                                                        {status.label || a.status}
+                                                    </span>
+                                                </div>
+
+                                                {/* DETAILS */}
+                                                <div className="space-y-2 mb-6 flex-1">
+                                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                                        <User className="w-4 h-4 text-primary shrink-0" />
+                                                        <span
+                                                            className="font-medium truncate"
+                                                            title={
+                                                                typeof a.patientId === 'object'
+                                                                    ? a.patientId?._id
+                                                                    : a.patientId
+                                                            }
+                                                        >
+                                                            {typeof a.patientId === 'object'
+                                                                ? a.patientId?._id || 'N/A'
+                                                                : a.patientId}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                                        <Clock className="w-4 h-4 text-primary shrink-0" />
+                                                        <span className="font-bold text-gray-900">
+                                                            {formatDate(a.appointmentDateTime)}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+                                                        <BadgeDollarSign className="w-4 h-4 text-primary shrink-0" />
+                                                        <span className="font-bold text-emerald-600">
+                                                            {Number(a.price || 0).toLocaleString('vi-VN')} đ
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* ACTIONS */}
+                                                <div className="mt-auto grid grid-cols-2 gap-2">
+                                                    {a.status === 'PENDING' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleUpdate(a._id, 'CONFIRMED')}
+                                                                disabled={isProcessing}
+                                                                className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-bold bg-primary text-white rounded-xl hover:bg-green-700 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                {isProcessing ? (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <>
+                                                                        <CheckCircle2 className="w-4 h-4" />
+                                                                        <span>Duyệt</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdate(a._id, 'CANCELLED')} // Đổi status 'Hủy' thành 'CANCELLED' để khớp ENUM server
+                                                                disabled={isProcessing}
+                                                                className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-bold border-2 border-red-200 text-red-600 bg-white rounded-xl hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                {isProcessing ? (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <>
+                                                                        <XCircle className="w-4 h-4" />
+                                                                        <span>Từ chối</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {/* Nếu không phải PENDING, nút Chi tiết giãn full */}
+                                                    <button
+                                                        className={`col-span-${
+                                                            a.status === 'PENDING' ? '2' : '2'
+                                                        } flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-bold border-2 border-gray-200 text-gray-700 bg-white rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer`}
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                        <span>Xem chi tiết</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
-            </div>
+                </motion.div>
+            </main>
         </div>
     );
 }

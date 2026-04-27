@@ -6,6 +6,8 @@ import { motion } from 'motion/react';
 
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+import { FileText } from 'lucide-react';
+import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 
 // Variants cho label
 const labelVariants = {
@@ -68,7 +70,7 @@ const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
     );
 };
 
-export default function Sidebar() {
+export default function Sidebar({ documents }) {
     const { navItems } = useLayoutStore();
 
     // Lấy path của URL
@@ -150,17 +152,28 @@ export default function Sidebar() {
                 />
             ))}
 
-            {/* DATABASES */}
-            {/* <motion.p
-                variants={sectionVariants}
-                animate={openSidebar ? 'open' : 'closed'}
-                initial="open"
-                className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
-            >
-                DỮ LIỆU
-            </motion.p> */}
-            {/*Collapsible của database*/}
-            {/* <Collapsible icon={FileText} label={'Tài liệu'} openSidebar={openSidebar} labelVariants={labelVariants} /> */}
+            {documents && (
+                <>
+                    {/* DATABASES */}
+                    <motion.p
+                        variants={sectionVariants}
+                        animate={openSidebar ? 'open' : 'closed'}
+                        initial="open"
+                        className="text-[10px] font-bold text-gray-400 px-2 mt-4 mb-1 tracking-wider overflow-hidden whitespace-nowrap"
+                    >
+                        DỮ LIỆU
+                    </motion.p>
+                    {/*Collapsible của database*/}
+                    <Collapsible
+                        icon={FileText}
+                        label={'Tài liệu'}
+                        openSidebar={openSidebar}
+                        labelVariants={labelVariants}
+                        documents={documents}
+                    />
+                </>
+            )}
+
             {/* User */}
             <UserProfilePopover openSidebar={openSidebar} />
         </aside>

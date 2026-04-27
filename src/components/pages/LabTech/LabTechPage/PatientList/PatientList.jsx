@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.js';
 import SortButton from '@/components/pages/LabTech/LabTechPage/SortButton/SortButton.jsx';
 import FilterButton from '@/components/pages/LabTech/LabTechPage/FilterButton/FilterButton.jsx';
@@ -7,7 +7,7 @@ import { Bot } from '@/components/animate-ui/icons/bot.js';
 import { Search } from '@/components/animate-ui/icons/search.js';
 import { FileText, CalendarDays } from 'lucide-react';
 import { labTechService } from '@/services/LabTechService.js';
-import { formatDateVN } from '@/utils/formater.js';
+import { formatDateVN, getInitials } from '@/utils/formater.js';
 
 export default function PatientList() {
     const [medicalRecords, setMedicalRecords] = useState([]);
@@ -147,11 +147,18 @@ export default function PatientList() {
               ${selected?._id === m._id ? 'bg-primary/10' : 'hover:bg-secondary/20'}`}
                         >
                             <div className="flex items-center gap-3">
-                                <img
-                                    src={m.patientInfo.avatar}
-                                    className="w-8 h-8 xl:w-10 xl:h-10 rounded-full"
-                                    alt=""
-                                />
+                                {m?.patientInfo?.avatar ? (
+                                    <img
+                                        src={m.patientInfo.avatar}
+                                        className="w-8 h-8 xl:w-10 xl:h-10 rounded-full"
+                                        alt="avatar bệnh nhân"
+                                    />
+                                ) : (
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary text-white flex items-center justify-center text-sm sm:text-md font-bold shrink-0">
+                                        {getInitials(m?.patientInfo?.fullName)}
+                                    </div>
+                                )}
+
                                 <div>
                                     <p className="font-semibold text-base xl:text-lg">{m?.patientInfo?.fullName}</p>
                                     <p className="text-sm text-gray-500">{m?.patientInfo?._id}</p>
@@ -176,11 +183,18 @@ export default function PatientList() {
                         <>
                             <header className="flex justify-between">
                                 <div className="flex gap-3 items-center">
-                                    <img
-                                        src={selected?.patientInfo?.avatar}
-                                        className="w-10 h-10 xl:w-12 xl:h-12 rounded-full"
-                                        alt=""
-                                    />
+                                    {selected?.patientInfo?.avatar ? (
+                                        <img
+                                            src={selected?.patientInfo?.avatar}
+                                            className="w-10 h-10 xl:w-12 xl:h-12 rounded-full"
+                                            alt="avatar"
+                                        />
+                                    ) : (
+                                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary text-white flex items-center justify-center text-md sm:text-lg font-bold shrink-0">
+                                            {getInitials(selected?.patientInfo?.fullName)}
+                                        </div>
+                                    )}
+
                                     <div>
                                         <h2 className="font-bold text-lg lg:text:xl">
                                             {selected?.patientInfo?.fullName}

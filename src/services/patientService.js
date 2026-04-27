@@ -102,22 +102,15 @@ class PatientService {
         });
     }
 
-    // Aliases for backward compatibility
-    async getProfile() {
-        return this.getMe();
+    // ---- MEDICAL RECORDS ----
+    async getMedicalRecords(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        const endpoint = query ? `/patients/medical-records?${query}` : '/patients/medical-records';
+        return this.request(endpoint);
     }
 
-    async updateProfile() {
-        throw new Error('Endpoint /patients/profile is not available in current backend routes.');
-    }
-
-    // ---- MEDICAL RECORDS (not available in current backend patient routes) ----
-    async getMedicalRecords() {
-        throw new Error('Endpoint /patients/medical-records is not available in current backend routes.');
-    }
-
-    async getMedicalRecordDetail() {
-        throw new Error('Endpoint /patients/medical-records/:id is not available in current backend routes.');
+    async getMedicalRecordDetail(medicalRecordId) {
+        return this.request(`/patients/medical-records/${medicalRecordId}`);
     }
 
     // ---- NOTIFICATIONS ----

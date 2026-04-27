@@ -4,6 +4,13 @@ import { Bell } from '@/components/animate-ui/icons/bell.js';
 import { labTechService } from '@/services/LabTechService.js';
 import DashBoardLayout from '@/components/layouts/DashBoardLayout.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
+
+const DOCUMENTS = [
+    { label: 'Dosage guidelines', path: '/lab-tech/documents/dosage' },
+    { label: 'Case study', path: '/documents/case-study' },
+    { label: 'Treatment protocol', path: '/documents/treatment' },
+];
+
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/lab-tech/dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/lab-tech/notifications' },
@@ -51,5 +58,5 @@ export default function LabTechLayout() {
         setRenderExtra(renderExtra);
     }, []);
 
-    return <DashBoardLayout />;
+    return <DashBoardLayout documents={DOCUMENTS} />;
 }

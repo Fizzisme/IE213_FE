@@ -2,6 +2,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { RoleProtectedRoute } from '@/components/guards/RoleProtectedRoute.jsx';
 import PatientLayout from '@/components/pages/Patients/PatientLayout.jsx';
+import PatientMedicalRecords from '@/components/pages/Patients/PatientMedicalRecords.jsx';
+import PatientMedicalRecordDetail from '@/components/pages/Patients/PatientMedicalRecordDetail.jsx';
 
 const PatientDashboard = React.lazy(() => import('@/components/pages/Patients/Dashboard/PatientDashboard.jsx'));
 const PatientInfoForm = React.lazy(() => import('@/components/pages/Patients/FormPage/PatientInForm.jsx'));
@@ -27,5 +29,7 @@ export const patientRoutes = (
         <Route path="appointments-manage" element={<AppointmentManagement />} />
         <Route path="appointments" element={<AppointmentBooking />} />
         <Route path="notifications" element={<NotificationPage />} />
+        <Route path="medical-records" element={<PatientMedicalRecords />} />
+        <Route path="medical-records/:medicalRecordId" element={<PatientMedicalRecordDetail />} />
     </Route>
 );

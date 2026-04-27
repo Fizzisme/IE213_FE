@@ -6,11 +6,13 @@ import { useDashboard } from '@/hooks/useDashboard.js';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import { useEffect } from 'react';
 import DashBoardLayout from '@/components/layouts/DashBoardLayout.jsx';
+import { ClipboardList } from '@/components/animate-ui/icons/clipboard-list.js';
 
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Trang tổng quan', to: '/patient/dashboard' },
     { icon: Bell, label: 'Thông báo', to: '/patient/notifications' },
     { icon: Calendar, label: 'Lịch hẹn của tôi', to: '/patient/appointments-manage' },
+    { icon: ClipboardList, label: 'Lịch sử bệnh án', to: '/patient/medical-records' },
     // { icon: Activity, label: 'Sức khỏe', to: '/demo-dashboard/health' },
     //     { icon: Pill, label: 'Thuốc', to: 'demo-dashboard/pills' },
 ];

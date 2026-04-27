@@ -1,9 +1,11 @@
 import React, { Suspense, useState } from 'react';
 import PatientList from '@/components/pages/LabTech/LabTechPage/PatientList/PatientList.jsx';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
+import { motion } from 'framer-motion';
 
 const PatientChart = React.lazy(() => import('@/components/PatientChart/PatientChart.jsx'));
 const Calendar = React.lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
+
 export default function LabTechPage() {
     const [date, setDate] = useState(new Date());
 
@@ -22,55 +24,70 @@ export default function LabTechPage() {
         <div className="flex h-full">
             {/* MAIN */}
             <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
-                {/* Header*/}
-                <header className="bg-white rounded-2xl p-6 shadow mb-6  flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    {/* LEFT */}
-                    <div className={`flex-1 sm:pl-10 transition-all duration-500 ${!openSidebar && 'pl-20'}`}>
-                        {/* GREETING */}
-                        <h1 className="text-2xl font-bold text-primary">Mừng bạn quay lại, Tuấn Phi</h1>
-                        <p className="text-gray-500 text-sm mt-1">Chúc bạn một ngày làm việc hiệu quả và chính xác</p>
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col flex-1 w-full"
+                >
+                    {/* Header*/}
+                    <header className="bg-white rounded-2xl p-6 shadow mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        {/* LEFT */}
+                        <div className={`flex-1 sm:pl-10 transition-all duration-500 ${!openSidebar && 'pl-20'}`}>
+                            {/* GREETING */}
+                            <h1 className="text-2xl font-bold text-primary">Mừng bạn quay lại, Tuấn Phi</h1>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Chúc bạn một ngày làm việc hiệu quả và chính xác
+                            </p>
 
-                        {/* QUOTE */}
-                        <div className="mt-6 border-l-4 border-primary pl-4 italic text-gray-600 max-w-lg">
-                            “Wherever the art of medicine is loved, there is also a love of humanity.”
-                            <span className="block mt-2 text-xs text-gray-400 not-italic">— Hippocrates</span>
+                            {/* QUOTE */}
+                            <div className="mt-6 border-l-4 border-primary pl-4 italic text-gray-600 max-w-lg">
+                                “Wherever the art of medicine is loved, there is also a love of humanity.”
+                                <span className="block mt-2 text-xs text-gray-400 not-italic">— Hippocrates</span>
+                            </div>
+
+                            {/* OPTIONAL SUBTEXT */}
+                            <p className="mt-3 text-xs text-gray-400">
+                                Độ chính xác của bạn góp phần cứu sống bệnh nhân mỗi ngày.
+                            </p>
                         </div>
 
-                        {/* OPTIONAL SUBTEXT */}
-                        <p className="mt-3 text-xs text-gray-400">
-                            Độ chính xác của bạn góp phần cứu sống bệnh nhân mỗi ngày.
-                        </p>
-                    </div>
-
-                    {/* RIGHT */}
-                    <div className="flex items-center gap-4">
-                        {/* IMAGE */}
-                        <div className="hidden xl:flex items-center">
-                            <img src="/labtech-welcome.png" className="max-h-[200px] w-auto object-contain" />
-                        </div>
-
-                        {/* CALENDAR */}
-                        <div className="hidden lg:block">
-                            <Suspense fallback={<div className="h-64 w-64 rounded-2xl bg-slate-100 animate-pulse" />}>
-                                <Calendar
-                                    events={myEvents}
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={(d) => d && setDate(d)}
-                                    captionLayout="dropdown"
+                        {/* RIGHT */}
+                        <div className="flex items-center gap-4">
+                            {/* IMAGE */}
+                            <div className="hidden xl:flex items-center">
+                                <img
+                                    src="/labtech-welcome.png"
+                                    className="max-h-[200px] w-auto object-contain"
+                                    alt="Welcome"
                                 />
-                            </Suspense>
+                            </div>
+
+                            {/* CALENDAR */}
+                            <div className="hidden lg:block">
+                                <Suspense
+                                    fallback={<div className="h-64 w-64 rounded-2xl bg-slate-100 animate-pulse" />}
+                                >
+                                    <Calendar
+                                        events={myEvents}
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={(d) => d && setDate(d)}
+                                        captionLayout="dropdown"
+                                    />
+                                </Suspense>
+                            </div>
                         </div>
-                    </div>
-                </header>
+                    </header>
 
-                {/* Chart */}
-                <Suspense fallback={<div className="h-40 animate-pulse bg-slate-100 rounded-2xl" />}>
-                    <PatientChart />
-                </Suspense>
+                    {/* Chart */}
+                    <Suspense fallback={<div className="h-40 animate-pulse bg-slate-100 rounded-2xl" />}>
+                        <PatientChart />
+                    </Suspense>
 
-                {/* Content box */}
-                <PatientList />
+                    {/* Content box */}
+                    <PatientList />
+                </motion.div>
             </main>
         </div>
     );

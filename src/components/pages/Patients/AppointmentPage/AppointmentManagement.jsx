@@ -6,7 +6,6 @@ import {
     User,
     FileText,
     X,
-    Eye,
     ChevronDown,
     Plus,
     Filter,
@@ -108,7 +107,6 @@ export default function AppointmentManagement() {
         setGrantingId(appointment.id);
 
         try {
-            // 1. ÉP BUỘC CHUYỂN MẠNG TRƯỚC (Nếu từ chối sẽ văng xuống catch bên dưới)
             await enforceSepolia();
 
             await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -116,11 +114,10 @@ export default function AppointmentManagement() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
 
-            // Gọi API lấy metadata grantAccess từ backend
             console.log('[Cấp quyền] Lấy metadata cho lịch hẹn:', appointment.id);
             const prepRes = await patientService.prepareGrantAccess(appointment.id);
             const prep = prepRes?.data ?? prepRes;
-            console.log(prep);
+
             const contractAddress = prep?.contractAddress;
             const doctorWallet = prep?.doctorWallet || prep?.args?.[0];
             const durationHours = Number(prep?.durationHours || prep?.args?.[1] || 24);
@@ -128,10 +125,6 @@ export default function AppointmentManagement() {
             if (!contractAddress || !doctorWallet) {
                 throw new Error('Metadata blockchain không hợp lệ — thiếu contractAddress hoặc doctorWallet');
             }
-
-            console.log('[Cấp quyền] contractAddress:', contractAddress);
-            console.log('[Cấp quyền] doctorWallet:', doctorWallet);
-            console.log('[Cấp quyền] durationHours:', durationHours);
 
             const contract = new ethers.Contract(
                 contractAddress,
@@ -145,9 +138,6 @@ export default function AppointmentManagement() {
             toast.loading('Đang chờ blockchain xác nhận...', { id: loadingToast });
             await tx.wait();
 
-            console.log('[Cấp quyền] Giao dịch thành công, txHash:', tx.hash);
-
-            // Gửi txHash lên backend để xác minh
             await patientService.verifyGrantAccess(appointment.id, tx.hash);
 
             toast.success('Cấp quyền truy cập hồ sơ thành công!', { id: loadingToast });
@@ -175,6 +165,7 @@ export default function AppointmentManagement() {
         setRevokingId(appointment.id);
 
         try {
+            await enforceSepolia();
             await window.ethereum.request({ method: 'eth_requestAccounts' });
 
             const provider = new ethers.BrowserProvider(window.ethereum);
@@ -191,9 +182,6 @@ export default function AppointmentManagement() {
                 throw new Error('Metadata blockchain không hợp lệ');
             }
 
-            console.log('[Thu hồi quyền] contractAddress:', contractAddress);
-            console.log('[Thu hồi quyền] doctorWallet:', doctorWallet);
-
             const contract = new ethers.Contract(
                 contractAddress,
                 ['function revokeAccess(address doctor) external'],
@@ -206,9 +194,6 @@ export default function AppointmentManagement() {
             toast.loading('Đang chờ blockchain xác nhận...', { id: loadingToast });
             await tx.wait();
 
-            console.log('[Thu hồi quyền] Giao dịch thành công, txHash:', tx.hash);
-
-            // Gửi txHash lên backend để xác minh
             await patientService.verifyRevokeAccess(appointment.id, tx.hash);
 
             toast.success('Thu hồi quyền truy cập thành công!', { id: loadingToast });
@@ -338,41 +323,45 @@ export default function AppointmentManagement() {
 
     if (loading) {
         return (
-            <div className="p-6 md:p-8 max-w-7xl mx-auto">
-                <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#0d7b6d] rounded-full animate-spin" />
-                    <p className="text-gray-500 text-base">Đang tải lịch hẹn...</p>
-                </div>
+            <div className="flex h-full">
+                <main className="flex-1 p-4 xl:p-6 flex flex-col items-center justify-center overflow-x-hidden overflow-y-auto">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+                    <p className="text-gray-500 text-base mt-4">Đang tải lịch hẹn...</p>
+                </main>
             </div>
         );
     }
 
     return (
         <div className="flex h-full">
-            <main className="flex-1 p-4 lg:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
+            {/* TRẢ LẠI CUỘN CHO TOÀN TRANG (overflow-y-auto) */}
+            <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
+                    /* Thêm flex-1 để khối này kéo dài hết main */
+                    className="w-full max-w-7xl mx-auto flex flex-col flex-1"
                 >
-                    <div className="p-6 md:p-8 max-w-7xl mx-auto">
-                        {/* Tiêu đề trang */}
-                        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div>
-                                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Lịch hẹn của bạn</h1>
-                                <p className="text-gray-500 text-base md:text-lg">Quản lý và theo dõi các lịch khám</p>
-                            </div>
-                            <button
-                                onClick={handleBookNew}
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
-                            >
-                                <Plus className="w-5 h-5" />
-                                <span>Đặt lịch mới</span>
-                            </button>
+                    {/* Header Box */}
+                    <header className="bg-white rounded-2xl p-6 shadow mb-6 shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex-1 sm:pl-4 transition-all duration-500">
+                            <h1 className="text-2xl font-bold text-primary">Lịch hẹn của bạn</h1>
+                            <p className="text-gray-500 text-sm mt-1">Quản lý và theo dõi các lịch khám</p>
                         </div>
+                        <button
+                            onClick={handleBookNew}
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-md font-bold hover:bg-primary/80 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer shrink-0"
+                        >
+                            <Plus className="w-5 h-5" />
+                            <span>Đặt lịch mới</span>
+                        </button>
+                    </header>
 
-                        {/* Thanh lọc */}
-                        <div className="mb-6 bg-white rounded-xl p-4 md:p-5 shadow-sm border border-gray-100">
+                    {/* Content Box: Thêm flex-1 để tự động giãn đầy không gian trống phía dưới */}
+                    <div className="bg-white rounded-2xl p-6 shadow flex flex-col flex-1">
+                        {/* Filters Area */}
+                        <div className="mb-6 pb-4 border-b border-gray-100 shrink-0">
                             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                                 <div className="flex-1">
                                     <div className="flex flex-wrap gap-2">
@@ -380,7 +369,7 @@ export default function AppointmentManagement() {
                                             <button
                                                 key={tab.value}
                                                 onClick={() => setActiveFilter(tab.value)}
-                                                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                                                className={`px-4 py-2 rounded-md font-semibold transition-all duration-300 cursor-pointer ${
                                                     activeFilter === tab.value
                                                         ? 'bg-primary text-white shadow-md'
                                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -396,7 +385,7 @@ export default function AppointmentManagement() {
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-[#0d7b6d] transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-md hover:border-primary transition-colors cursor-pointer"
                                     >
                                         <Filter className="w-4 h-4 text-gray-600" />
                                         <span className="text-sm font-semibold text-gray-700">
@@ -410,7 +399,7 @@ export default function AppointmentManagement() {
                                     </button>
 
                                     {showTimeDropdown && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                                             {timeFilters.map((filter) => (
                                                 <button
                                                     key={filter.value}
@@ -418,9 +407,9 @@ export default function AppointmentManagement() {
                                                         setTimeFilter(filter.value);
                                                         setShowTimeDropdown(false);
                                                     }}
-                                                    className={`w-full px-4 py-3 text-left text-sm font-semibold transition-colors ${
+                                                    className={`w-full px-4 py-3 text-left text-sm font-semibold transition-colors cursor-pointer ${
                                                         timeFilter === filter.value
-                                                            ? 'bg-green-50 text-[#0d7b6d]'
+                                                            ? 'bg-green-50 text-primary'
                                                             : 'text-gray-700 hover:bg-gray-50'
                                                     }`}
                                                 >
@@ -434,187 +423,175 @@ export default function AppointmentManagement() {
                         </div>
 
                         {/* Danh sách lịch hẹn */}
-                        {filteredAppointments.length > 0 ? (
-                            <div className="space-y-4">
-                                {filteredAppointments.map((appointment) => {
-                                    const statusConfig = getStatusConfig(appointment.status);
-                                    // Đang xử lý blockchain cho lịch hẹn này không
-                                    const isProcessing = grantingId === appointment.id || revokingId === appointment.id;
+                        <div className="space-y-4">
+                            {filteredAppointments.length > 0 ? (
+                                <>
+                                    {filteredAppointments.map((appointment) => {
+                                        const statusConfig = getStatusConfig(appointment.status);
+                                        const isProcessing =
+                                            grantingId === appointment.id || revokingId === appointment.id;
 
-                                    return (
-                                        <div
-                                            key={appointment.id}
-                                            className="bg-white rounded-xl p-5 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-green-200"
-                                        >
-                                            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                                                {/* Ngày & Giờ */}
-                                                <div className="flex items-center gap-4 lg:w-48 shrink-0">
-                                                    <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                                                        <Calendar className="w-6 h-6 text-textColor" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900">
-                                                            {appointment.date}
-                                                        </div>
-                                                        <div className="flex items-center gap-1 text-gray-600 text-sm mt-1">
-                                                            <Clock className="w-4 h-4" />
-                                                            <span>{appointment.time}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Dịch vụ & Bác sĩ */}
-                                                <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4">
-                                                    <div className="flex items-center gap-3 flex-1">
-                                                        <div className="p-2 bg-gray-100 rounded-lg text-gray-600">
-                                                            {appointment.serviceIcon}
+                                        return (
+                                            <div
+                                                key={appointment.id}
+                                                className="bg-white rounded-xl p-5 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-primary/30"
+                                            >
+                                                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                                                    {/* Ngày & Giờ */}
+                                                    <div className="flex items-center gap-4 lg:w-48 shrink-0">
+                                                        <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-md">
+                                                            <Calendar className="w-6 h-6 text-primary" />
                                                         </div>
                                                         <div>
                                                             <div className="font-bold text-gray-900">
-                                                                {appointment.serviceName}
+                                                                {appointment.date}
                                                             </div>
-                                                            <div className="flex items-center gap-1 text-gray-500 text-sm mt-1">
-                                                                <User className="w-4 h-4" />
-                                                                <span>
-                                                                    {appointment.doctorName || 'Đang chờ phân công'}
-                                                                </span>
+                                                            <div className="flex items-center gap-1 text-gray-600 text-sm mt-1">
+                                                                <Clock className="w-4 h-4" />
+                                                                <span>{appointment.time}</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Trạng thái */}
-                                                    <div>
-                                                        <div
-                                                            className={`inline-flex items-center px-4 py-2 rounded-lg border-2 font-bold text-sm ${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor}`}
-                                                        >
-                                                            {statusConfig.label}
+                                                    {/* Dịch vụ & Bác sĩ */}
+                                                    <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4">
+                                                        <div className="flex items-center gap-3 flex-1">
+                                                            <div>
+                                                                <div className="font-bold text-gray-900">
+                                                                    {appointment.serviceName}
+                                                                </div>
+                                                            </div>
                                                         </div>
+
+                                                        {/* Trạng thái */}
+                                                        <div>
+                                                            <div
+                                                                className={`inline-flex items-center px-4 py-2 rounded-md border-2 font-bold text-sm ${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor}`}
+                                                            >
+                                                                {statusConfig.label}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Các nút hành động */}
+                                                    <div className="grid grid-cols-2 gap-2 w-full lg:w-auto shrink-0">
+                                                        {appointment.status === 'PENDING' && (
+                                                            <button
+                                                                onClick={() => handleCancel(appointment.id)}
+                                                                className="flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-red-300 text-red-600 rounded-md font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                                <span>Hủy lịch</span>
+                                                            </button>
+                                                        )}
+
+                                                        {appointment.status === 'CONFIRMED' && (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleGrantAccess(appointment)}
+                                                                    disabled={
+                                                                        isProcessing || !!grantingId || !!revokingId
+                                                                    }
+                                                                    className="flex items-center justify-center gap-2 px-3 py-2 bg-orange-500 text-white rounded-md font-semibold hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                >
+                                                                    {grantingId === appointment.id ? (
+                                                                        <>
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                            <span>Đang xử lý...</span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <div className="flex items-center justify-center gap-1">
+                                                                            <ShieldCheck className="w-4 h-4" />
+                                                                            <span className="hidden sm:inline">
+                                                                                Cấp quyền
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </button>
+
+                                                                <button
+                                                                    onClick={() => handleRevokeAccess(appointment)}
+                                                                    disabled={
+                                                                        isProcessing || !!grantingId || !!revokingId
+                                                                    }
+                                                                    className="flex items-center justify-center gap-2 px-3 py-2 bg-white border-2 border-red-300 text-red-600 rounded-md font-semibold hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                >
+                                                                    {revokingId === appointment.id ? (
+                                                                        <>
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                            <span>Đang xử lý...</span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <div className="flex items-center justify-center gap-1">
+                                                                            <ShieldOff className="w-4 h-4" />
+                                                                            <span className="hidden sm:inline">
+                                                                                Thu hồi
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </button>
+                                                            </>
+                                                        )}
+
+                                                        {appointment.status === 'COMPLETED' && (
+                                                            <button
+                                                                onClick={() => handleViewMedicalRecord(appointment.id)}
+                                                                className="flex items-center justify-center gap-2 px-5 py-2 bg-primary text-white rounded-md font-bold hover:bg-green-700 transition-all shadow-md hover:shadow-lg cursor-pointer"
+                                                            >
+                                                                <FileText className="w-4 h-4" />
+                                                                <span>Xem hồ sơ</span>
+                                                            </button>
+                                                        )}
+
+                                                        {appointment.status === 'CANCELLED' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedAppointment(appointment);
+                                                                    setIsOpen(true);
+                                                                }}
+                                                                className="flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-md font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                                                            >
+                                                                <CalendarCheck className="w-4 h-4" />
+                                                                <span>Đặt lại</span>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
 
-                                                {/* Các nút hành động */}
-                                                <div className="grid grid-cols-2  gap-2 w-full lg:w-auto">
-                                                    {/* PENDING: chỉ hủy */}
-                                                    {appointment.status === 'PENDING' && (
-                                                        <button
-                                                            onClick={() => handleCancel(appointment.id)}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-colors"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                            <span>Hủy lịch</span>
-                                                        </button>
-                                                    )}
-
-                                                    {/* CONFIRMED: xem chi tiết + cấp quyền + thu hồi quyền */}
-                                                    {appointment.status === 'CONFIRMED' && (
-                                                        <>
-                                                            {/* Nút cấp quyền truy cập hồ sơ cho bác sĩ qua blockchain */}
-                                                            <button
-                                                                onClick={() => handleGrantAccess(appointment)}
-                                                                disabled={isProcessing || !!grantingId || !!revokingId}
-                                                                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                            >
-                                                                {grantingId === appointment.id ? (
-                                                                    <>
-                                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                                        <span>Đang xử lý...</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <ShieldCheck className="w-4 h-4" />
-                                                                        <span className="hidden md:inline">
-                                                                            Cấp quyền
-                                                                        </span>
-                                                                        <span className="md:hidden">Cấp quyền</span>
-                                                                    </>
-                                                                )}
-                                                            </button>
-
-                                                            {/* Nút thu hồi quyền truy cập */}
-                                                            <button
-                                                                onClick={() => handleRevokeAccess(appointment)}
-                                                                disabled={isProcessing || !!grantingId || !!revokingId}
-                                                                className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                            >
-                                                                {revokingId === appointment.id ? (
-                                                                    <>
-                                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                                        <span>Đang xử lý...</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <ShieldOff className="w-4 h-4" />
-                                                                        <span className="hidden md:inline">
-                                                                            Thu hồi quyền
-                                                                        </span>
-                                                                        <span className="md:hidden">Thu hồi</span>
-                                                                    </>
-                                                                )}
-                                                            </button>
-                                                        </>
-                                                    )}
-
-                                                    {/* COMPLETED: xem hồ sơ bệnh án */}
-                                                    {appointment.status === 'COMPLETED' && (
-                                                        <button
-                                                            onClick={() => handleViewMedicalRecord(appointment.id)}
-                                                            className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg font-bold hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
-                                                        >
-                                                            <FileText className="w-4 h-4" />
-                                                            <span>Xem hồ sơ bệnh án</span>
-                                                        </button>
-                                                    )}
-
-                                                    {/* CANCELLED: đặt lại */}
-                                                    {appointment.status === 'CANCELLED' && (
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedAppointment(appointment);
-                                                                setIsOpen(true);
-                                                            }}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-                                                        >
-                                                            <CalendarCheck className="w-4 h-4" />
-                                                            <span>Đặt lại</span>
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                {appointment.description && (
+                                                    <div className="mt-4 pt-4 border-t border-gray-100">
+                                                        <div className="flex items-start gap-2 text-sm">
+                                                            <FileText className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                                                            <span className="text-gray-600">
+                                                                {appointment.description}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            {/* Mô tả triệu chứng (nếu có) */}
-                                            {appointment.description && (
-                                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                                    <div className="flex items-start gap-2 text-sm">
-                                                        <FileText className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-                                                        <span className="text-gray-600">{appointment.description}</span>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            /* Trạng thái rỗng */
-                            <div className="bg-white rounded-xl p-12 shadow-sm border border-gray-100 text-center">
-                                <div className="max-w-md mx-auto">
+                                        );
+                                    })}
+                                </>
+                            ) : (
+                                /* Căn giữa dọc khi trạng thái rỗng */
+                                <div className="h-full flex flex-col items-center justify-center text-center py-12">
                                     <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <Calendar className="w-10 h-10 text-textColor" />
+                                        <Calendar className="w-10 h-10 text-primary" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-3">Bạn chưa có lịch hẹn nào</h3>
-                                    <p className="text-gray-500 mb-6">
-                                        Đặt lịch khám ngay để được chăm sóc sức khỏe tốt nhất
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Bạn chưa có lịch hẹn nào</h3>
+                                    <p className="text-gray-500 mb-6 max-w-sm">
+                                        Đặt lịch khám ngay hôm nay để được chăm sóc sức khỏe tốt nhất.
                                     </p>
                                     <button
                                         onClick={handleBookNew}
-                                        className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                                        className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-primary text-white rounded-md font-bold hover:bg-primary/80 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.02] cursor-pointer"
                                     >
                                         <Plus className="w-5 h-5" />
                                         <span>Đặt lịch ngay</span>
                                     </button>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {/* Modal đổi lịch */}
