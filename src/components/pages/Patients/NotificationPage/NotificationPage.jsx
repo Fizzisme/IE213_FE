@@ -2,6 +2,7 @@
 import { CheckCheck, Calendar, Clock, AlertCircle, Info, Bell, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { patientService } from '@/services/patientService.js';
+import { formatDateVN } from '@/utils/formater.js';
 
 export default function NotificationPage() {
     const [activeFilter, setActiveFilter] = useState('ALL');
