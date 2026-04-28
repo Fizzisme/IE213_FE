@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, AlertTriangle, Stethoscope, Microscope, User, Loader2 } from 'lucide-react';
 import { patientService } from '@/services/patientService.js';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 /**
  * Danh mục nhãn trạng thái (Status Labels)
@@ -66,6 +67,38 @@ export default function PatientMedicalRecordDetail() {
 
         if (medicalRecordId) fetchDetail();
     }, [medicalRecordId]);
+
+    // State quản lý hiệu ứng loading khi bấm nút verify blockchain
+    const [isVerifying, setIsVerifying] = useState(false);
+
+    /**
+     * Hàm gọi API đối chiếu tính toàn vẹn hồ sơ với Blockchain
+     */
+    const handleVerifyBlockchain = async () => {
+        if (isVerifying) return;
+        setIsVerifying(true);
+
+        const loadingToast = toast.loading('Đang đối chiếu dữ liệu với Blockchain...');
+
+        try {
+            // Lưu ý: Cần đảm bảo hàm verifyMedicalRecord đã được định nghĩa trong patientService
+            const res = await patientService.verifyMedicalRecord(medicalRecordId);
+            const verifyData = res?.data?.data || res?.data || res;
+
+            if (verifyData?.isValid) {
+                toast.success('Hồ sơ toàn vẹn và khớp với dữ liệu trên Blockchain!', { id: loadingToast });
+            } else {
+                toast.error('Cảnh báo: Hồ sơ đã bị chỉnh sửa hoặc không khớp với Blockchain!', { id: loadingToast });
+            }
+        } catch (err) {
+            console.error('Verify error:', err);
+            toast.error(err?.response?.data?.message || err?.message || 'Không thể đối chiếu hồ sơ lúc này.', {
+                id: loadingToast,
+            });
+        } finally {
+            setIsVerifying(false);
+        }
+    };
 
     // ================= TRẠNG THÁI LOADING (FULL PAGE) =================
     if (loading) {
@@ -134,18 +167,36 @@ export default function PatientMedicalRecordDetail() {
                             </p>
                         </div>
 
-                        {/* Badge hiển thị trạng thái hồ sơ hiện tại */}
-                        <span
-                            className={`text-center items-center px-5 py-2.5 rounded-md text-sm font-bold tracking-wide border-2 ${
-                                isComplete
-                                    ? 'bg-primary text-white'
-                                    : isWaitingResult
-                                    ? 'bg-secondary/20 text-secondary'
-                                    : 'border-yellow-200 bg-yellow-50 text-yellow-700'
-                            }`}
-                        >
-                            {STATUS_LABELS[record?.status] || record?.status || 'KHÔNG XÁC ĐỊNH'}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Nút Verify Blockchain - Chỉ hiển thị khi hồ sơ đã hoàn thành (nếu muốn, có thể bỏ điều kiện isComplete) */}
+                            {isComplete && (
+                                <button
+                                    onClick={handleVerifyBlockchain}
+                                    disabled={isVerifying}
+                                    className="flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-bold bg-primary text-white border hover:bg-primary/80 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                                >
+                                    {isVerifying ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <ShieldCheck className="w-4 h-4" />
+                                    )}
+                                    Đối chiếu Blockchain
+                                </button>
+                            )}
+
+                            {/* Badge hiển thị trạng thái hồ sơ hiện tại */}
+                            <span
+                                className={`text-center items-center px-5 py-2.5 rounded-md text-sm font-bold tracking-wide border-2 ${
+                                    isComplete
+                                        ? 'bg-primary text-white'
+                                        : isWaitingResult
+                                        ? 'bg-secondary/20 text-secondary'
+                                        : 'border-yellow-200 bg-yellow-50 text-yellow-700'
+                                }`}
+                            >
+                                {STATUS_LABELS[record?.status] || record?.status || 'KHÔNG XÁC ĐỊNH'}
+                            </span>
+                        </div>
                     </header>
 
                     {/* ================= BỐ CỤC NỘI DUNG (2 CỘT) ================= */}
