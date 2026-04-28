@@ -292,7 +292,7 @@ export default function AuthPage() {
                             {/* Nội dung text của Slide hiện hành */}
                             <div className="text-left">
                                 <h2 className="text-xl font-semibold mb-2">{SLIDES[activeSlide].title}</h2>
-                                <p className="text-sm opacity-80 min-h-[60px]">{SLIDES[activeSlide].desc}</p>
+                                <p className="text-sm opacity-80 min-h-[80px]">{SLIDES[activeSlide].desc}</p>
                             </div>
 
                             {/* Các nút điều hướng dot (chấm tròn) cho Carousel */}
