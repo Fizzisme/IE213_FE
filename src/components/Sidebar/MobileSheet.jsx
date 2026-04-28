@@ -39,6 +39,7 @@ export default function MobileSheet({ documents }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors z-40"
                 whileTap={{ scale: 0.95 }}
+                aria-label="Mở menu điều hướng"
             >
                 <img src="/hamburger-button.png" className={'w-10 h-10'} alt="" />
             </motion.button>
