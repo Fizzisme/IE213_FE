@@ -95,8 +95,6 @@ export default function DoctorPatientDetail() {
 
             const createRes = res.data;
 
-            console.log(createRes);
-
             const medicalRecordId = createRes?.medicalRecordId;
             const recordHash = createRes?.recordHash;
             const blockchain = createRes?.blockchain;
@@ -113,7 +111,7 @@ export default function DoctorPatientDetail() {
             }
 
             await enforceSepolia();
-            console.log();
+
             await window.ethereum.request({ method: 'eth_requestAccounts' });
 
             const provider = new ethers.BrowserProvider(window.ethereum);
