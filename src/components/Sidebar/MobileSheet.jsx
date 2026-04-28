@@ -2,12 +2,30 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
-
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { FileText } from 'lucide-react';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
+
+const labelVariants = {
+    open: {
+        opacity: 1,
+        maxWidth: 300,
+        transition: {
+            maxWidth: { duration: 0.5, ease: 'easeInOut' },
+            opacity: { duration: 0.2, delay: 0.1 }, // fade in sau khi đã mở rộng
+        },
+    },
+    closed: {
+        opacity: 0,
+        maxWidth: 0,
+        transition: {
+            opacity: { duration: 0.1 }, // fade out ngay
+            maxWidth: { duration: 0.5, ease: 'easeInOut' },
+        },
+    },
+};
 
 const sectionVariants = {
     open: {
