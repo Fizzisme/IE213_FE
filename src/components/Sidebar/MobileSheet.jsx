@@ -8,6 +8,23 @@ import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { FileText } from 'lucide-react';
 
+const sectionVariants = {
+    open: {
+        opacity: 1,
+        maxHeight: 40,
+        marginTop: '1rem',
+        marginBottom: '0.25rem',
+        transition: { duration: 0.3, ease: 'easeInOut' },
+    },
+    closed: {
+        opacity: 0,
+        maxHeight: 0,
+        marginTop: 0,
+        marginBottom: 0,
+        transition: { duration: 0.3, ease: 'easeInOut' },
+    },
+};
+
 const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
     return (
         <NavLink to={to} onClick={onClose}>
