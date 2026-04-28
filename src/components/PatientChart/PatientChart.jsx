@@ -184,6 +184,7 @@ export default function PatientChart() {
         <div className="bg-white p-5 rounded-2xl shadow mb-6 hidden sm:block">
             <p className="text-gray-400 text-sm mb-3">Thống kê bệnh nhân trong 1 tháng</p>
             <ReactEChartsCore
+                echarts={echarts}
                 ref={chartRef}
                 option={option}
                 style={{ height: 250, width: '100%' }}
