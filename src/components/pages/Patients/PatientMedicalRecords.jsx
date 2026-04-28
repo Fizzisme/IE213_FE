@@ -111,9 +111,7 @@ export default function PatientMedicalRecords() {
                                 {[
                                     { label: 'Tất cả', value: '' },
                                     { label: 'Chờ Lab', value: 'CREATED' },
-                                    { label: 'Lab đang xử lý', value: 'WAITING_RESULT' },
                                     { label: 'Đã có kết quả', value: 'HAS_RESULT' },
-                                    { label: 'Đã chẩn đoán', value: 'DIAGNOSED' },
                                     { label: 'Hoàn thành', value: 'COMPLETE' },
                                 ].map((item) => (
                                     <button

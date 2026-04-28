@@ -320,16 +320,6 @@ export default function DoctorAppointments() {
                                                             </button>
                                                         </>
                                                     )}
-
-                                                    {/* Nút Xem chi tiết: Hiển thị full width nếu không có các nút thao tác khác */}
-                                                    <button
-                                                        className={`col-span-${
-                                                            a.status === 'PENDING' ? '2' : '2'
-                                                        } flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-bold border-2 border-gray-200 text-gray-700 bg-white rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer`}
-                                                    >
-                                                        <FileText className="w-4 h-4" />
-                                                        <span>Xem chi tiết</span>
-                                                    </button>
                                                 </div>
                                             </div>
                                         );
