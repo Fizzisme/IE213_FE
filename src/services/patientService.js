@@ -137,6 +137,14 @@ class PatientService {
         });
     }
 
+    /**
+     * Đối chiếu tính toàn vẹn của hồ sơ bệnh án với dữ liệu lưu trữ trên mạng lưới Blockchain.
+     * @param {string} medicalRecordId - ID định danh của hồ sơ cần kiểm tra.
+     */
+    async verifyMedicalRecord(medicalRecordId) {
+        return this.request(`/patients/medical-records/${medicalRecordId}/verify`);
+    }
+
     // ================= QUẢN LÝ HỒ SƠ CÁ NHÂN (PROFILE) =================
 
     /**
