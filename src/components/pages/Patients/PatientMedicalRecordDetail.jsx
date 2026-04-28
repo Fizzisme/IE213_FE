@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, AlertTriangle, Stethoscope, Microscope, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Stethoscope, Microscope, Loader2, ShieldCheck } from 'lucide-react';
 import { patientService } from '@/services/patientService.js';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
