@@ -1,12 +1,30 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 
 import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
 import { FileText } from 'lucide-react';
+import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
+
+const sectionVariants = {
+    open: {
+        opacity: 1,
+        maxHeight: 40,
+        marginTop: '1rem',
+        marginBottom: '0.25rem',
+        transition: { duration: 0.3, ease: 'easeInOut' },
+    },
+    closed: {
+        opacity: 0,
+        maxHeight: 0,
+        marginTop: 0,
+        marginBottom: 0,
+        transition: { duration: 0.3, ease: 'easeInOut' },
+    },
+};
 
 const sectionVariants = {
     open: {
@@ -43,6 +61,7 @@ const NavItem = ({ icon: Icon, label, active, to, onClose }) => {
 
 export default function MobileSheet({ documents }) {
     const { navItems } = useLayoutStore();
+    const { openSidebar } = useSidebarStore();
 
     const [isOpen, setIsOpen] = useState(false);
     const path = useLocation().pathname;
