@@ -4,20 +4,40 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { patientService } from '@/services/patientService.js';
 
+/**
+ * Hàm tiện ích: Ghép các class CSS có điều kiện thành một chuỗi duy nhất.
+ * Lọc bỏ các giá trị falsy (null, undefined, false) trước khi nối lại.
+ */
 const cx = (...classes) => classes.filter(Boolean).join(' ');
 
+/**
+ * Hàm tiện ích: Chuẩn hóa cấu trúc phản hồi từ API.
+ * Lưu ý: Một số endpoint trả về { data: [...] }, một số trả về thẳng [...].
+ * Hàm này đảm bảo luôn lấy được payload thực sự, bất kể cấu trúc bọc ngoài.
+ */
 const unwrap = (res) => res?.data ?? res;
 
+/**
+ * Component AppointmentBooking
+ * Trang đặt lịch khám dành cho Bệnh nhân.
+ * Cho phép chọn ngày, giờ, dịch vụ và nhập mô tả triệu chứng
+ * trước khi xác nhận tạo lịch hẹn với bác sĩ.
+ */
 export default function AppointmentBooking() {
+    // Quản lý trạng thái các lựa chọn của người dùng trên form
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
     const [patientDescription, setPatientDescription] = useState('');
 
+    // Danh sách dịch vụ tải về từ API và trạng thái loading khi submit
     const [services, setServices] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
 
-    // Tải danh sách dịch vụ khi component mount
+    /**
+     * Side Effect: Tải danh sách dịch vụ khám khi component lần đầu mount.
+     * Mảng dependency rỗng [] đảm bảo chỉ gọi API đúng một lần duy nhất.
+     */
     useEffect(() => {
         const fetchServices = async () => {
             try {
@@ -33,7 +53,12 @@ export default function AppointmentBooking() {
         fetchServices();
     }, []);
 
-    // Tạo danh sách 7 ngày từ hôm nay
+    /**
+     * Tối ưu hóa hiệu suất (Performance) bằng kỹ thuật Memoization.
+     * Sử dụng useMemo để tính toán danh sách 7 ngày kế tiếp đúng một lần,
+     * tránh tính lại mỗi khi component re-render vì lý do không liên quan.
+     * Lưu ý: Tháng trong đối tượng Date của JavaScript bắt đầu từ 0 (tháng 3 là index 2).
+     */
     const dates = useMemo(() => {
         const result = [];
         const today = new Date();
@@ -53,6 +78,11 @@ export default function AppointmentBooking() {
         return result;
     }, []);
 
+    /**
+     * Dữ liệu các khung giờ khám cố định trong ngày.
+     * Lưu ý: Thuộc tính available=false đánh dấu giờ đã kín — button sẽ bị disabled,
+     * không cho phép người dùng chọn.
+     */
     const timeSlots = [
         { time: '08:00', available: true },
         { time: '09:00', available: true },
@@ -64,11 +94,18 @@ export default function AppointmentBooking() {
         { time: '16:00', available: true },
     ];
 
+    // Tra cứu object đầy đủ của ngày và dịch vụ đang được chọn từ danh sách
     const selectedDateObj = selectedDate !== null ? dates[selectedDate] : null;
     const selectedServiceObj = services.find((s) => s._id === selectedService);
 
+    // Form chỉ hợp lệ khi cả 3 trường bắt buộc đều đã được chọn
     const isFormValid = Boolean(selectedDateObj && selectedTime && selectedService);
 
+    /**
+     * Hàm trả về icon phù hợp dựa trên tên dịch vụ.
+     * Lưu ý: So sánh theo chuỗi tiếng Việt không dấu (lowercase) để tránh lỗi encoding.
+     * Mặc định trả về icon FileText nếu không khớp bất kỳ điều kiện nào.
+     */
     const getServiceIcon = (name) => {
         if (!name) return <FileText className="w-5 h-5" />;
         const lower = name.toLowerCase();
@@ -77,7 +114,11 @@ export default function AppointmentBooking() {
         return <Stethoscope className="w-5 h-5" />;
     };
 
-    // Ghép ngày và giờ thành chuỗi ISO
+    /**
+     * Hàm xây dựng chuỗi ISO 8601 từ ngày và giờ đã chọn riêng lẻ.
+     * Lưu ý: Tạo bản sao của dateObj (getTime()) trước khi setHours để tránh
+     * mutate trực tiếp object gốc trong mảng dates — tránh bug khó phát hiện.
+     */
     const buildDateTime = () => {
         if (!selectedDateObj || !selectedTime) return null;
 
@@ -92,6 +133,7 @@ export default function AppointmentBooking() {
         return date.toISOString();
     };
 
+    // Đưa toàn bộ form về trạng thái ban đầu sau khi đặt lịch thành công hoặc người dùng hủy
     const resetForm = () => {
         setSelectedDate(null);
         setSelectedTime(null);
@@ -99,10 +141,14 @@ export default function AppointmentBooking() {
         setPatientDescription('');
     };
 
-    // Xác nhận đặt lịch — sau khi thành công reset form ngay,
-    // việc cấp quyền sẽ thực hiện ở trang "Lịch hẹn của bạn"
-    // sau khi bác sĩ xác nhận (status CONFIRMED)
+    /**
+     * Xử lý sự kiện xác nhận đặt lịch.
+     * Lưu ý: Reset form ngay sau khi API thành công — không chờ bác sĩ xác nhận.
+     * Việc cấp quyền truy cập hồ sơ được thực hiện riêng ở trang "Lịch hẹn của bạn"
+     * sau khi bác sĩ chuyển trạng thái lịch hẹn sang CONFIRMED.
+     */
     const handleConfirm = async () => {
+        // Chặn submit khi form chưa hợp lệ hoặc đang trong quá trình gọi API
         if (!isFormValid || isCreating) return;
 
         setIsCreating(true);
@@ -126,21 +172,23 @@ export default function AppointmentBooking() {
             console.error('[Đặt lịch] Lỗi:', err);
             toast.error(err?.message || 'Tạo lịch hẹn không thành công');
         } finally {
+            // Luôn tắt trạng thái loading dù thành công hay thất bại
             setIsCreating(false);
         }
     };
 
     return (
         <div className="flex h-full">
-            {/* MAIN CONTAINER */}
+            {/* ================= MAIN CONTAINER ================= */}
             <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
+                {/* Sử dụng motion.div từ framer-motion để tạo hiệu ứng trượt nhẹ (y: 30 -> 0) khi trang tải */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     className="w-full max-w-7xl mx-auto"
                 >
-                    {/* Header Box */}
+                    {/* ================= PHẦN HEADER TỔNG QUAN ================= */}
                     <header className="bg-white rounded-2xl p-6 shadow mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1 sm:pl-4 transition-all duration-500">
                             <h1 className="text-2xl font-bold text-primary">Đặt lịch khám</h1>
@@ -148,17 +196,18 @@ export default function AppointmentBooking() {
                         </div>
                     </header>
 
-                    {/* Main Content */}
+                    {/* Layout 2 cột: Cột trái (60%) chứa form, Cột phải (40%) chứa tóm tắt */}
                     <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-6">
                         {/* ===== CỘT TRÁI: Form đặt lịch ===== */}
                         <div className="space-y-6">
-                            {/* Chọn ngày */}
+                            {/* ================= CHỌN NGÀY ================= */}
                             <div className="bg-white rounded-2xl p-6 shadow">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Calendar className="w-5 h-5 text-primary" />
                                     <h2 className="text-lg font-bold text-gray-900">Chọn ngày</h2>
                                 </div>
 
+                                {/* Hiển thị 7 ngày kế tiếp dưới dạng các nút bấm có thể chọn */}
                                 <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2 sm:gap-3 whitespace-nowrap">
                                     {dates.map((date) => (
                                         <button
@@ -172,6 +221,7 @@ export default function AppointmentBooking() {
                                             )}
                                         >
                                             <div className="text-center">
+                                                {/* Tên thứ trong tuần (Th 2, Th 3...) */}
                                                 <div
                                                     className={cx(
                                                         'text-xs font-semibold mb-1',
@@ -180,6 +230,7 @@ export default function AppointmentBooking() {
                                                 >
                                                     {date.dayName}
                                                 </div>
+                                                {/* Số ngày trong tháng */}
                                                 <div
                                                     className={cx(
                                                         'text-lg sm:text-xl font-bold',
@@ -194,7 +245,7 @@ export default function AppointmentBooking() {
                                 </div>
                             </div>
 
-                            {/* Chọn giờ */}
+                            {/* ================= CHỌN GIỜ ================= */}
                             <div className="bg-white rounded-2xl p-6 shadow">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Clock className="w-5 h-5 text-primary" />
@@ -209,6 +260,7 @@ export default function AppointmentBooking() {
                                             disabled={!slot.available}
                                             className={cx(
                                                 'p-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base border-2',
+                                                // 3 trạng thái hiển thị: đã kín (xám) | đang chọn (xanh đậm) | còn trống (trắng)
                                                 !slot.available
                                                     ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100'
                                                     : selectedTime === slot.time
@@ -222,7 +274,7 @@ export default function AppointmentBooking() {
                                 </div>
                             </div>
 
-                            {/* Chọn dịch vụ */}
+                            {/* ================= CHỌN DỊCH VỤ ================= */}
                             <div className="bg-white rounded-2xl p-6 shadow">
                                 <div className="flex items-center gap-2 mb-4">
                                     <FileText className="w-5 h-5 text-primary" />
@@ -231,6 +283,7 @@ export default function AppointmentBooking() {
 
                                 <div className="space-y-3">
                                     {services.map((service) => {
+                                        // Kiểm tra dịch vụ này có đang được chọn không để áp dụng style active
                                         const active = selectedService === service._id;
                                         return (
                                             <button
@@ -243,6 +296,7 @@ export default function AppointmentBooking() {
                                                         : 'border-gray-100 bg-gray-50 hover:bg-white hover:border-primary/50',
                                                 )}
                                             >
+                                                {/* Icon dịch vụ — nền xanh khi active, nền trắng khi chưa chọn */}
                                                 <div
                                                     className={cx(
                                                         'p-3 rounded-lg transition-colors',
@@ -262,6 +316,7 @@ export default function AppointmentBooking() {
                                                     >
                                                         {service.name}
                                                     </div>
+                                                    {/* Giới hạn mô tả 2 dòng bằng line-clamp để tránh vỡ layout */}
                                                     <div className="text-sm text-gray-500 mt-1 line-clamp-2">
                                                         {service.description || 'Dịch vụ y tế chuyên nghiệp'}
                                                     </div>
@@ -272,9 +327,10 @@ export default function AppointmentBooking() {
                                 </div>
                             </div>
 
-                            {/* Mô tả triệu chứng */}
+                            {/* ================= MÔ TẢ TRIỆU CHỨNG ================= */}
                             <div className="bg-white rounded-2xl p-6 shadow">
                                 <label className="block text-lg font-bold text-gray-900 mb-3">Mô tả triệu chứng</label>
+                                {/* Trường tùy chọn — giúp bác sĩ chuẩn bị trước khi khám */}
                                 <textarea
                                     value={patientDescription}
                                     onChange={(e) => setPatientDescription(e.target.value)}
@@ -286,12 +342,14 @@ export default function AppointmentBooking() {
                         </div>
 
                         {/* ===== CỘT PHẢI: Tóm tắt lịch khám ===== */}
+                        {/* sticky giữ panel này cố định khi người dùng cuộn cột trái */}
                         <div className="lg:sticky lg:top-8 h-fit">
                             <div className="bg-white rounded-2xl p-6 shadow flex flex-col h-full">
                                 <h2 className="text-xl font-bold text-gray-900 mb-6">Tóm tắt thông tin</h2>
 
-                                {/* Thông tin đã chọn */}
+                                {/* ================= THÔNG TIN ĐÃ CHỌN ================= */}
                                 <div className="space-y-4 mb-8">
+                                    {/* Hiển thị '---' khi chưa có lựa chọn để tránh ô trống gây mất thẩm mỹ */}
                                     <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
                                         <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0 text-primary">
                                             <Calendar className="w-5 h-5" />
@@ -329,20 +387,22 @@ export default function AppointmentBooking() {
                                     </div>
                                 </div>
 
-                                {/* Giá tiền */}
+                                {/* ================= PHÍ DỊCH VỤ ================= */}
+                                {/* Gradient từ màu primary sang accent để tạo điểm nhấn thị giác */}
                                 <div className="mb-6 p-5 bg-gradient-to-r from-primary to-[#04d3b8] rounded-xl text-white shadow-md">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <BadgeDollarSign className={'h-4 w-4 lg:h-6 lg:w-6'} />
                                             <span className="font-semibold text-base">Phí dịch vụ</span>
                                         </div>
+                                        {/* Định dạng số tiền theo chuẩn tiếng Việt (dấu chấm phân cách hàng nghìn) */}
                                         <div className="text-xl sm:text-2xl font-bold">
                                             {selectedServiceObj?.price?.toLocaleString('vi-VN') || '---'}
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Ghi chú */}
+                                {/* ================= GHI CHÚ QUY TRÌNH ================= */}
                                 <div className="mb-6 p-4 rounded-xl bg-secondary/20 text-primary text-sm flex items-start gap-2">
                                     <Info className={'h-4 w-4 lg:h-6 lg:w-6'} />
                                     <span>
@@ -351,8 +411,9 @@ export default function AppointmentBooking() {
                                     </span>
                                 </div>
 
-                                {/* Buttons */}
+                                {/* ================= NÚT HÀNH ĐỘNG ================= */}
                                 <div className="space-y-3 mt-auto">
+                                    {/* Nút xác nhận: disabled khi form chưa hợp lệ hoặc đang gọi API */}
                                     <button
                                         onClick={handleConfirm}
                                         disabled={!isFormValid || isCreating}
@@ -363,9 +424,11 @@ export default function AppointmentBooking() {
                                                 : 'bg-gray-300 cursor-not-allowed',
                                         )}
                                     >
+                                        {/* Phản hồi trực quan: đổi label thành "Đang xử lý..." khi đang gọi API */}
                                         {isCreating ? 'Đang xử lý...' : 'Xác nhận đặt lịch'}
                                     </button>
 
+                                    {/* Nút hủy: reset toàn bộ form về trạng thái ban đầu */}
                                     <button
                                         type="button"
                                         onClick={resetForm}

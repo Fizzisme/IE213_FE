@@ -1,3 +1,5 @@
+// src/components/pages/AuthPage.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
@@ -7,13 +9,18 @@ import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
+
+/**
+ * Định nghĩa keyframes dạng chuỗi để tạo hiệu ứng xoay (spin) cho trạng thái loading.
+ * Sẽ được tự động inject vào thẻ <style> của trình duyệt.
+ */
 const SPIN_KEYFRAMES = `
    @keyframes btnSpin {
        to { transform: rotate(360deg); }
    }
 `;
 
-// Inject keyframes once on mount
+// Inject keyframes vào document head một lần duy nhất khi file được load
 if (typeof document !== 'undefined' && !document.getElementById('btnspin-keyframes')) {
     const styleTag = document.createElement('style');
     styleTag.id = 'btnspin-keyframes';
@@ -21,6 +28,9 @@ if (typeof document !== 'undefined' && !document.getElementById('btnspin-keyfram
     document.head.appendChild(styleTag);
 }
 
+/**
+ * Mảng chứa dữ liệu tĩnh cho phần Carousel (Slide ảnh và chữ) ở cột bên trái.
+ */
 const SLIDES = [
     {
         title: 'Nâng cao hiệu quả chăm sóc sức khỏe',
@@ -48,19 +58,30 @@ const SLIDES = [
     },
 ];
 
+// Thời gian chuyển slide tự động (ms)
 const CAROUSEL_INTERVAL = 4000;
+
+// Độ trễ hiển thị hiệu ứng check mark trước khi chuyển trang (ms)
 const ANIMATION_DELAY = 900;
+
+// Bản đồ mapping điều hướng dựa trên role của người dùng
 const ROUTES_BY_ROLE = {
     PATIENT: '/patient/dashboard',
     LAB_TECH: '/lab-tech/dashboard',
-    DOCTOR: '/doctor/dashboard',
+    DOCTOR: '/Doctor/dashboard',
     ADMIN: '/admin/dashboard',
 };
 
 // ── Reusable Components ─────────────────────────────────────────────────────────
 
+/**
+ * Component Button có hỗ trợ animation chuyên dụng cho tiến trình bất đồng bộ.
+ * Co rút thành hình tròn loading và nở ra thành icon Check khi thành công.
+ */
 const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false, type = 'button' }) => {
+    // Nút được coi là đang hoạt động nếu ở trạng thái loading hoặc success
     const active = loading || success;
+
     return (
         <div className={`${fullWidth ? 'w-full flex justify-center' : 'w-36'}`}>
             <button
@@ -69,6 +90,7 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                 disabled={active}
                 className={`h-11 transition-all duration-300 flex items-center justify-center border-none relative overflow-hidden shrink-0
                    ${
+                       // Xử lý logic co/giãn chiều rộng tùy thuộc vào trạng thái
                        active
                            ? 'w-11 rounded-full cursor-default'
                            : fullWidth
@@ -78,6 +100,7 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                    ${success ? 'bg-primary' : 'bg-teal-700 hover:bg-teal-800'}
                `}
             >
+                {/* Lớp hiển thị Label mặc định (chữ) */}
                 <span
                     className={`
                        absolute
@@ -88,6 +111,8 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                 >
                     {children}
                 </span>
+
+                {/* Lớp hiển thị Loading Spinner */}
                 <span
                     className={`
                        absolute w-5 h-5 border-2 border-white/30 border-t-white rounded-full
@@ -98,6 +123,8 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
                         animation: loading ? 'btnSpin 0.8s linear infinite' : 'none',
                     }}
                 />
+
+                {/* Lớp hiển thị Icon Check thành công */}
                 <span
                     className={`
                        absolute flex items-center justify-center
@@ -113,6 +140,9 @@ const AnimatedButton = ({ onClick, loading, success, children, fullWidth = false
     );
 };
 
+/**
+ * Wrapper hiển thị nội dung bên trong nút bấm MetaMask (Logo + Text).
+ */
 const MetamaskButtonContent = ({ isIdle }) => (
     <span className="flex items-center gap-3">
         <img
@@ -128,26 +158,42 @@ const MetamaskButtonContent = ({ isIdle }) => (
 );
 
 // ── Main Component ─────────────────────────────────────────────────────────────
+
 export default function AuthPage() {
     const navigate = useNavigate();
+
+    // Trích xuất hàm xử lý login Web3 từ Zustand store
     const loginMetaMask = useAuthStore((s) => s.loginMetaMask);
+
+    // Quản lý trạng thái animation của nút bấm: 'idle' | 'loading' | 'success'
     const [metamaskBtn, setMetamaskBtn] = useState('idle');
     const [activeSlide, setActiveSlide] = useState(0);
+
+    // Kiểm tra xem trình duyệt có cài sẵn ví (như MetaMask) thông qua object window.ethereum hay không
     const hasWallet = !!window.ethereum;
 
+    /**
+     * Hàm tính toán slide kế tiếp theo vòng lặp.
+     * Sử dụng useCallback để giữ tham chiếu ổn định cho useEffect.
+     */
     const nextSlide = useCallback(() => {
         setActiveSlide((prev) => (prev + 1) % SLIDES.length);
     }, []);
 
+    // Thiết lập bộ đếm thời gian chuyển slide tự động
     useEffect(() => {
         const timer = setInterval(nextSlide, CAROUSEL_INTERVAL);
         return () => clearInterval(timer);
     }, [nextSlide]);
 
+    /**
+     * Hàm điều hướng người dùng tới trang dashboard tương ứng với role.
+     */
     const handleNavigate = useCallback(
         (role, loginMethod) => {
             const route = ROUTES_BY_ROLE[role];
             if (route) {
+                // Đẩy thông tin loginMethod qua state của React Router
                 navigate(route, { state: { loginMethod } });
             } else {
                 toast.error(`Role không được hỗ trợ: ${role}`);
@@ -156,35 +202,41 @@ export default function AuthPage() {
         [navigate],
     );
 
+    /**
+     * Luồng xử lý chính: Đăng nhập bằng chữ ký số thông qua MetaMask.
+     */
     const handleMetaMaskAuth = async () => {
+        // Kiểm tra trước: Bắt buộc phải có extension Web3
         if (!hasWallet) {
             toast.error('Vui lòng cài đặt metamask');
             return;
         }
 
+        // Kích hoạt trạng thái loading cho nút bấm
         setMetamaskBtn('loading');
 
         try {
+            // Lazy load thư viện ethers để tối ưu hiệu suất initial load
             const { ethers } = await import('ethers');
 
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const walletAddress = await signer.getAddress();
 
-            // ✅ Giai đoạn 1: Lấy Nonce
+            // Giai đoạn 1: Gọi API lấy nonce ngẫu nhiên từ server để chống Replay Attack
             const phase1 = await authService.getNonce(walletAddress);
             const nonce = phase1?.data?.nonce || phase1?.nonce;
 
-            // Giai đoạn 2: Ký lần 1
+            // Giai đoạn 2: Yêu cầu người dùng ký xác thực phiên đăng nhập bằng Nonce vừa lấy
             toast.info('Vui lòng ký xác thực đăng nhập...');
             const signature = await signer.signMessage(nonce);
 
-            // Giai đoạn 3: Ký lần 2
+            // Giai đoạn 3: Yêu cầu người dùng ký xác nhận tham gia hệ thống (Điều khoản nội bộ)
             toast.info('Vui lòng ký xác nhận tham gia hệ thống...');
             const msgHash = ethers.keccak256(ethers.toUtf8Bytes('REGISTER_ZUNI_PATIENT'));
             const registrationSignature = await signer.signMessage(ethers.getBytes(msgHash));
 
-            // Giai đoạn 4: Login
+            // Giai đoạn 4: Gửi toàn bộ dữ liệu (địa chỉ, chữ ký login, chữ ký đăng ký) về server để sinh Token
             const userData = await loginMetaMask(walletAddress, signature, registrationSignature);
 
             if (!userData) {
@@ -193,15 +245,20 @@ export default function AuthPage() {
                 return;
             }
 
+            // Giai đoạn 5: Login thành công, kích hoạt hiệu ứng check mark và chuyển hướng
             setMetamaskBtn('success');
             setTimeout(() => handleNavigate(userData.role, 'metamask'), ANIMATION_DELAY);
         } catch (error) {
-            console.error('❌ MetaMask error:', error);
+            console.error('MetaMask error:', error);
+
+            // Xử lý rẽ nhánh thông báo lỗi theo mã code chuẩn của MetaMask EIP-1193
             if (error.code === 'ACTION_REJECTED' || error.code === 4001) {
                 toast.error('Bạn đã từ chối ký xác nhận!');
             } else {
                 toast.warning(error.message || 'Kết nối MetaMask thất bại!');
             }
+
+            // Reset trạng thái nút về ban đầu nếu lỗi
             setMetamaskBtn('idle');
         }
     };
@@ -210,9 +267,10 @@ export default function AuthPage() {
         <div className="min-h-screen bg-[#F4F7F6] flex items-center justify-center p-4 md:p-6 font-sans">
             <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-[40%_60%]">
-                    {/* LEFT COLUMN */}
+                    {/* LEFT COLUMN - Khu vực hiển thị Slide */}
                     <div className="bg-primary p-8 md:p-10 hidden md:flex flex-col text-white gap-10 justify-center">
                         <div className="flex justify-center relative h-56">
+                            {/* Render danh sách ảnh của slide, sử dụng CSS opacity để tạo hiệu ứng chuyển đổi */}
                             {SLIDES.map((s, i) => (
                                 <img
                                     key={i}
@@ -223,6 +281,7 @@ export default function AuthPage() {
                                         transition: 'opacity 0.6s ease',
                                     }}
                                     alt={s.title}
+                                    // Ưu tiên tải (eager/high) cho slide đầu tiên để tối ưu LCP (Largest Contentful Paint)
                                     loading={i === 0 ? 'eager' : 'lazy'}
                                     fetchpriority={i === 0 ? 'high' : 'auto'}
                                 />
@@ -230,11 +289,13 @@ export default function AuthPage() {
                         </div>
 
                         <div>
+                            {/* Nội dung text của Slide hiện hành */}
                             <div className="text-left">
                                 <h2 className="text-xl font-semibold mb-2">{SLIDES[activeSlide].title}</h2>
                                 <p className="text-sm opacity-80 min-h-[60px]">{SLIDES[activeSlide].desc}</p>
                             </div>
 
+                            {/* Các nút điều hướng dot (chấm tròn) cho Carousel */}
                             <div className="flex justify-center gap-2 mt-4">
                                 {SLIDES.map((_, i) => (
                                     <button
@@ -250,9 +311,9 @@ export default function AuthPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN */}
+                    {/* RIGHT COLUMN - Khu vực Form Xác thực */}
                     <div className="px-8 pb-8 pt-4 md:p-12 flex flex-col justify-center h-full">
-                        {/* Header */}
+                        {/* Khu vực Header chứa Logo */}
                         <div className="mb-10">
                             <p className={'flex justify-center items-center'}>
                                 <img
@@ -271,7 +332,7 @@ export default function AuthPage() {
                             </p>
                         </div>
 
-                        {/* Quote */}
+                        {/* Đoạn trích dẫn định hướng (Quote) */}
                         <div className="mb-10 p-4 rounded-2xl bg-slate-50 border border-slate-100">
                             <p className="italic text-slate-600 text-sm leading-relaxed">
                                 "Not your keys, not your crypto."
@@ -279,7 +340,7 @@ export default function AuthPage() {
                             <p className="text-xs text-slate-400 mt-1 not-italic">— Web3 Principle</p>
                         </div>
 
-                        {/* Divider */}
+                        {/* Đường kẻ chia tách trực quan (Divider) */}
                         <div className="relative mb-6">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-slate-200" />
@@ -291,7 +352,7 @@ export default function AuthPage() {
                             </div>
                         </div>
 
-                        {/* Button */}
+                        {/* Nút bấm tương tác xử lý Web3 Login */}
                         <AnimatedButton
                             onClick={handleMetaMaskAuth}
                             loading={metamaskBtn === 'loading'}
@@ -303,6 +364,7 @@ export default function AuthPage() {
                         </AnimatedButton>
                     </div>
                 </div>
+                {/* Component hiển thị thông báo popup cấp độ trang */}
                 <Toaster className={'bg-primary'} />
             </div>
         </div>

@@ -1,3 +1,5 @@
+// src/components/Doctor/DoctorAppointments.jsx
+
 import { useEffect, useMemo, useState } from 'react';
 import {
     Calendar,
@@ -14,6 +16,10 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { doctorService } from '@/services/doctorService.js';
 
+/**
+ * Cấu hình hiển thị giao diện dựa trên các status của lịch hẹn.
+ * Giúp đồng bộ label, màu sắc và icon tương ứng cho từng status.
+ */
 const STATUS_CONFIG = {
     PENDING: {
         label: 'Đang chờ',
@@ -37,15 +43,24 @@ const STATUS_CONFIG = {
     },
 };
 
+/**
+ * Hàm (helper) dùng để trích xuất payload data từ response của API.
+ * Xử lý an toàn trong trường hợp response có hoặc không có bọc qua thuộc tính data.
+ */
 const unwrap = (res) => res?.data ?? res;
 
 export default function DoctorAppointments() {
+    // Khởi tạo các state để quản lý dữ liệu và UI
     const [appointments, setAppointments] = useState([]);
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
-    const [updatingId, setUpdatingId] = useState(null);
+    const [updatingId, setUpdatingId] = useState(null); // Lưu ID của cuộc hẹn đang thực hiện update status
     const [error, setError] = useState('');
 
+    /**
+     * useEffect được gọi một lần khi component mount.
+     * Thực hiện gọi API để fetch danh sách lịch khám của bác sĩ.
+     */
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
@@ -53,6 +68,7 @@ export default function DoctorAppointments() {
                 const res = await doctorService.getAppointments();
                 const payload = unwrap(res);
 
+                // Kiểm tra định dạng mảng của payload trước khi set state để tránh crash component
                 const list = Array.isArray(payload) ? payload : Array.isArray(payload?.items) ? payload.items : [];
 
                 setAppointments(list);
@@ -67,11 +83,18 @@ export default function DoctorAppointments() {
         fetchAppointments();
     }, []);
 
+    /**
+     * Sử dụng useMemo để tối ưu hóa việc lọc danh sách.
+     * Chỉ thực hiện tính toán lại khi mảng appointments hoặc giá trị filter thay đổi.
+     */
     const filtered = useMemo(() => {
         if (!filter) return appointments;
         return appointments.filter((a) => a.status === filter);
     }, [appointments, filter]);
 
+    /**
+     * Hàm format chuỗi thời gian trả về từ server sang chuẩn local của Việt Nam.
+     */
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
         return d.toLocaleString('vi-VN', {
@@ -80,7 +103,12 @@ export default function DoctorAppointments() {
         });
     };
 
+    /**
+     * Hàm xử lý thay đổi status của lịch hẹn (Approve/Reject).
+     * Chỉ chấp nhận thao tác với các lịch hẹn đang ở status PENDING.
+     */
     const handleUpdate = async (id, status) => {
+        // Chặn click nhiều lần khi request trước đó chưa hoàn thành
         if (updatingId) return;
 
         const current = appointments.find((a) => a._id === id);
@@ -91,27 +119,30 @@ export default function DoctorAppointments() {
 
         try {
             setUpdatingId(id);
+            // Gửi request update status lên server
             await doctorService.updateAppointment(id, status);
 
+            // Cập nhật trực tiếp vào state cục bộ để giao diện phản hồi tức thì (Optimistic UI update)
             setAppointments((prev) => prev.map((a) => (a._id === id ? { ...a, status } : a)));
             toast.success(`Lịch hẹn ${status.toLowerCase()} thành công.`);
         } catch (err) {
             console.error('Update failed', err);
             toast.error(err?.message || 'Cập nhật trạng thái thất bại');
         } finally {
+            // Giải phóng trạng thái loading cho item sau khi hoàn tất
             setUpdatingId(null);
         }
     };
 
     return (
         <div className="flex h-full">
-            {/* KHÓA CUỘN NGOÀI: overflow-hidden */}
+            {/* Vùng ngoài cùng sử dụng overflow-hidden để khóa thanh cuộn cấp độ trang */}
             <main className="flex-1 p-4 xl:p-6 flex flex-col h-full overflow-hidden">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    /* CHIA CHIỀU CAO: min-h-0 giúp flex-1 co giãn đúng chuẩn box */
+                    /* Thiết lập min-h-0 hỗ trợ flex-1 co giãn chính xác mà không đẩy nội dung tràn khung */
                     className="w-full max-w-7xl mx-auto flex flex-col flex-1 h-full min-h-0"
                 >
                     {/* ================= HEADER ================= */}
@@ -131,9 +162,10 @@ export default function DoctorAppointments() {
 
                     {/* ================= CONTENT BOX ================= */}
                     <div className="bg-white rounded-2xl p-6 shadow flex flex-col flex-1 min-h-0">
-                        {/* FILTERS */}
+                        {/* FILTERS AREA */}
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100 shrink-0">
                             <div className="flex flex-wrap gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-200">
+                                {/* Nút reset bộ lọc */}
                                 <button
                                     onClick={() => setFilter('')}
                                     className={`px-4 py-2 text-sm rounded-lg font-bold whitespace-nowrap cursor-pointer transition-all duration-300 ${
@@ -145,6 +177,7 @@ export default function DoctorAppointments() {
                                     Tất cả
                                 </button>
 
+                                {/* Map các status được định nghĩa trong STATUS_CONFIG thành các nút filter */}
                                 {Object.keys(STATUS_CONFIG).map((key) => (
                                     <button
                                         key={key}
@@ -161,18 +194,21 @@ export default function DoctorAppointments() {
                             </div>
                         </div>
 
-                        {/* ================= LIST (THANH CUỘN BÊN TRONG) ================= */}
+                        {/* ================= LIST AREA (Khu vực áp dụng thanh cuộn độc lập) ================= */}
                         <div className="flex-1 overflow-y-auto pr-2">
                             {loading ? (
+                                // Render UI chờ khi call API
                                 <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                                     <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
                                     <p className="font-medium">Đang tải danh sách lịch khám...</p>
                                 </div>
                             ) : error ? (
+                                // Render UI lỗi nếu API thất bại
                                 <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-center font-medium">
                                     {error}
                                 </div>
                             ) : filtered.length === 0 ? (
+                                // Render UI rỗng khi không có dữ liệu khớp với bộ lọc
                                 <div className="flex flex-col items-center justify-center text-center py-12">
                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Calendar className="w-8 h-8 text-gray-300" />
@@ -183,6 +219,7 @@ export default function DoctorAppointments() {
                                     </p>
                                 </div>
                             ) : (
+                                // Render grid chứa các thẻ (card) thông tin lịch hẹn
                                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 pb-4">
                                     {filtered.map((a) => {
                                         const status = STATUS_CONFIG[a.status] || {};
@@ -194,7 +231,7 @@ export default function DoctorAppointments() {
                                                 key={a._id}
                                                 className="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 hover:border-primary/30 flex flex-col"
                                             >
-                                                {/* INFO HEADER */}
+                                                {/* THÔNG TIN HEADER CỦA CARD */}
                                                 <div className="flex items-start justify-between mb-4">
                                                     <div>
                                                         <h3 className="font-bold text-gray-900 text-lg">
@@ -214,7 +251,7 @@ export default function DoctorAppointments() {
                                                     </span>
                                                 </div>
 
-                                                {/* DETAILS */}
+                                                {/* CHI TIẾT NỘI DUNG CARD */}
                                                 <div className="space-y-2 mb-6 flex-1">
                                                     <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                                                         <User className="w-4 h-4 text-primary shrink-0" />
@@ -247,8 +284,9 @@ export default function DoctorAppointments() {
                                                     </div>
                                                 </div>
 
-                                                {/* ACTIONS */}
+                                                {/* KHU VỰC THAO TÁC (ACTIONS) */}
                                                 <div className="mt-auto grid grid-cols-2 gap-2">
+                                                    {/* Chỉ render nút Duyệt/Từ chối nếu status hiện tại là PENDING */}
                                                     {a.status === 'PENDING' && (
                                                         <>
                                                             <button
@@ -266,7 +304,8 @@ export default function DoctorAppointments() {
                                                                 )}
                                                             </button>
                                                             <button
-                                                                onClick={() => handleUpdate(a._id, 'CANCELLED')} // Đổi status 'Hủy' thành 'CANCELLED' để khớp ENUM server
+                                                                // Chuyển status sang CANCELLED để khớp với enum dưới server
+                                                                onClick={() => handleUpdate(a._id, 'CANCELLED')}
                                                                 disabled={isProcessing}
                                                                 className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-bold border-2 border-red-200 text-red-600 bg-white rounded-xl hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                                             >
@@ -282,7 +321,7 @@ export default function DoctorAppointments() {
                                                         </>
                                                     )}
 
-                                                    {/* Nếu không phải PENDING, nút Chi tiết giãn full */}
+                                                    {/* Nút Xem chi tiết: Hiển thị full width nếu không có các nút thao tác khác */}
                                                     <button
                                                         className={`col-span-${
                                                             a.status === 'PENDING' ? '2' : '2'

@@ -1,3 +1,5 @@
+// src/components/pages/LabTech/UploadButton.jsx
+
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import {
@@ -8,12 +10,15 @@ import {
     DialogTitle,
     DialogFooter,
     DialogClose,
-} from '@/components/animate-ui/components/radix/dialog';
-import { Upload } from '@/components/animate-ui/icons/upload.js';
-import { BE_URL } from '@/lib/constans.js';
+} from '@/components/animate-ui/components/radix/dialog.js';
+import { Upload } from '@/components/animate-ui/icons/upload.tsx';
+import { BE_URL } from '@/lib/constans.ts';
 import { toast } from 'sonner';
 import { enforceSepolia } from '@/utils/enforceSepolia.js';
 
+/**
+ * Hàm hỗ trợ chuyển đổi mã lỗi từ hệ thống Web3/MetaMask sang thông báo tiếng Việt.
+ */
 const getReadableBlockchainError = (error) => {
     const message =
         error?.reason ||
@@ -42,6 +47,9 @@ const getReadableBlockchainError = (error) => {
     return message;
 };
 
+/**
+ * Giá trị khởi tạo mặc định cho form nhập liệu chỉ số tiểu đường.
+ */
 const emptyForm = {
     pregnancies: '',
     glucose: '',
@@ -54,22 +62,36 @@ const emptyForm = {
     note: '',
 };
 
+/**
+ * Component UploadButton
+ * Quản lý quy trình nhập kết quả xét nghiệm, phân tích AI và niêm phong dữ liệu lên Blockchain.
+ * * @param {string} medicalRecordId - ID của hồ sơ bệnh án cần cập nhật kết quả.
+ */
 export default function UploadButton({ medicalRecordId }) {
     const [form, setForm] = useState(emptyForm);
     const [open, setOpen] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    /**
+     * Xử lý thay đổi giá trị input trong form.
+     */
     const handleChange = (key, value) => {
         setForm((prev) => ({ ...prev, [key]: value }));
         setError('');
     };
 
+    /**
+     * Reset toàn bộ dữ liệu form và lỗi về trạng thái ban đầu.
+     */
     const resetForm = () => {
         setForm(emptyForm);
         setError('');
     };
 
+    /**
+     * Kiểm tra tính hợp lệ của dữ liệu đầu vào (Validation).
+     */
     const validateForm = () => {
         const { glucose, bloodPressure, skinThickness, insulin, bmi, age } = form;
 
@@ -95,9 +117,11 @@ export default function UploadButton({ medicalRecordId }) {
         return null;
     };
 
+    /**
+     * Phân tích phản hồi từ API Backend.
+     */
     const parseResponse = async (res) => {
         let body = null;
-
         try {
             body = await res.json();
         } catch (e) {
@@ -105,17 +129,17 @@ export default function UploadButton({ medicalRecordId }) {
         }
 
         const data = body?.data || body;
-
         if (!res.ok) {
             throw new Error(data?.message || body?.message || 'Có lỗi xảy ra');
         }
-
         return data;
     };
 
+    /**
+     * Quy trình xử lý chính: Lưu DB -> AI Analysis -> Blockchain Transaction -> Verify Tx.
+     */
     const handleSubmit = async () => {
         const errMsg = validateForm();
-
         if (errMsg) {
             setError(errMsg);
             return;
@@ -141,6 +165,7 @@ export default function UploadButton({ medicalRecordId }) {
         setError('');
 
         try {
+            // Bước 1: Gửi dữ liệu lên Backend để lưu trữ và kích hoạt AI phân tích.
             const createRes = await fetch(`${BE_URL}/lab-techs/medical-records/${medicalRecordId}/test-results`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -150,6 +175,7 @@ export default function UploadButton({ medicalRecordId }) {
 
             const createdData = await parseResponse(createRes);
 
+            // Trích xuất metadata blockchain để thực hiện ký giao dịch.
             const testResultId = createdData?.testResultId;
             const resultHash = createdData?.resultHash;
             const blockchain = createdData?.blockchain;
@@ -157,38 +183,45 @@ export default function UploadButton({ medicalRecordId }) {
             const method = blockchain?.method;
             const args = Array.isArray(blockchain?.args) ? blockchain.args : [];
 
+            // Kiểm tra tính đầy đủ của dữ liệu blockchain từ Backend trả về.
             if (!testResultId || !resultHash || !contractAddress || method !== 'appendTestResult' || args.length < 2) {
                 throw new Error(
                     createdData?.message || 'Backend chưa trả đủ metadata blockchain để ký appendTestResult',
                 );
             }
 
+            // Bước 2: Tương tác với ví MetaMask.
             if (!window.ethereum) {
                 throw new Error('Cần cài MetaMask để ký giao dịch blockchain');
             }
 
-            await enforceSepolia();
+            await enforceSepolia(); // Đảm bảo người dùng đang ở mạng Sepolia Testnet.
             await window.ethereum.request({ method: 'eth_requestAccounts' });
 
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
 
+            // Khởi tạo interface của Smart Contract.
             const contract = new ethers.Contract(
                 contractAddress,
                 ['function appendTestResult(string mongoId, bytes32 _resultHash) external'],
                 signer,
             );
 
+            // Bước 3: Kiểm tra điều kiện thực thi giao dịch (static call) để tránh mất gas vô ích.
             toast.loading('Đang kiểm tra điều kiện blockchain...', { id: loadingToast });
             await contract.appendTestResult.staticCall(args[0], args[1]);
 
+            // Bước 4: Thực hiện gửi giao dịch lên mạng lưới Blockchain.
             toast.loading('Đang gọi MetaMask để niêm phong kết quả...', { id: loadingToast });
             const tx = await contract.appendTestResult(args[0], args[1]);
 
+            // Chờ mạng lưới xác nhận giao dịch (mining).
             toast.loading('Đang chờ blockchain xác nhận...', { id: loadingToast });
             const receipt = await tx.wait();
             const txHash = receipt?.hash || tx.hash;
 
+            // Bước 5: Gửi txHash về Backend để xác minh tính toàn vẹn của quy trình.
             toast.loading('Đang xác minh giao dịch với backend...', { id: loadingToast });
             const verifyRes = await fetch(`${BE_URL}/lab-techs/test-results/${testResultId}/verify-tx`, {
                 method: 'POST',
@@ -199,6 +232,7 @@ export default function UploadButton({ medicalRecordId }) {
 
             await parseResponse(verifyRes);
 
+            // Hoàn tất và dọn dẹp form.
             resetForm();
             setOpen(false);
 
@@ -214,6 +248,9 @@ export default function UploadButton({ medicalRecordId }) {
         }
     };
 
+    /**
+     * Logic kiểm tra trạng thái vô hiệu hóa của nút submit.
+     */
     const isDisabled =
         form.glucose === '' ||
         form.bloodPressure === '' ||
@@ -223,6 +260,7 @@ export default function UploadButton({ medicalRecordId }) {
         form.age === '' ||
         loading;
 
+    // Phân loại trạng thái BMI hiển thị trên UI.
     const isObese = Number(form.bmi) > 30;
 
     return (
@@ -236,40 +274,35 @@ export default function UploadButton({ medicalRecordId }) {
                     <DialogTitle>Kết quả xét nghiệm</DialogTitle>
                 </DialogHeader>
 
+                {/* Khu vực nhập liệu các chỉ số lâm sàng */}
                 <div className="grid grid-cols-2 gap-4 mt-4">
                     <Input
                         label="Số lần mang thai"
                         value={form.pregnancies}
                         onChange={(v) => handleChange('pregnancies', v)}
                     />
-
                     <Input
                         label="Chỉ số di truyền tiểu đường"
                         value={form.diabetesPedigreeFunction}
                         onChange={(v) => handleChange('diabetesPedigreeFunction', v)}
                     />
-
                     <Input label="Glucose" value={form.glucose} onChange={(v) => handleChange('glucose', v)} />
-
                     <Input
                         label="Blood Pressure"
                         value={form.bloodPressure}
                         onChange={(v) => handleChange('bloodPressure', v)}
                     />
-
                     <Input
                         label="Skin Thickness"
                         value={form.skinThickness}
                         onChange={(v) => handleChange('skinThickness', v)}
                     />
-
                     <Input label="Insulin" value={form.insulin} onChange={(v) => handleChange('insulin', v)} />
-
                     <Input label="BMI" value={form.bmi} onChange={(v) => handleChange('bmi', v)} />
-
                     <Input label="Tuổi" value={form.age} onChange={(v) => handleChange('age', v)} />
                 </div>
 
+                {/* Hiển thị cảnh báo dựa trên chỉ số BMI */}
                 {form.bmi && (
                     <div
                         className={`mt-4 p-3 rounded-lg ${
@@ -280,6 +313,7 @@ export default function UploadButton({ medicalRecordId }) {
                     </div>
                 )}
 
+                {/* Thông báo lỗi nếu validation hoặc API thất bại */}
                 {error && <div className="mt-3 p-3 bg-red-100 text-red-600 rounded-lg text-sm">{error}</div>}
 
                 <div className="mt-4">
@@ -320,6 +354,9 @@ export default function UploadButton({ medicalRecordId }) {
     );
 }
 
+/**
+ * Component Input dùng chung cho form nhập chỉ số.
+ */
 function Input({ label, value, onChange }) {
     return (
         <div>
