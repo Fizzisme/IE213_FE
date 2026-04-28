@@ -34,7 +34,6 @@ export default function PatientMedicalRecordDetail() {
 
             try {
                 const res = await patientService.getMedicalRecordDetail(medicalRecordId);
-                console.log(res);
                 const data = res?.data?.data || res?.data || res;
                 setRecord(data);
             } catch (err) {

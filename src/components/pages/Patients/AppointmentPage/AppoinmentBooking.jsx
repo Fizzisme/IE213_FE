@@ -113,15 +113,12 @@ export default function AppointmentBooking() {
                 patientDescription,
             };
 
-            console.log('[Đặt lịch] Gửi payload:', payload);
             const res = await patientService.createAppointment(payload);
             const data = unwrap(res);
-            console.log(data);
+
             if (!data?.data?._id) {
                 throw new Error('Phản hồi từ server không hợp lệ');
             }
-
-            console.log('[Đặt lịch] Thành công, appointmentId:', data.data._id);
 
             toast.success('Đặt lịch thành công! Vào mục "Lịch hẹn" để cấp quyền sau khi bác sĩ xác nhận.');
             resetForm();

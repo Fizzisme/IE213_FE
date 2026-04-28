@@ -114,7 +114,6 @@ export default function AppointmentManagement() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
 
-            console.log('[Cấp quyền] Lấy metadata cho lịch hẹn:', appointment.id);
             const prepRes = await patientService.prepareGrantAccess(appointment.id);
             const prep = prepRes?.data ?? prepRes;
 
@@ -171,7 +170,6 @@ export default function AppointmentManagement() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
 
-            console.log('[Thu hồi quyền] Lấy metadata cho lịch hẹn:', appointment.id);
             const prepRes = await patientService.prepareRevokeAccess(appointment.id);
             const prep = prepRes?.data ?? prepRes;
 
@@ -307,10 +305,6 @@ export default function AppointmentManagement() {
                     borderColor: 'border-gray-300',
                 };
         }
-    };
-
-    const handleViewDetails = (id) => {
-        console.log('[Xem chi tiết] lịch hẹn:', id);
     };
 
     const handleViewMedicalRecord = (id) => {
