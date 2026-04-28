@@ -1,34 +1,43 @@
+// src/components/Sidebar/Sidebar.jsx
+
 import { AnimateIcon } from '@/components/animate-ui/icons/icon.tsx';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PanelLeftClose } from '@/components/animate-ui/icons/panel-left-close.tsx';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
 import { motion } from 'motion/react';
 
-import UserProfilePopover from '@/components/pages/LabTech/LabTechPage/UserProfilePopover/UserProfilePopover.jsx';
+import UserProfilePopover from '@/components/Sidebar/UserProfilePopover.jsx';
 import { useLayoutStore } from '@/stores/useLayoutStore.jsx';
 import { FileText } from 'lucide-react';
-import Collapsible from '@/components/pages/LabTech/LabTechPage/Collapsible/Collapsible.jsx';
+import Collapsible from '@/components/pages/LabTech/Collapsible.jsx';
 
-// Variants cho label
+/**
+ * Cấu hình variants cho hiệu ứng hiển thị label.
+ * Sử dụng kết hợp opacity và maxWidth để tạo hiệu ứng co giãn mượt mà khi đóng/mở Sidebar.
+ */
 const labelVariants = {
     open: {
         opacity: 1,
         maxWidth: 300,
         transition: {
             maxWidth: { duration: 0.5, ease: 'easeInOut' },
-            opacity: { duration: 0.2, delay: 0.1 }, // fade in sau khi đã mở rộng
+            opacity: { duration: 0.2, delay: 0.1 }, // Hiển thị dần sau khi khung đã mở rộng
         },
     },
     closed: {
         opacity: 0,
         maxWidth: 0,
         transition: {
-            opacity: { duration: 0.1 }, // fade out ngay
+            opacity: { duration: 0.1 }, // Ẩn ngay lập tức khi bắt đầu đóng
             maxWidth: { duration: 0.5, ease: 'easeInOut' },
         },
     },
 };
-// Variants cho section
+
+/**
+ * Cấu hình variants cho các tiêu đề phân mục (Section).
+ * Điều khiển chiều cao và khoảng cách để ẩn hoàn toàn tiêu đề khi Sidebar ở trạng thái đóng.
+ */
 const sectionVariants = {
     open: {
         opacity: 1,
@@ -45,7 +54,12 @@ const sectionVariants = {
         transition: { duration: 0.3, ease: 'easeInOut' },
     },
 };
-// Component NavItem
+
+/**
+ * Component NavItem (Internal)
+ * Đại diện cho một mục liên kết điều hướng trong Sidebar.
+ * Tự động thay đổi layout (căn giữa hoặc có gap) dựa trên trạng thái openSidebar.
+ */
 const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
     return (
         <NavLink to={to}>
@@ -70,28 +84,37 @@ const NavItem = ({ icon: Icon, label, active, to, openSidebar }) => {
     );
 };
 
+/**
+ * Component Sidebar
+ * Thanh điều hướng bên trái dành cho màn hình lớn (Desktop).
+ * Quản lý trạng thái thu gọn/mở rộng và hiển thị menu động dựa trên vai trò của người dùng.
+ * * @param {Array} documents - Danh sách các tài liệu truyền xuống cho component Collapsible.
+ */
 export default function Sidebar({ documents }) {
+    // Lấy danh sách menu (navItems) từ global store
     const { navItems } = useLayoutStore();
 
-    // Lấy path của URL
+    // Sử dụng hook từ react-router-dom để quản lý điều hướng và nhận diện path hiện tại
     const path = useLocation().pathname;
     const navigate = useNavigate();
 
-    //  Lấy ra từ trong store của zustand cách này khiến code không bị re-render
+    /**
+     * Lấy trạng thái và hàm điều khiển từ Zustand store.
+     * Kỹ thuật selector (s => s.openSidebar) giúp component chỉ re-render khi giá trị cụ thể đó thay đổi.
+     */
     const openSidebar = useSidebarStore((s) => s?.openSidebar);
     const toggleSidebar = useSidebarStore((s) => s?.toggleSidebar);
+
     return (
         <aside
             className={`hidden lg:flex lg:flex-col h-full pr-0 pl-6 pt-10 pb-4 bg-white transition-all duration-500 ease-in-out
         ${openSidebar ? 'w-[250px]' : 'w-[65px]'}
         `}
         >
-            {/* Logo */}
-
+            {/* KHU VỰC LOGO & TOGGLE CONTROL */}
             <div className="flex items-center">
-                {/* Logo + Icon swap khi hover */}
+                {/* Logo: Khi Sidebar đóng, hover vào sẽ ẩn logo và hiện icon toggle nhanh */}
                 <motion.div className="relative group" onClick={!openSidebar ? toggleSidebar : undefined}>
-                    {/* Logo — ẩn khi hover lúc sidebar đóng */}
                     <img
                         src="/AEGITAS2.png"
                         height={20}
@@ -102,7 +125,7 @@ export default function Sidebar({ documents }) {
             `}
                     />
 
-                    {/* Icon — chỉ xuất hiện khi sidebar đóng + hover */}
+                    {/* Hiển thị icon thay thế logo khi Sidebar đang đóng và có hành động hover */}
                     {!openSidebar && (
                         <div
                             className={`absolute inset-0 flex items-center justify-center
@@ -115,7 +138,7 @@ export default function Sidebar({ documents }) {
                     )}
                 </motion.div>
 
-                {/* Icon toggle — chỉ hiện khi sidebar mở */}
+                {/* Nút Toggle chính thức: Chỉ hiển thị đầy đủ khi Sidebar đang mở */}
                 <motion.div
                     variants={labelVariants}
                     animate={openSidebar ? 'open' : 'closed'}
@@ -131,7 +154,7 @@ export default function Sidebar({ documents }) {
                 </motion.div>
             </div>
 
-            {/* GENERAL */}
+            {/* PHÂN MỤC: TỔNG QUAN */}
             <motion.p
                 variants={sectionVariants}
                 animate={openSidebar ? 'open' : 'closed'}
@@ -140,7 +163,8 @@ export default function Sidebar({ documents }) {
             >
                 TỔNG QUAN
             </motion.p>
-            {/* Nav Items */}
+
+            {/* Duyệt mảng navItems để hiển thị các mục điều hướng chính */}
             {navItems.map((item, index) => (
                 <NavItem
                     key={index}
@@ -152,9 +176,9 @@ export default function Sidebar({ documents }) {
                 />
             ))}
 
+            {/* PHÂN MỤC: DỮ LIỆU (Chỉ hiển thị nếu có prop documents) */}
             {documents && (
                 <>
-                    {/* DATABASES */}
                     <motion.p
                         variants={sectionVariants}
                         animate={openSidebar ? 'open' : 'closed'}
@@ -163,7 +187,8 @@ export default function Sidebar({ documents }) {
                     >
                         DỮ LIỆU
                     </motion.p>
-                    {/*Collapsible của database*/}
+
+                    {/* Menu thu gọn chứa danh sách tài liệu chuyên môn */}
                     <Collapsible
                         icon={FileText}
                         label={'Tài liệu'}
@@ -174,7 +199,7 @@ export default function Sidebar({ documents }) {
                 </>
             )}
 
-            {/* User */}
+            {/* KHU VỰC THÔNG TIN NGƯỜI DÙNG (FOOTER SIDEBAR) */}
             <UserProfilePopover openSidebar={openSidebar} />
         </aside>
     );

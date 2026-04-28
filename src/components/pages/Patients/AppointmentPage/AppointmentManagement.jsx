@@ -25,15 +25,29 @@ import RescheduleAppointmentModal from './components/RescheduleAppointmentModal'
 import { patientService } from '@/services/patientService.js';
 import { enforceSepolia } from '@/utils/enforceSepolia.js';
 
+/**
+ * Component AppointmentManagement
+ * Trang quản lý lịch hẹn dành cho Bệnh nhân.
+ * Cho phép xem, lọc, hủy, đổi lịch và thực hiện cấp/thu hồi
+ * quyền truy cập hồ sơ bệnh án cho bác sĩ qua blockchain (MetaMask).
+ */
 export default function AppointmentManagement() {
+    // Đọc tab đang active từ URL query string (ví dụ: ?tab=UPCOMING)
     const [searchParams] = useSearchParams();
     const tabFromUrl = searchParams.get('tab');
 
+    // Khởi tạo bộ lọc trạng thái từ URL nếu có, mặc định là 'ALL'
     const [activeFilter, setActiveFilter] = useState(tabFromUrl || 'ALL');
     const navigate = useNavigate();
+
+    // Quản lý trạng thái hiển thị Modal đổi lịch
     const [open, setIsOpen] = useState(false);
+
+    // Quản lý bộ lọc thời gian và trạng thái hiển thị dropdown tương ứng
     const [timeFilter, setTimeFilter] = useState('ALL_TIME');
     const [showTimeDropdown, setShowTimeDropdown] = useState(false);
+
+    // Dữ liệu danh sách lịch hẹn, lịch hẹn đang chọn và trạng thái loading
     const [appointments, setAppointments] = useState([]);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -42,7 +56,10 @@ export default function AppointmentManagement() {
     const [grantingId, setGrantingId] = useState(null);
     const [revokingId, setRevokingId] = useState(null);
 
-    // Tải danh sách lịch hẹn khi component mount
+    /**
+     * Side Effect: Tải danh sách lịch hẹn khi component lần đầu mount.
+     * Mảng dependency rỗng [] đảm bảo chỉ gọi API đúng một lần duy nhất.
+     */
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
@@ -60,12 +77,16 @@ export default function AppointmentManagement() {
         fetchAppointments();
     }, []);
 
-    // Hàm tải lại danh sách lịch hẹn
+    // Tải lại danh sách lịch hẹn sau các thao tác thay đổi dữ liệu (hủy, đổi lịch, cấp/thu hồi quyền)
     const refreshAppointments = async () => {
         const res = await patientService.getAppointments();
         setAppointments(res?.data || []);
     };
 
+    /**
+     * Xử lý sự kiện đổi lịch hẹn.
+     * Gọi API cập nhật, sau đó tải lại danh sách và đóng Modal.
+     */
     const handleReschedule = async ({ appointmentDateTime, description }) => {
         try {
             const res = await patientService.rescheduleAppointment(selectedAppointment.id, {
@@ -83,6 +104,7 @@ export default function AppointmentManagement() {
         }
     };
 
+    // Xử lý sự kiện hủy lịch hẹn theo ID, tải lại danh sách sau khi thành công
     const handleCancel = async (appointmentId) => {
         try {
             await patientService.cancelAppointment(appointmentId);
@@ -94,7 +116,12 @@ export default function AppointmentManagement() {
         }
     };
 
-    // Cấp quyền truy cập hồ sơ cho bác sĩ qua blockchain (MetaMask)
+    /**
+     * Cấp quyền truy cập hồ sơ cho bác sĩ qua blockchain (MetaMask).
+     * Luồng xử lý: Kiểm tra MetaMask → Enforce Sepolia → Lấy metadata từ backend
+     * → Gọi smart contract grantAccess() → Verify tx hash với backend → Tải lại danh sách.
+     * Lưu ý: Chặn thao tác mới nếu đang có giao dịch blockchain khác chạy (grantingId/revokingId).
+     */
     const handleGrantAccess = async (appointment) => {
         if (grantingId || revokingId) return;
 
@@ -125,9 +152,10 @@ export default function AppointmentManagement() {
                 throw new Error('Metadata blockchain không hợp lệ — thiếu contractAddress hoặc doctorWallet');
             }
 
+            // Khởi tạo contract instance với ABI tối giản (chỉ khai báo hàm cần gọi)
             const contract = new ethers.Contract(
                 contractAddress,
-                ['function grantAccess(address doctor, uint256 durationHours) external'],
+                ['function grantAccess(address Doctor, uint256 durationHours) external'],
                 signer,
             );
 
@@ -137,6 +165,7 @@ export default function AppointmentManagement() {
             toast.loading('Đang chờ blockchain xác nhận...', { id: loadingToast });
             await tx.wait();
 
+            // Gửi tx hash về backend để backend verify và cập nhật trạng thái quyền truy cập
             await patientService.verifyGrantAccess(appointment.id, tx.hash);
 
             toast.success('Cấp quyền truy cập hồ sơ thành công!', { id: loadingToast });
@@ -151,7 +180,11 @@ export default function AppointmentManagement() {
         }
     };
 
-    // Thu hồi quyền truy cập hồ sơ của bác sĩ qua blockchain (MetaMask)
+    /**
+     * Thu hồi quyền truy cập hồ sơ của bác sĩ qua blockchain (MetaMask).
+     * Luồng xử lý tương tự handleGrantAccess nhưng gọi hàm revokeAccess() trên smart contract.
+     * Lưu ý: Chặn thao tác mới nếu đang có giao dịch blockchain khác chạy (grantingId/revokingId).
+     */
     const handleRevokeAccess = async (appointment) => {
         if (grantingId || revokingId) return;
 
@@ -180,9 +213,10 @@ export default function AppointmentManagement() {
                 throw new Error('Metadata blockchain không hợp lệ');
             }
 
+            // Khởi tạo contract instance với ABI tối giản (chỉ khai báo hàm cần gọi)
             const contract = new ethers.Contract(
                 contractAddress,
-                ['function revokeAccess(address doctor) external'],
+                ['function revokeAccess(address Doctor) external'],
                 signer,
             );
 
@@ -192,6 +226,7 @@ export default function AppointmentManagement() {
             toast.loading('Đang chờ blockchain xác nhận...', { id: loadingToast });
             await tx.wait();
 
+            // Gửi tx hash về backend để backend verify và cập nhật trạng thái thu hồi quyền
             await patientService.verifyRevokeAccess(appointment.id, tx.hash);
 
             toast.success('Thu hồi quyền truy cập thành công!', { id: loadingToast });
@@ -206,6 +241,11 @@ export default function AppointmentManagement() {
         }
     };
 
+    /**
+     * Hàm trả về icon phù hợp dựa trên tên dịch vụ.
+     * Lưu ý: So sánh trực tiếp chuỗi tiếng Việt có dấu — khác với AppointmentBooking
+     * dùng chuỗi không dấu. Đảm bảo tên dịch vụ từ API nhất quán để tránh icon sai.
+     */
     const getServiceIcon = (name) => {
         if (!name) return <FileText className="w-5 h-5" />;
         if (name.includes('đường huyết')) return <Droplet className="w-5 h-5" />;
@@ -213,6 +253,10 @@ export default function AppointmentManagement() {
         return <Stethoscope className="w-5 h-5" />;
     };
 
+    /**
+     * Hàm chuẩn hóa dữ liệu lịch hẹn thô từ API thành object phẳng dùng cho UI.
+     * Tách riêng date và time từ appointmentDateTime để hiển thị độc lập.
+     */
     const formatAppointment = (apt) => {
         const dateObj = new Date(apt.appointmentDateTime);
 
@@ -230,9 +274,16 @@ export default function AppointmentManagement() {
         };
     };
 
+    // Chuyển đổi toàn bộ danh sách lịch hẹn sang định dạng UI trước khi lọc
     const formattedAppointments = appointments.map(formatAppointment);
     const now = new Date();
 
+    /**
+     * Lọc danh sách lịch hẹn dựa trên 2 tiêu chí độc lập:
+     * 1. activeFilter — lọc theo trạng thái (PENDING/CONFIRMED/COMPLETED/CANCELLED)
+     * 2. timeFilter   — lọc theo khoảng thời gian (tuần này / tháng này / tất cả)
+     * Lưu ý: UPCOMING bao gồm cả PENDING lẫn CONFIRMED — không phải một status riêng.
+     */
     const filteredAppointments = formattedAppointments.filter((apt) => {
         const aptDate = new Date(apt.originalDateTime);
 
@@ -254,6 +305,7 @@ export default function AppointmentManagement() {
         return true;
     });
 
+    // Cấu hình các tab lọc trạng thái hiển thị trên thanh Filter
     const filterTabs = [
         { label: 'Tất cả', value: 'ALL' },
         { label: 'Sắp tới', value: 'UPCOMING' },
@@ -261,12 +313,17 @@ export default function AppointmentManagement() {
         { label: 'Đã hủy', value: 'CANCELLED' },
     ];
 
+    // Cấu hình các tùy chọn lọc theo khoảng thời gian trong dropdown
     const timeFilters = [
         { label: 'Tuần này', value: 'THIS_WEEK' },
         { label: 'Tháng này', value: 'THIS_MONTH' },
         { label: 'Tất cả', value: 'ALL_TIME' },
     ];
 
+    /**
+     * Hàm trả về cấu hình màu sắc và nhãn cho từng trạng thái lịch hẹn.
+     * Tập trung logic styling tại một nơi để dễ bảo trì khi thêm trạng thái mới.
+     */
     const getStatusConfig = (status) => {
         switch (status) {
             case 'PENDING':
@@ -307,14 +364,20 @@ export default function AppointmentManagement() {
         }
     };
 
+    // Placeholder — chức năng xem hồ sơ bệnh án sẽ được triển khai ở sprint sau
     const handleViewMedicalRecord = (id) => {
         console.log('[Xem hồ sơ bệnh án] lịch hẹn:', id);
     };
 
+    // Điều hướng sang trang đặt lịch mới
     const handleBookNew = () => {
         navigate('/patient/appointments');
     };
 
+    /**
+     * Màn hình loading toàn trang — hiển thị spinner trong khi chờ API trả về dữ liệu.
+     * Tách riêng khỏi return chính để tránh render cây component khi chưa có data.
+     */
     if (loading) {
         return (
             <div className="flex h-full">
@@ -328,16 +391,17 @@ export default function AppointmentManagement() {
 
     return (
         <div className="flex h-full">
-            {/* TRẢ LẠI CUỘN CHO TOÀN TRANG (overflow-y-auto) */}
+            {/* overflow-y-auto trả quyền cuộn về cho toàn trang thay vì từng section riêng lẻ */}
             <main className="flex-1 p-4 xl:p-6 flex flex-col overflow-x-hidden overflow-y-auto">
+                {/* Sử dụng motion.div từ framer-motion để tạo hiệu ứng trượt nhẹ (y: 30 -> 0) khi trang tải */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    /* Thêm flex-1 để khối này kéo dài hết main */
+                    /* flex-1 để khối này kéo dài hết chiều cao của main */
                     className="w-full max-w-7xl mx-auto flex flex-col flex-1"
                 >
-                    {/* Header Box */}
+                    {/* ================= PHẦN HEADER TỔNG QUAN ================= */}
                     <header className="bg-white rounded-2xl p-6 shadow mb-6 shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1 sm:pl-4 transition-all duration-500">
                             <h1 className="text-2xl font-bold text-primary">Lịch hẹn của bạn</h1>
@@ -352,11 +416,12 @@ export default function AppointmentManagement() {
                         </button>
                     </header>
 
-                    {/* Content Box: Thêm flex-1 để tự động giãn đầy không gian trống phía dưới */}
+                    {/* flex-1 để Content Box tự động giãn đầy không gian trống phía dưới */}
                     <div className="bg-white rounded-2xl p-6 shadow flex flex-col flex-1">
-                        {/* Filters Area */}
+                        {/* ================= KHU VỰC BỘ LỌC ================= */}
                         <div className="mb-6 pb-4 border-b border-gray-100 shrink-0">
                             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                                {/* Tab lọc theo trạng thái lịch hẹn */}
                                 <div className="flex-1">
                                     <div className="flex flex-wrap gap-2">
                                         {filterTabs.map((tab) => (
@@ -375,7 +440,7 @@ export default function AppointmentManagement() {
                                     </div>
                                 </div>
 
-                                {/* Dropdown lọc theo thời gian */}
+                                {/* ================= DROPDOWN LỌC THEO THỜI GIAN ================= */}
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowTimeDropdown(!showTimeDropdown)}
@@ -385,6 +450,7 @@ export default function AppointmentManagement() {
                                         <span className="text-sm font-semibold text-gray-700">
                                             {timeFilters.find((f) => f.value === timeFilter)?.label}
                                         </span>
+                                        {/* Icon mũi tên xoay 180° khi dropdown đang mở */}
                                         <ChevronDown
                                             className={`w-4 h-4 text-gray-600 transition-transform ${
                                                 showTimeDropdown ? 'rotate-180' : ''
@@ -416,12 +482,13 @@ export default function AppointmentManagement() {
                             </div>
                         </div>
 
-                        {/* Danh sách lịch hẹn */}
+                        {/* ================= DANH SÁCH LỊCH HẸN ================= */}
                         <div className="space-y-4">
                             {filteredAppointments.length > 0 ? (
                                 <>
                                     {filteredAppointments.map((appointment) => {
                                         const statusConfig = getStatusConfig(appointment.status);
+                                        // isProcessing=true khi lịch hẹn này đang có giao dịch blockchain chạy
                                         const isProcessing =
                                             grantingId === appointment.id || revokingId === appointment.id;
 
@@ -431,7 +498,7 @@ export default function AppointmentManagement() {
                                                 className="bg-white rounded-xl p-5 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:border-primary/30"
                                             >
                                                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                                                    {/* Ngày & Giờ */}
+                                                    {/* ================= NGÀY & GIỜ ================= */}
                                                     <div className="flex items-center gap-4 lg:w-48 shrink-0">
                                                         <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-md">
                                                             <Calendar className="w-6 h-6 text-primary" />
@@ -447,7 +514,7 @@ export default function AppointmentManagement() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Dịch vụ & Bác sĩ */}
+                                                    {/* ================= DỊCH VỤ & TRẠNG THÁI ================= */}
                                                     <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4">
                                                         <div className="flex items-center gap-3 flex-1">
                                                             <div>
@@ -457,7 +524,7 @@ export default function AppointmentManagement() {
                                                             </div>
                                                         </div>
 
-                                                        {/* Trạng thái */}
+                                                        {/* Badge trạng thái — màu sắc lấy từ getStatusConfig() */}
                                                         <div>
                                                             <div
                                                                 className={`inline-flex items-center px-4 py-2 rounded-md border-2 font-bold text-sm ${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor}`}
@@ -467,8 +534,10 @@ export default function AppointmentManagement() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Các nút hành động */}
+                                                    {/* ================= CÁC NÚT HÀNH ĐỘNG ================= */}
+                                                    {/* Các nút hiển thị có điều kiện theo từng trạng thái lịch hẹn */}
                                                     <div className="grid grid-cols-2 gap-2 w-full lg:w-auto shrink-0">
+                                                        {/* PENDING: chỉ cho phép hủy lịch */}
                                                         {appointment.status === 'PENDING' && (
                                                             <button
                                                                 onClick={() => handleCancel(appointment.id)}
@@ -479,8 +548,10 @@ export default function AppointmentManagement() {
                                                             </button>
                                                         )}
 
+                                                        {/* CONFIRMED: hiển thị nút cấp quyền và thu hồi quyền blockchain */}
                                                         {appointment.status === 'CONFIRMED' && (
                                                             <>
+                                                                {/* Nút cấp quyền: disabled khi đang có giao dịch blockchain khác chạy */}
                                                                 <button
                                                                     onClick={() => handleGrantAccess(appointment)}
                                                                     disabled={
@@ -496,6 +567,7 @@ export default function AppointmentManagement() {
                                                                     ) : (
                                                                         <div className="flex items-center justify-center gap-1">
                                                                             <ShieldCheck className="w-4 h-4" />
+                                                                            {/* Ẩn label chữ trên màn hình nhỏ để tiết kiệm không gian */}
                                                                             <span className="hidden sm:inline">
                                                                                 Cấp quyền
                                                                             </span>
@@ -503,6 +575,7 @@ export default function AppointmentManagement() {
                                                                     )}
                                                                 </button>
 
+                                                                {/* Nút thu hồi quyền: disabled khi đang có giao dịch blockchain khác chạy */}
                                                                 <button
                                                                     onClick={() => handleRevokeAccess(appointment)}
                                                                     disabled={
@@ -518,6 +591,7 @@ export default function AppointmentManagement() {
                                                                     ) : (
                                                                         <div className="flex items-center justify-center gap-1">
                                                                             <ShieldOff className="w-4 h-4" />
+                                                                            {/* Ẩn label chữ trên màn hình nhỏ để tiết kiệm không gian */}
                                                                             <span className="hidden sm:inline">
                                                                                 Thu hồi
                                                                             </span>
@@ -527,6 +601,7 @@ export default function AppointmentManagement() {
                                                             </>
                                                         )}
 
+                                                        {/* COMPLETED: cho phép xem hồ sơ bệnh án */}
                                                         {appointment.status === 'COMPLETED' && (
                                                             <button
                                                                 onClick={() => handleViewMedicalRecord(appointment.id)}
@@ -537,6 +612,7 @@ export default function AppointmentManagement() {
                                                             </button>
                                                         )}
 
+                                                        {/* CANCELLED: cho phép đặt lại lịch qua Modal đổi lịch */}
                                                         {appointment.status === 'CANCELLED' && (
                                                             <button
                                                                 onClick={() => {
@@ -552,6 +628,7 @@ export default function AppointmentManagement() {
                                                     </div>
                                                 </div>
 
+                                                {/* Mô tả triệu chứng — chỉ hiển thị khi có dữ liệu */}
                                                 {appointment.description && (
                                                     <div className="mt-4 pt-4 border-t border-gray-100">
                                                         <div className="flex items-start gap-2 text-sm">
@@ -567,7 +644,8 @@ export default function AppointmentManagement() {
                                     })}
                                 </>
                             ) : (
-                                /* Căn giữa dọc khi trạng thái rỗng */
+                                /* ================= TRẠNG THÁI RỖNG (EMPTY STATE) ================= */
+                                /* Căn giữa dọc khi không có lịch hẹn nào khớp bộ lọc */
                                 <div className="h-full flex flex-col items-center justify-center text-center py-12">
                                     <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                         <Calendar className="w-10 h-10 text-primary" />
@@ -588,7 +666,8 @@ export default function AppointmentManagement() {
                         </div>
                     </div>
 
-                    {/* Modal đổi lịch */}
+                    {/* ================= MODAL ĐỔI LỊCH ================= */}
+                    {/* Reset selectedAppointment khi đóng để tránh giữ lại state cũ cho lần mở sau */}
                     <RescheduleAppointmentModal
                         isOpen={open}
                         onClose={() => {

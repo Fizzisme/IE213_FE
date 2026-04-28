@@ -7,16 +7,32 @@ import { patientService } from '@/services/patientService.js';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
+/**
+ * Component PatientInfoForm
+ * Form khởi tạo hồ sơ bệnh nhân (EHR Profile) lần đầu.
+ * Cho phép người dùng nhập thông tin cá nhân cơ bản để đồng bộ hóa
+ * với hệ thống định danh y tế và lưu trữ an toàn.
+ */
 export default function PatientInfoForm() {
     const navigate = useNavigate();
+
+    // Lấy hàm refreshUser từ Auth Store để cập nhật trạng thái người dùng sau khi tạo profile thành công
     const refreshUser = useAuthStore((s) => s.refreshUser);
 
+    /**
+     * Khởi tạo React Hook Form để quản lý validation và state của form.
+     * isSubmitting dùng để quản lý trạng thái vô hiệu hóa nút bấm khi đang thực thi API.
+     */
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }, // Thêm isSubmitting để disable nút khi đang gửi
+        formState: { errors, isSubmitting },
     } = useForm();
 
+    /**
+     * Xử lý gửi form khởi tạo hồ sơ.
+     * Luồng: Chuẩn hóa Payload -> Gọi createProfile -> Refresh Auth Store -> Điều hướng về Dashboard.
+     */
     const onSubmit = async (data) => {
         try {
             const payload = {
@@ -26,31 +42,37 @@ export default function PatientInfoForm() {
                 birthYear: parseInt(data.birthYear),
             };
 
+            // Gọi service tạo hồ sơ bệnh nhân trên backend
             await patientService.createProfile(payload);
+
+            // Cập nhật lại thông tin user trong store (chuyển trạng thái từ user mới sang patient có profile)
             await refreshUser();
 
             toast.success('Hồ sơ đã được lưu thành công!');
             navigate('/patient/dashboard');
         } catch (error) {
-            console.error(error);
+            console.error('[Tạo hồ sơ] Lỗi:', error);
             toast.error(error.message || 'Có lỗi xảy ra khi tạo hồ sơ');
         }
     };
 
     return (
         <div className="flex h-full">
-            {/* Chuyển về overflow-y-auto cho toàn trang để an toàn trên mobile, bỏ ép chiều cao h-full */}
+            {/* MAIN CONTAINER 
+                Sử dụng bg-gray-50 để làm nổi bật khối Card trắng.
+                overflow-y-auto đảm bảo hiển thị tốt trên các màn hình có chiều cao thấp.
+            */}
             <main className="flex-1 p-4 lg:p-6 flex flex-col overflow-x-hidden overflow-y-auto bg-gray-50">
+                {/* Hiệu ứng motion.div từ framer-motion tạo cảm giác mượt mà khi form xuất hiện */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    /* Để khối tự do căn giữa mà không bị ép chiều cao */
                     className="w-full max-w-6xl mx-auto my-auto"
                 >
-                    {/* KHỐI CARD BAO GỒM TOÀN BỘ NỘI DUNG (Tự giãn theo nội dung) */}
+                    {/* KHỐI CARD CHÍNH: Layout chia 2 cột trên desktop (Sidebar thông tin & Form nhập liệu) */}
                     <div className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row overflow-hidden">
-                        {/* Cột trái - Giữ nguyên giao diện, màu sắc */}
+                        {/* ================= CỘT TRÁI: SIDEBAR THÔNG TIN BẢO MẬT ================= */}
                         <div className="hidden md:flex md:w-2/5 bg-primary p-10 flex-col justify-center text-white shrink-0">
                             <div className="my-8">
                                 <img
@@ -63,9 +85,11 @@ export default function PatientInfoForm() {
                             <div>
                                 <h2 className="text-2xl font-bold mb-4">Hoàn thiện hồ sơ bệnh nhân</h2>
                                 <p className="opacity-90 mb-8 leading-relaxed">
-                                    Lưu trữ hồ sơ y tế của bạn một cách an toàn. Thông tin của bạn được mã hóa và bảo vệ
-                                    theo các quy định nghiêm ngặt nhất về bảo mật y tế.
+                                    Lưu trữ hồ sơ y tế của bạn một cách an toàn. Thông tin của bạn được mã hóa và bảo
+                                    vệ...
                                 </p>
+
+                                {/* Badge xác nhận tiêu chuẩn bảo mật y tế */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg backdrop-blur-sm">
                                         <Shield className="w-5 h-5 text-green-200" />
@@ -79,9 +103,9 @@ export default function PatientInfoForm() {
                             </div>
                         </div>
 
-                        {/* Cột phải - Form (Bỏ thanh cuộn, để form ôm vừa vặn nội dung) */}
+                        {/* ================= CỘT PHẢI: FORM NHẬP THÔNG TIN CHI TIẾT ================= */}
                         <div className="flex-1 p-6 md:p-12 flex flex-col justify-center">
-                            {/* Header di động */}
+                            {/* Header di động: Chỉ hiển thị trên màn hình nhỏ */}
                             <div className="md:hidden flex items-center justify-center bg-primary text-white p-6 -mx-6 -mt-6 mb-8 rounded-b-3xl shadow-sm">
                                 <Shield className="w-8 h-8 mr-3" />
                                 <h2 className="text-xl font-bold">Hồ sơ y tế an toàn</h2>
@@ -94,12 +118,13 @@ export default function PatientInfoForm() {
                                 </p>
                             </div>
 
+                            {/* Bắt đầu Form xử lý thông tin cá nhân */}
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-lg">
-                                {/* Họ và tên */}
+                                {/* 1. Trường Họ và tên: Yêu cầu tối thiểu 2 ký tự */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">Họ và tên</label>
                                     <div
-                                        className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:ring-0 focus-within:border-primary transition-colors ${
+                                        className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:border-primary transition-colors ${
                                             errors.fullName
                                                 ? 'border-red-400 bg-red-50'
                                                 : 'border-gray-200 bg-gray-50 hover:bg-white'
@@ -120,18 +145,13 @@ export default function PatientInfoForm() {
                                             {...register('fullName', { required: true, minLength: 2 })}
                                         />
                                     </div>
-                                    {errors.fullName && (
-                                        <span className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
-                                            <Shield className="w-3 h-3" /> Họ tên tối thiểu 2 ký tự
-                                        </span>
-                                    )}
                                 </div>
 
-                                {/* Số điện thoại */}
+                                {/* 2. Trường Số điện thoại: Kiểm tra định dạng đầu số Việt Nam */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-900 mb-2">Số điện thoại</label>
                                     <div
-                                        className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:ring-0 focus-within:border-primary transition-colors ${
+                                        className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:border-primary transition-colors ${
                                             errors.phoneNumber
                                                 ? 'border-red-400 bg-red-50'
                                                 : 'border-gray-200 bg-gray-50 hover:bg-white'
@@ -155,15 +175,11 @@ export default function PatientInfoForm() {
                                             })}
                                         />
                                     </div>
-                                    {errors.phoneNumber && (
-                                        <span className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
-                                            <Shield className="w-3 h-3" /> Số điện thoại không hợp lệ
-                                        </span>
-                                    )}
                                 </div>
 
+                                {/* 3. Khối Grid 2 cột cho Giới tính và Năm sinh */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    {/* Giới tính */}
+                                    {/* Select Giới tính */}
                                     <div>
                                         <label className="block text-sm font-bold text-gray-900 mb-2">Giới tính</label>
                                         <div className="flex items-center border-2 border-gray-200 bg-gray-50 hover:bg-white rounded-xl overflow-hidden focus-within:border-primary transition-colors">
@@ -181,11 +197,11 @@ export default function PatientInfoForm() {
                                         </div>
                                     </div>
 
-                                    {/* Năm sinh */}
+                                    {/* Input Năm sinh: Ràng buộc từ 1900 đến năm hiện tại */}
                                     <div>
                                         <label className="block text-sm font-bold text-gray-900 mb-2">Năm sinh</label>
                                         <div
-                                            className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:ring-0 focus-within:border-primary transition-colors ${
+                                            className={`flex items-center border-2 rounded-xl overflow-hidden focus-within:border-primary transition-colors ${
                                                 errors.birthYear
                                                     ? 'border-red-400 bg-red-50'
                                                     : 'border-gray-200 bg-gray-50 hover:bg-white'
@@ -210,31 +226,26 @@ export default function PatientInfoForm() {
                                                 })}
                                             />
                                         </div>
-                                        {errors.birthYear && (
-                                            <span className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
-                                                <Shield className="w-3 h-3" /> Nhập năm sinh hợp lệ
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
 
-                                {/* Ghi chú bảo mật */}
+                                {/* ================= PHẦN GHI CHÚ BẢO MẬT & ĐIỀU KHOẢN ================= */}
                                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 mt-8 flex items-start gap-3 shadow-sm">
                                     <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                                     <p className="text-sm text-green-800 font-medium leading-relaxed">
-                                        Bằng việc lưu hồ sơ, bạn đồng ý với các điều khoản bảo mật của chúng tôi. Dữ
-                                        liệu sẽ được lưu trữ an toàn trên hệ thống Blockchain.
+                                        Bằng việc lưu hồ sơ, bạn đồng ý với các điều khoản bảo mật. Dữ liệu sẽ được lưu
+                                        trữ an toàn trên hệ thống Blockchain (EHR Security Layer).
                                     </p>
                                 </div>
 
-                                {/* Nút gửi */}
+                                {/* Nút tạo hồ sơ: Tích hợp hiệu ứng Loading khi isSubmitting = true */}
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`w-full text-white cursor-pointer font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg mt-8 flex items-center justify-center gap-2 ${
+                                    className={`w-full text-white cursor-pointer font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2 ${
                                         isSubmitting
                                             ? 'bg-gray-400 cursor-not-allowed opacity-70'
-                                            : 'bg-primary hover:bg-primary/80 hover:-translate-y-0.5'
+                                            : 'bg-primary hover:bg-primary/80 hover:-translate-y-0.5 shadow-md hover:shadow-lg'
                                     }`}
                                 >
                                     {isSubmitting ? (
