@@ -1,6 +1,13 @@
-import ReactECharts from 'echarts-for-react';
 import { useEffect, useRef } from 'react';
 import { useSidebarStore } from '@/stores/useSidebarStore.jsx';
+
+import ReactEChartsCore from 'echarts-for-react/lib/core';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
 
 export default function PatientChart() {
     const option = {
@@ -176,7 +183,7 @@ export default function PatientChart() {
     return (
         <div className="bg-white p-5 rounded-2xl shadow mb-6 hidden sm:block">
             <p className="text-gray-400 text-sm mb-3">Thống kê bệnh nhân trong 1 tháng</p>
-            <ReactECharts
+            <ReactEChartsCore
                 ref={chartRef}
                 option={option}
                 style={{ height: 250, width: '100%' }}

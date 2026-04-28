@@ -26,7 +26,7 @@ export default defineConfig({
                         }
 
                         // Tách riêng các thư viện biểu đồ nặng nề
-                        if (id.includes('chart') || id.includes('recharts') || id.includes('d3')) {
+                        if (id.includes('echarts') || id.includes('zrender')) {
                             return 'vendor-charts';
                         }
 
