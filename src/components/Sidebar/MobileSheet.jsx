@@ -20,14 +20,14 @@ const labelVariants = {
         maxWidth: 300,
         transition: {
             maxWidth: { duration: 0.5, ease: 'easeInOut' },
-            opacity: { duration: 0.2, delay: 0.1 },
+            opacity: { duration: 0.2, delay: 0.1 }, // fade in sau khi đã mở rộng
         },
     },
     closed: {
         opacity: 0,
         maxWidth: 0,
         transition: {
-            opacity: { duration: 0.1 },
+            opacity: { duration: 0.1 }, // fade out ngay
             maxWidth: { duration: 0.5, ease: 'easeInOut' },
         },
     },
