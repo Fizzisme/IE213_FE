@@ -275,7 +275,7 @@ src/
 ### `services/`
 
 
-Chứa lớp giao tiếp backend cho từng phân hệ:
+Chứa class giao tiếp backend cho từng phân hệ:
 
 
 - **`authService.js`**
@@ -285,7 +285,8 @@ Chứa lớp giao tiếp backend cho từng phân hệ:
 - **`adminService.js`**
 
 
-Hầu hết service dùng `fetch`, `Content-Type: application/json` và `credentials: 'include'`.
+service dùng `fetch`, `Content-Type: application/json` và `credentials: 'include'`.
+vì BE đã format respone trả về rồi nên không cần dùng axios
 
 
 ### `stores/`
@@ -331,15 +332,6 @@ Mỗi phân hệ được tách theo thư mục riêng:
 
 - Alias `@` trỏ tới `src/`
 - Cấu hình alias tồn tại ở cả `vite.config.js` và `tsconfig.json`
-- `components.json` cho thấy dự án đang dùng hệ sinh thái `shadcn/ui` với style `radix-nova`
-
-
-Ví dụ import nội bộ:
-
-
-```jsx
-import { useAuthStore } from '@/stores/useAuthStore.js';
-```
 
 
 ## Tài nguyên tĩnh
@@ -352,15 +344,6 @@ Thư mục `public/` hiện chứa logo và ảnh minh họa như:
 - **`AEGITAS2.png`**
 - **`doctor-welcome.png`**
 - **`labtech-welcome.png`**
-
-
-## Một số lưu ý khi phát triển
-
-
-- Dự án đang có cả file `.js/.jsx` và `.ts/.tsx`
-- Tên file `src/lib/constans.ts` hiện đang được viết là `constans`, không phải `constants`
-- Một số import đang dùng đuôi file khác nhau giữa `.js`, `.jsx`, `.ts`, `.tsx`; khi refactor nên giữ nhất quán để tránh lỗi resolve
-- Route điều hướng role bác sĩ trong `AuthPage` hiện là `/Doctor/dashboard`, trong khi route khai báo là `/doctor/...`; nếu sau này phát sinh lỗi điều hướng, đây là điểm cần kiểm tra đầu tiên
 
 
 ## Lệnh đề xuất trước khi merge
@@ -382,7 +365,6 @@ npm run build
 - **phân quyền theo vai trò**
 - **kiến trúc chia module theo phân hệ nghiệp vụ**
 - **gọi backend qua lớp service riêng biệt**
-- **triển khai SPA bằng Vercel rewrite**
 
 
 
