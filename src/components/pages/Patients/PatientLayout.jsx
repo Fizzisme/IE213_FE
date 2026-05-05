@@ -69,9 +69,13 @@ export default function PatientLayout() {
 
             {/* ================= THANH TÌM KIẾM NHANH ================= */}
             <div className="p-3 border-t">
-                <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
+                <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg opacity-60 cursor-not-allowed">
                     <Search size={14} className="text-gray-400" />
-                    <input placeholder="Tìm hồ sơ, bác sĩ..." className="bg-transparent outline-none text-sm w-full" />
+                    <input
+                        placeholder="Tính năng đang phát triển..."
+                        disabled
+                        className="bg-transparent outline-none text-sm w-full cursor-not-allowed"
+                    />
                 </div>
             </div>
 

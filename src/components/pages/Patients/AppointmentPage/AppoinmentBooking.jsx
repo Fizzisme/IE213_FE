@@ -170,7 +170,7 @@ export default function AppointmentBooking() {
             resetForm();
         } catch (err) {
             console.error('[Đặt lịch] Lỗi:', err);
-            toast.error(err?.message || 'Tạo lịch hẹn không thành công');
+            toast.error('Vui lòng tạo hồ sơ cá nhân trước khi đặt lịch');
         } finally {
             // Luôn tắt trạng thái loading dù thành công hay thất bại
             setIsCreating(false);
